@@ -1,0 +1,43 @@
+{
+  "name": "@weavejs/backend",
+  "version": "0.1.0",
+  "description": "Weave.js showcase backend, an example of how handle CRDT's with Yjs and Azure Web Pub Sub as transport.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "nodemon --exec \"npx tsx src/server.ts \"  ",
+    "format": "prettier --write 'src/**/*.ts'",
+    "lint": "eslint . --ext .ts",
+    "prepare": "cd ../ && node code/.husky/install.mjs",
+    "start": "node dist/server.js",
+    "test": "vitest --passWithNoTests --coverage --watch=false"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@types/express": "^5.0.0",
+    "@types/helmet": "^4.0.0",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.13.5",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/parser": "^8.25.0",
+    "eslint": "^9.21.0",
+    "globals": "^16.0.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.5.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.25.0"
+  }
+}
