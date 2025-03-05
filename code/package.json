@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon --exec \"npx tsx src/server.ts \"  ",
+    "dev": "nodemon --exec \"npx tsx --env-file=.env src/server.ts \"  ",
     "format": "prettier --write 'src/**/*.ts'",
     "lint": "eslint . --ext .ts",
     "prepare": "cd ../ && node code/.husky/install.mjs",
@@ -16,10 +16,17 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@azure/web-pubsub": "^1.1.4",
+    "@azure/web-pubsub-express": "^1.0.6",
+    "@types/cors": "^2.8.17",
+    "@types/ws": "^8.18.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "helmet": "^8.0.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "ws": "^8.18.1",
+    "yjs": "^13.6.24"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
