@@ -1,0 +1,143 @@
+import { Logger } from "pino";
+import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
+import { getServiceConfig } from "../config/config.js";
+import { getLogger } from "../logger/logger.js";
+import { streamToBuffer } from "../utils.js";
+
+export class ImagesPersistenceHandler {
+  private _blobServiceClient!: BlobServiceClient;
+  private _containerClient!: ContainerClient;
+  private _initialized!: boolean;
+  private _logger!: Logger;
+
+  constructor() {
+    this._initialized = false;
+    this._logger = getLogger().child({ module: "images.persistence" });
+  }
+
+  isInitialized() {
+    return this._initialized;
+  }
+
+  async setup() {
+    const config = getServiceConfig();
+
+    const {
+      storage: {
+        connectionString,
+        images: { containerName },
+      },
+    } = config;
+
+    this._blobServiceClient =
+      BlobServiceClient.fromConnectionString(connectionString);
+
+    this._containerClient =
+      this._blobServiceClient.getContainerClient(containerName);
+    if (!(await this._containerClient.exists())) {
+      this._containerClient = (
+        await this._blobServiceClient.createContainer(containerName)
+      ).containerClient;
+    }
+
+    this._initialized = true;
+  }
+
+  async exists(imageName: string) {
+    try {
+      if (!this._initialized) {
+        await this.setup();
+      }
+      
+      const blockBlobClient = this._containerClient.getBlockBlobClient(imageName);
+      return await blockBlobClient.exists();
+    } catch (ex) {
+      this._logger.error(
+        { imageName, error: ex },
+        "Error checking if image exists",
+      );
+      return false;
+    }
+  }
+
+  async persist(imageName: string, mimeType: string, content: Uint8Array): Promise<boolean> {
+    try {
+      if (!this._initialized) {
+        await this.setup();
+      }
+
+      this._logger.debug({ imageName }, "Persisting image");
+
+      const blockBlobClient = this._containerClient.getBlockBlobClient(imageName);
+      const blobOptions = { blobHTTPHeaders: { blobContentType: mimeType } };
+      const uploadBlobResponse = await blockBlobClient.upload(
+        content,
+        content.length,
+        blobOptions,
+      );
+
+      this._logger.debug(
+        { imageName, requestId: uploadBlobResponse.requestId },
+        "Persisted image",
+      );
+
+      return !uploadBlobResponse.errorCode;
+    } catch (ex) {
+      this._logger.error({ imageName, error: ex }, "Error persisting image");
+      return false;
+    }
+  }
+
+  async delete(imageName: string): Promise<boolean> {
+    try {
+      if (!this._initialized) {
+        await this.setup();
+      }
+
+      this._logger.debug({ imageName }, "Deleting image");
+
+      const blockBlobClient = this._containerClient.getBlockBlobClient(imageName);
+
+      if (!(await blockBlobClient.exists())) {
+        this._logger.debug({ imageName }, "Image not found");
+        return false;
+      }
+
+      const deleteBlobResponse = await blockBlobClient.delete();
+
+      this._logger.debug(
+        { imageName, requestId: deleteBlobResponse.requestId },
+        "Deleted image",
+      );
+
+      return !deleteBlobResponse.errorCode;
+    } catch (ex) {
+      this._logger.error({ imageName, error: ex }, "Error deleting the image");
+      return false;
+    }
+  }
+
+  async fetch(imageName: string): Promise<{ response: Uint8Array | null; mimeType: string | null }> {
+    try {
+      if (!this._initialized) {
+        await this.setup();
+      }
+
+      const blockBlobClient = this._containerClient.getBlockBlobClient(imageName);
+      if (!(await blockBlobClient.exists())) {
+        this._logger.debug({ imageName }, "Image not found");
+        return { response: null, mimeType: null };
+      }
+
+      const downloadResponse = await blockBlobClient.downloadToBuffer();
+
+      return { response: downloadResponse, mimeType: (await blockBlobClient.getProperties()).contentType ?? "application/octet-stream" };
+    } catch (ex) {
+      this._logger.error(
+        { imageName, error: ex },
+        "Error fetching image data",
+      );
+      return { response: null, mimeType: null };
+    }
+  }
+}

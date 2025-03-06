@@ -1,5 +1,5 @@
 import express, { type Express } from "express";
-import { setupLoggerMiddleware } from "./middlewares/logger.js";
+import { setupHttpLoggerMiddleware } from "./middlewares/http-logger.js";
 import { setupCorsMiddleware } from "./middlewares/cors.js";
 import { setupHttpResponseHeadersMiddleware } from "./middlewares/http-response-headers.js";
 import { setupBodyParserMiddleware } from "./middlewares/body-parser.js";
@@ -20,7 +20,7 @@ export function setupApp() {
   app = express();
 
   // Setup Middlewares
-  setupLoggerMiddleware(app);
+  setupHttpLoggerMiddleware(app);
   setupCorsMiddleware(app);
   setupHttpResponseHeadersMiddleware(app);
   setupBodyParserMiddleware(app);

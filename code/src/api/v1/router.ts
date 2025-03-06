@@ -1,4 +1,5 @@
 import { Express, Router } from "express";
+import multer from "multer";
 import { setupRoomsMiddleware } from "../../middlewares/rooms.js";
 import { getServiceConfig } from "../../config/config.js";
 import { getHealthController } from "./controllers/getHealth.js";
@@ -25,12 +26,15 @@ export function setupApiV1Router(app: Express) {
   // Setup router middlewares
   setupRoomsMiddleware(router);
 
+  // Setup multer to upload files
+  const upload = multer();
+
   // Setup router routes
   router.get(`/health`, getHealthController());
   router.get(`/${hubName}/rooms/:roomId/connect`, getRoomConnectController());
-  router.get(`/images`, getImageController());
-  router.post(`/images`, postUploadImageController());
-  router.delete(`/images`, delImageController());
+  router.get(`/images/:imageId`, getImageController());
+  router.post(`/images`, upload.single('file'), postUploadImageController());
+  router.delete(`/images/:imageId`, delImageController());
 
   app.use("/api/v1", router);
 }

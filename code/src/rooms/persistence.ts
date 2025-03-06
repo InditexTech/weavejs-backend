@@ -2,6 +2,7 @@ import { Logger } from "pino";
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { getServiceConfig } from "../config/config.js";
 import { getLogger } from "../logger/logger.js";
+import { streamToBuffer } from "../utils.js";
 
 export class RoomsPersistenceHandler {
   private _blobServiceClient!: BlobServiceClient;
@@ -48,7 +49,7 @@ export class RoomsPersistenceHandler {
         await this.setup();
       }
 
-      this._logger.info({ roomId }, "Persisting room data");
+      this._logger.debug({ roomId }, "Persisting room data");
 
       const blockBlobClient = this._containerClient.getBlockBlobClient(roomId);
       const uploadBlobResponse = await blockBlobClient.upload(
@@ -56,7 +57,7 @@ export class RoomsPersistenceHandler {
         content.length,
       );
 
-      this._logger.info(
+      this._logger.debug(
         { roomId, requestId: uploadBlobResponse.requestId },
         "Persisted room data",
       );
@@ -76,7 +77,7 @@ export class RoomsPersistenceHandler {
 
       const blockBlobClient = this._containerClient.getBlockBlobClient(roomId);
       if (!(await blockBlobClient.exists())) {
-        this._logger.info({ roomId }, "Room not found persisted");
+        this._logger.debug({ roomId }, "Room not found persisted");
         return null;
       }
 
@@ -85,15 +86,15 @@ export class RoomsPersistenceHandler {
         return null;
       }
 
-      this._logger.info({ roomId }, "Reading room persisted data");
+      this._logger.debug({ roomId }, "Reading room persisted data");
 
-      const data = await this.streamToBuffer(
+      const data = await streamToBuffer(
         downloadResponse.readableStreamBody,
       );
 
-      this._logger.info(
+      this._logger.debug(
         { roomId, length: data.length },
-        "Room persisted data readed",
+        "Room persisted data read",
       );
 
       return data;
@@ -104,20 +105,5 @@ export class RoomsPersistenceHandler {
       );
       return null;
     }
-  }
-
-  private async streamToBuffer(
-    readableStream: NodeJS.ReadableStream,
-  ): Promise<Buffer> {
-    return new Promise((resolve, reject) => {
-      const chunks: Uint8Array[] = [];
-      readableStream.on<Uint8Array>("data", (data: Buffer | string) => {
-        chunks.push(data instanceof Buffer ? data : Buffer.from(data));
-      });
-      readableStream.on("end", () => {
-        resolve(Buffer.concat(chunks));
-      });
-      readableStream.on("error", reject);
-    });
   }
 }
