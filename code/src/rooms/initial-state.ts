@@ -1,6 +1,6 @@
 import * as Y from "yjs";
 
-const buildYjsLayer = function (id: string) {
+const getLayerYjsModel = function (id: string) {
   const newLayerMap = new Y.Map();
   newLayerMap.set("key", id);
   newLayerMap.set("type", "layer");
@@ -16,11 +16,11 @@ const buildYjsLayer = function (id: string) {
 export function setRoomInitialState(doc: Y.Doc) {
   const children = new Y.Array();
   children.insert(0, [
-    buildYjsLayer("gridLayer"),
-    buildYjsLayer("mainLayer"),
-    buildYjsLayer("selectionLayer"),
-    buildYjsLayer("usersPointersLayer"),
-    buildYjsLayer("utilityLayer"),
+    getLayerYjsModel("gridLayer"),
+    getLayerYjsModel("mainLayer"),
+    getLayerYjsModel("selectionLayer"),
+    getLayerYjsModel("usersPointersLayer"),
+    getLayerYjsModel("utilityLayer"),
   ]);
 
   const stageProps = new Y.Map();

@@ -1,11 +1,24 @@
-import app from "./index.js";
-import { getConfig } from "./utils.js";
+import { setupApp } from "./app.js";
+import { getLogger, setupLogger } from "./logger/logger.js";
+import { validateServiceConfig } from "./validate.js";
 
-const HOSTNAME: string = process.env.HOSTNAME || "0.0.0.0";
-const PORT: number = parseInt(process.env.PORT || "3000");
+// Setup service logger
+setupLogger();
+const logger = getLogger().child({ module: "server" });
 
-getConfig();
+// Validate service config
+const config = validateServiceConfig();
 
-app.listen(PORT, HOSTNAME, () => {
-  console.log(`Server started @ http://${HOSTNAME}:${PORT}\n`);
+if (!config) {
+  process.exit(1);
+}
+
+// Init application
+const app = setupApp();
+
+// Start server
+app.listen(config.service.port, config.service.hostname, () => {
+  logger.info(
+    `Server started: http://${config.service.hostname}:${config.service.port}`,
+  );
 });
