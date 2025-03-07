@@ -1,0 +1,26 @@
+---
+name: code-deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      BASELINE:
+        description: "Baseline branch"
+        required: true
+        default: "main"
+
+jobs:
+  deploy:
+    name: Deploy to Container Apps
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout merge commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Build
+        working-directory: code
+        run: |
+          docker build --tag weavejs.azurecr.io/showcase-backend .
