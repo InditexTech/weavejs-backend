@@ -5,7 +5,10 @@ export const delImageController = () => {
   const persistenceHandler = new ImagesPersistenceHandler()
 
   return async (req: Request, res: Response) => {
-    const fileName = req.params.imageId;
+    const roomId = req.params.roomId;
+    const imageId = req.params.imageId;
+
+    const fileName = `${roomId}/${imageId}`;
 
     const result = await persistenceHandler.delete(fileName);
 

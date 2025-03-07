@@ -7,6 +7,7 @@ import { getRoomConnectController } from "./controllers/getRoomConnect.js";
 import { getImageController } from "./controllers/getImage.js";
 import { postUploadImageController } from "./controllers/postUploadImage.js";
 import { delImageController } from "./controllers/delImage.js";
+import { getImagesController } from "./controllers/getImages.js";
 
 const router: Router = Router();
 
@@ -31,10 +32,15 @@ export function setupApiV1Router(app: Express) {
 
   // Setup router routes
   router.get(`/health`, getHealthController());
+
+  // Room handling API
   router.get(`/${hubName}/rooms/:roomId/connect`, getRoomConnectController());
-  router.get(`/images/:imageId`, getImageController());
-  router.post(`/images`, upload.single('file'), postUploadImageController());
-  router.delete(`/images/:imageId`, delImageController());
+
+  // Images handling API
+  router.get(`/${hubName}/rooms/:roomId/images`, getImagesController());
+  router.get(`/${hubName}/rooms/:roomId/images/:imageId`, getImageController());
+  router.post(`/${hubName}/rooms/:roomId/images`, upload.single('file'), postUploadImageController());
+  router.delete(`/${hubName}/rooms/:roomId/images/:imageId`, delImageController());
 
   app.use("/api/v1", router);
 }

@@ -1,8 +1,7 @@
 import { Logger } from "pino";
-import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
+import { BlobServiceClient, ContainerClient, ContainerListBlobsOptions } from "@azure/storage-blob";
 import { getServiceConfig } from "../config/config.js";
 import { getLogger } from "../logger/logger.js";
-import { streamToBuffer } from "../utils.js";
 
 export class ImagesPersistenceHandler {
   private _blobServiceClient!: BlobServiceClient;
@@ -41,6 +40,42 @@ export class ImagesPersistenceHandler {
     }
 
     this._initialized = true;
+  }
+
+  async list(prefix: string, pageSize: number = 20, continuationToken: string | undefined = undefined) {
+    try {
+      if (!this._initialized) {
+        await this.setup();
+      }
+      const listOptions: ContainerListBlobsOptions = {
+        includeMetadata: true,
+        prefix,
+      };
+    
+      const images: string[] = [];
+      const iterator = await this._containerClient.listBlobsFlat(listOptions).byPage({
+        continuationToken,
+        maxPageSize: pageSize,
+      });
+
+      const response = await iterator.next();
+
+      if (response.done) {
+        return { images: [], continuationToken: undefined };
+      }
+
+      for (const item of response.value.segment.blobItems) {
+        images.push(item.name.split("/")[1]);
+      }
+
+      return { images, continuationToken: response.value.continuationToken };
+    } catch (ex) {
+      this._logger.error(
+        { error: ex },
+        "Error getting images list",
+      );
+      return { images: [], continuationToken: undefined };
+    }
   }
 
   async exists(imageName: string) {

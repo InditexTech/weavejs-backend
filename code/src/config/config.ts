@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ServiceConfig } from "../types.js";
+import { DEFAULT_PORT } from "../constants.js";
 
 const serviceConfigSchema = z.object({
   service: z.object({
@@ -8,13 +9,13 @@ const serviceConfigSchema = z.object({
         required_error:
           "Define the service hostname on the environment variable HOSTNAME",
       })
-      .trim(),
+      .trim().optional().default("0.0.0.0"),
     port: z
       .number({
         required_error:
           "Define the service port on the environment variable PORT",
       })
-      .int({ message: "The post must be an integer" }),
+      .int({ message: "The post must be an integer" }).optional().default(DEFAULT_PORT),
   }),
   pubsub: z.object({
     endpoint: z
@@ -69,8 +70,8 @@ const serviceConfigSchema = z.object({
 });
 
 export function getServiceConfig(): ServiceConfig {
-  const hostname = process.env.HOSTNAME || "0.0.0.0";
-  const port = parseInt(process.env.PORT || "3000");
+  const hostname = process.env.HOSTNAME;
+  const port = parseInt(process.env.PORT || `${DEFAULT_PORT}`);
 
   const service = {
     hostname,

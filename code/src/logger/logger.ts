@@ -12,7 +12,7 @@ export function getLogger() {
 
 export function setupLogger() {
   logger = pino({
-    level: "info",
+    level: process.env.LOG_LEVEL || "error",
     transport: {
       target: "pino-pretty",
       options: {
