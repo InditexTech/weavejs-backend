@@ -1,4 +1,4 @@
-FROM node:20-alpine as base
+FROM --platform=linux/amd64 node:20-alpine as base
 
 # Install dependencies step
 FROM base AS deps
