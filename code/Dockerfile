@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:20-alpine as base
+FROM node:20-alpine as base
 
 # Install dependencies step
 FROM base AS deps
@@ -35,9 +35,8 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 service
 COPY --from=deps --chown=service:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=service:nodejs /app/dist ./
-COPY --chown=service:nodejs .env ./
 COPY --chown=service:nodejs package.json ./
 USER service
-EXPOSE 3000
-ENV PORT 3000
-CMD ["node", "--experimental-specifier-resolution=node", "--env-file", ".env", "--loader", "ts-node/esm", "server.js"]
+EXPOSE 8081
+ENV PORT 8081
+CMD ["node", "--experimental-specifier-resolution=node", "--loader", "ts-node/esm", "server.js"]
