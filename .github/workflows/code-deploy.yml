@@ -9,6 +9,14 @@ on:
         required: true
         default: "main"
 
+env:
+  AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  AZURE_RESOURCE_GROUP: "weavejs-test"
+  AZURE_CONTAINER_ENVIRONMENT_NAME: "managedEnvironment-weavejstest-aad6"
+  AZURE_CONTAINER_NAME: "showcase-backend"
+  AZURE_REGISTRY_NAME: "weavejs"
+  AZURE_IDENTITY_ID: ${{ secrets.AZURE_IDENTITY_ID }}
+
 jobs:
   deploy:
     name: Deploy to Container Apps
@@ -20,7 +28,37 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ env.AZURE_CREDENTIALS }}
+
       - name: Build
         working-directory: code
         run: |
-          docker build --tag weavejs.azurecr.io/showcase-backend .
+          docker build --platform=linux/amd64 --tag $AZURE_REGISTRY_NAME.azurecr.io/$AZURE_CONTAINER_NAME:${{ github.sha }} .
+
+      - name: Push Image to Registry
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az acr login --name $AZURE_REGISTRY_NAME
+            docker push $AZURE_REGISTRY_NAME.azurecr.io/$AZURE_CONTAINER_NAME:${{ github.sha }}
+
+      - name: Deploy
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az containerapp create \
+              --name $AZURE_CONTAINER_NAME \
+              --resource-group $AZURE_RESOURCE_GROUP \
+              --environment $AZURE_CONTAINER_ENVIRONMENT_NAME \
+              --image $AZURE_REGISTRY_NAME.azurecr.io/$AZURE_CONTAINER_NAME:${{ github.sha }} \
+              --target-port 8081 \
+              --ingress external \
+              --registry-server $AZURE_REGISTRY_NAME.azurecr.io \
+              --user-assigned "$AZURE_IDENTITY_ID" \
+              --registry-identity "$AZURE_IDENTITY_ID" \
+              --query properties.configuration.ingress.fqdn
