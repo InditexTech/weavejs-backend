@@ -82,7 +82,7 @@ jobs:
               --resource-group $AZURE_RESOURCE_GROUP \
               --environment $AZURE_CONTAINER_ENVIRONMENT_NAME \
               --image $AZURE_ACR_NAME.azurecr.io/$AZURE_CONTAINER_NAME:${{ github.sha }} \
-              --target-port 8081 \
+              --target-port 8080 \
               --ingress external \
               --registry-server $AZURE_ACR_NAME.azurecr.io \
               --user-assigned "$AZURE_IDENTITY_ID" \
