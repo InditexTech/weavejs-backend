@@ -91,7 +91,7 @@ jobs:
               --max-replicas 2 \
               --scale-rule-name http-rule \
               --scale-rule-type http \
-              --scale-rule-http-concurrency 10
+              --scale-rule-http-concurrency 10 \
               --env-vars "AZURE_WEB_PUBSUB_ENDPOINT=$AZURE_WEB_PUBSUB_ENDPOINT" \
                          "AZURE_WEB_PUBSUB_KEY=$AZURE_WEB_PUBSUB_KEY" \
                          "AZURE_WEB_PUBSUB_HUB_NAME=$AZURE_WEB_PUBSUB_HUB_NAME" \
