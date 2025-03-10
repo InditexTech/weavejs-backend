@@ -88,5 +88,5 @@ jobs:
                          "AZURE_STORAGE_CONNECTION_STRING=$AZURE_STORAGE_CONNECTION_STRING" \
                          "AZURE_STORAGE_ROOMS_CONTAINER_NAME=$AZURE_STORAGE_ROOMS_CONTAINER_NAME" \
                          "AZURE_STORAGE_IMAGES_CONTAINER_NAME=$AZURE_STORAGE_IMAGES_CONTAINER_NAME" \
-                         "PERSIST_FREQUENCY_SEG=$PERSIST_FREQUENCY_SEG"
+                         "PERSIST_FREQUENCY_SEG=$PERSIST_FREQUENCY_SEG" \
               --query properties.configuration.ingress.fqdn
