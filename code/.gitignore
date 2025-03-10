@@ -26,5 +26,6 @@ vite.config.ts*
 *.sln
 *.sw?
 
+*.pem
 .env*
 .npmrc
