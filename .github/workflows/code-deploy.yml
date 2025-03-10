@@ -27,6 +27,7 @@ env:
   AZURE_STORAGE_ROOMS_CONTAINER_NAME: ${{ secrets.AZURE_STORAGE_ROOMS_CONTAINER_NAME }}
   AZURE_STORAGE_IMAGES_CONTAINER_NAME: ${{ secrets.AZURE_STORAGE_IMAGES_CONTAINER_NAME }}
   PERSIST_FREQUENCY_SEG: 5
+  LOG_LEVEL: "info"
 
 permissions:
   id-token: write
@@ -89,4 +90,5 @@ jobs:
                          "AZURE_STORAGE_ROOMS_CONTAINER_NAME=$AZURE_STORAGE_ROOMS_CONTAINER_NAME" \
                          "AZURE_STORAGE_IMAGES_CONTAINER_NAME=$AZURE_STORAGE_IMAGES_CONTAINER_NAME" \
                          "PERSIST_FREQUENCY_SEG=$PERSIST_FREQUENCY_SEG" \
+                         "LOG_LEVEL=$LOG_LEVEL" \
               --query properties.configuration.ingress.fqdn
