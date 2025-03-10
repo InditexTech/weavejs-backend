@@ -82,7 +82,7 @@ jobs:
               --registry-server $AZURE_ACR_NAME.azurecr.io \
               --user-assigned "$AZURE_IDENTITY_ID" \
               --registry-identity "$AZURE_IDENTITY_ID" \
-              --env-vars "AZURE_WEB_PUBSUB_ENDPOINT=$AZURE_WEB_PUBSUB_ENDPOINT \
+              --env-vars "AZURE_WEB_PUBSUB_ENDPOINT=$AZURE_WEB_PUBSUB_ENDPOINT" \
                          "AZURE_WEB_PUBSUB_KEY=$AZURE_WEB_PUBSUB_KEY" \
                          "AZURE_WEB_PUBSUB_HUB_NAME=$AZURE_WEB_PUBSUB_HUB_NAME" \
                          "AZURE_STORAGE_CONNECTION_STRING=$AZURE_STORAGE_CONNECTION_STRING" \
