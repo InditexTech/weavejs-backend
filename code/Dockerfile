@@ -34,6 +34,6 @@ COPY --from=deps --chown=service:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=service:nodejs /app/dist ./
 COPY --chown=service:nodejs package.json ./
 USER service
-EXPOSE 8081
-ENV PORT 8081
-CMD ["node", "--experimental-specifier-resolution=node", "--loader", "ts-node/esm", "server.js"]
+EXPOSE 8080
+ENV PORT 8080
+CMD ["node", "--experimental-specifier-resolution=node", "--loader=ts-node/esm", "server.js"]
