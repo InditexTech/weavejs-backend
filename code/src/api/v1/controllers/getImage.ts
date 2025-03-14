@@ -18,6 +18,7 @@ export const getImageController = () => {
     const { response: downloadResponse, mimeType } = await persistenceHandler.fetch(fileName);
 
     res.header("Content-Type", mimeType ?? "application/octet-stream");
-    res.status(200).send(downloadResponse);
+    res.status(200);
+    res.end(downloadResponse);
   };
 }

@@ -83,7 +83,7 @@ export class ImagesPersistenceHandler {
       if (!this._initialized) {
         await this.setup();
       }
-      
+     
       const blockBlobClient = this._containerClient.getBlockBlobClient(imageName);
       return await blockBlobClient.exists();
     } catch (ex) {
@@ -165,8 +165,9 @@ export class ImagesPersistenceHandler {
       }
 
       const downloadResponse = await blockBlobClient.downloadToBuffer();
+      const contentType = (await blockBlobClient.getProperties()).contentType ?? "application/octet-stream";
 
-      return { response: downloadResponse, mimeType: (await blockBlobClient.getProperties()).contentType ?? "application/octet-stream" };
+      return { response: downloadResponse, mimeType: contentType };
     } catch (ex) {
       this._logger.error(
         { imageName, error: ex },
