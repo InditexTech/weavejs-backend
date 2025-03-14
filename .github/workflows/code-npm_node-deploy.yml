@@ -18,11 +18,10 @@ env:
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   AZURE_ACR_USERNAME: ${{ secrets.AZURE_ACR_USERNAME }}
-  AZURE_ACR_PASSWORD: ${{ secrets.AZURE_ACR_PASSWORD }}
-  AZURE_ACR_NAME: "weavejs"
-  AZURE_RESOURCE_GROUP: "weavejs-test"
-  AZURE_CONTAINER_ENVIRONMENT_NAME: "managedEnvironment-weavejstest-aad6"
-  AZURE_CONTAINER_NAME: "weavejs-backend"
+  AZURE_ACR_NAME: "acrweavejsx0j187"
+  AZURE_RESOURCE_GROUP: "cloudcotwo-rsg-weu1-pro-weavejs"
+  AZURE_CONTAINER_ENVIRONMENT_NAME: "container-apps-env-weavejs-x0j187"
+  AZURE_CONTAINER_NAME: "backend-app-9"
   AZURE_IDENTITY_ID: ${{ secrets.AZURE_IDENTITY_ID }}
   AZURE_WEB_PUBSUB_ENDPOINT: ${{ secrets.AZURE_WEB_PUBSUB_ENDPOINT }}
   AZURE_WEB_PUBSUB_KEY: ${{ secrets.AZURE_WEB_PUBSUB_KEY }}
@@ -41,13 +40,39 @@ jobs:
   deploy:
     name: Deploy to Container Apps
     runs-on: ubuntu-24.04
-    environment: production
+    environment: azure-production
     steps:
       - name: Checkout merge commit
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
+
+      - name: Create .env.production file
+        working-directory: code
+        run: |
+          touch .env
+          echo AZURE_WEB_PUBSUB_ENDPOINT=${{ env.AZURE_WEB_PUBSUB_ENDPOINT }} >> .env
+          echo AZURE_WEB_PUBSUB_KEY=${{ env.AZURE_WEB_PUBSUB_KEY }} >> .env
+          echo AZURE_WEB_PUBSUB_HUB_NAME=${{ env.AZURE_WEB_PUBSUB_HUB_NAME }} >> .env
+          echo AZURE_STORAGE_CONNECTION_STRING=${{ env.AZURE_STORAGE_CONNECTION_STRING }} >> .env
+          echo AZURE_STORAGE_ROOMS_CONTAINER_NAME=${{ env.AZURE_STORAGE_ROOMS_CONTAINER_NAME }} >> .env
+          echo AZURE_STORAGE_IMAGES_CONTAINER_NAME=${{ env.AZURE_STORAGE_IMAGES_CONTAINER_NAME }} >> .env
+          echo PERSIST_FREQUENCY_SEG=${{ env.PERSIST_FREQUENCY_SEG }} >> .env
+          echo LOG_LEVEL=${{ env.LOG_LEVEL }} >> .env
+          cat .env
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+
+      - name: ACR Login
+        run: |
+          ACR_PASSWORD=$(az acr login --name ${{ env.AZURE_ACR_NAME }} --expose-token --output tsv --query accessToken)
+          echo "AZURE_ACR_PASSWORD=$(echo $ACR_PASSWORD)" >> $GITHUB_ENV
 
       - name: ACR Login
         uses: docker/login-action@v3
@@ -92,12 +117,4 @@ jobs:
               --scale-rule-name http-rule \
               --scale-rule-type http \
               --scale-rule-http-concurrency 10 \
-              --env-vars "AZURE_WEB_PUBSUB_ENDPOINT=$AZURE_WEB_PUBSUB_ENDPOINT" \
-                         "AZURE_WEB_PUBSUB_KEY=$AZURE_WEB_PUBSUB_KEY" \
-                         "AZURE_WEB_PUBSUB_HUB_NAME=$AZURE_WEB_PUBSUB_HUB_NAME" \
-                         "AZURE_STORAGE_CONNECTION_STRING=$AZURE_STORAGE_CONNECTION_STRING" \
-                         "AZURE_STORAGE_ROOMS_CONTAINER_NAME=$AZURE_STORAGE_ROOMS_CONTAINER_NAME" \
-                         "AZURE_STORAGE_IMAGES_CONTAINER_NAME=$AZURE_STORAGE_IMAGES_CONTAINER_NAME" \
-                         "PERSIST_FREQUENCY_SEG=$PERSIST_FREQUENCY_SEG" \
-                         "LOG_LEVEL=$LOG_LEVEL" \
               --query properties.configuration.ingress.fqdn
