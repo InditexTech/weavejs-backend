@@ -7,5 +7,5 @@ export const getRoomConnectController =
 
     const url = await getRoomsEventHandler().getClientConnectionUrl(roomId);
 
-    res.status(200).json({ url });
+    return res.status(200).json({ url });
   };

@@ -12,6 +12,6 @@ export const getImagesController = () => {
 
     const images = await persistenceHandler.list(roomId, pageSize, continuationToken);
 
-    res.status(200).json(images);
+    return res.status(200).json(images);
   };
 }

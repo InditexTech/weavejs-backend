@@ -13,10 +13,9 @@ export const delImageController = () => {
     const result = await persistenceHandler.delete(fileName);
 
     if (result) {
-      res.status(200).json({ status: "KO", message: "Image deleted" });
-      return;
+      return res.status(200).json({ status: "KO", message: "Image deleted" });
     }
 
-    res.status(404).json({ status: "KO", message: "Image not found" });
+    return res.status(404).json({ status: "KO", message: "Image not found" });
   };
 }

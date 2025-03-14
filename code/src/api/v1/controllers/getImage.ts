@@ -11,14 +11,12 @@ export const getImageController = () => {
     const fileName = `${roomId}/${imageId}`;
 
     if (!await persistenceHandler.exists(fileName)) {
-      res.status(404).json({ status: "KO", message: "Image doesn't exists" });
-      return;
+      return res.status(404).json({ status: "KO", message: "Image doesn't exists" });
     }
 
     const { response: downloadResponse, mimeType } = await persistenceHandler.fetch(fileName);
 
     res.header("Content-Type", mimeType ?? "application/octet-stream");
-    res.status(200);
-    res.end(downloadResponse);
+    return res.status(200).send(downloadResponse);
   };
 }
