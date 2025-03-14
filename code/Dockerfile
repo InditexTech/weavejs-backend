@@ -32,6 +32,7 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 service
 COPY --from=deps --chown=service:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=service:nodejs /app/dist ./
+COPY --chown=service:nodejs .env ./
 COPY --chown=service:nodejs package.json ./
 USER service
 EXPOSE 8080
