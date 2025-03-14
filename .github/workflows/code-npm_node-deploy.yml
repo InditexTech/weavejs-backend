@@ -27,10 +27,6 @@ env:
   AZURE_WEB_PUBSUB_KEY: ${{ secrets.AZURE_WEB_PUBSUB_KEY }}
   AZURE_WEB_PUBSUB_HUB_NAME: ${{ secrets.AZURE_WEB_PUBSUB_HUB_NAME }}
   AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
-  AZURE_STORAGE_ROOMS_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_ROOMS_CONTAINER_NAME }}
-  AZURE_STORAGE_IMAGES_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_IMAGES_CONTAINER_NAME }}
-  PERSIST_FREQUENCY_SEG: ${{ vars.PERSIST_FREQUENCY_SEG }}
-  LOG_LEVEL: ${{ vars.LOG_LEVEL }}
 
 permissions:
   id-token: write
@@ -50,6 +46,11 @@ jobs:
 
       - name: Create .env.production file
         working-directory: code
+        env:
+          AZURE_STORAGE_ROOMS_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_ROOMS_CONTAINER_NAME }}
+          AZURE_STORAGE_IMAGES_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_IMAGES_CONTAINER_NAME }}
+          PERSIST_FREQUENCY_SEG: ${{ vars.PERSIST_FREQUENCY_SEG }}
+          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
         run: |
           touch .env
           echo AZURE_WEB_PUBSUB_ENDPOINT=${{ env.AZURE_WEB_PUBSUB_ENDPOINT }} >> .env
