@@ -1,5 +1,5 @@
 import { Logger } from "pino";
-import { BlobServiceClient, ContainerClient, ContainerListBlobsOptions } from "@azure/storage-blob";
+import { BlobDownloadResponseParsed, BlobServiceClient, ContainerClient, ContainerListBlobsOptions } from "@azure/storage-blob";
 import { getServiceConfig } from "../config/config.js";
 import { getLogger } from "../logger/logger.js";
 
@@ -152,7 +152,7 @@ export class ImagesPersistenceHandler {
     }
   }
 
-  async fetch(imageName: string): Promise<{ response: Uint8Array | null; mimeType: string | null }> {
+  async fetch(imageName: string): Promise<{ response: BlobDownloadResponseParsed | null; mimeType: string | null }> {
     try {
       if (!this._initialized) {
         await this.setup();
@@ -164,8 +164,8 @@ export class ImagesPersistenceHandler {
         return { response: null, mimeType: null };
       }
 
-      const downloadResponse = await blockBlobClient.downloadToBuffer();
       const contentType = (await blockBlobClient.getProperties()).contentType ?? "application/octet-stream";
+      const downloadResponse = await blockBlobClient.download();
 
       return { response: downloadResponse, mimeType: contentType };
     } catch (ex) {

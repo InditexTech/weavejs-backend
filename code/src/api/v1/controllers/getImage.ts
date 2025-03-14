@@ -17,7 +17,19 @@ export const getImageController = () => {
 
     const { response: downloadResponse, mimeType } = await persistenceHandler.fetch(fileName);
 
-    res.writeHead(200, { "Content-Type": mimeType ?? "application/octet-stream" });
-    res.status(200).send(downloadResponse);
+    if (downloadResponse && !downloadResponse.errorCode && downloadResponse.readableStreamBody) {
+      // Setting headers for the response
+      res.setHeader("Content-Type", mimeType ?? "application/octet-stream");
+      
+      // Streaming the blob data to the response
+      downloadResponse.readableStreamBody.on("data", (chunk) => res.write(chunk));
+
+      // Ending the response once the stream ends
+      downloadResponse.readableStreamBody.on("end", () => {
+          res.end();
+      });
+    } else {
+      res.status(500).json({ status: "KO", message: "Error downloading image" });
+    }
   };
 }
