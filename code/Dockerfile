@@ -36,4 +36,4 @@ COPY --chown=service:nodejs package.json ./
 USER service
 EXPOSE 8080
 ENV PORT 8080
-CMD ["node", "--experimental-specifier-resolution=node", "--loader=ts-node/esm", "server.js"]
+CMD ["node", "--experimental-specifier-resolution=node", "--env-file=ts-.env", "--loader=ts-node/esm", "server.js"]
