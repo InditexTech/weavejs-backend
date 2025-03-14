@@ -29,6 +29,8 @@ export class RoomsPersistenceHandler {
       },
     } = config;
 
+    this._logger.info({ connectionString, containerName }, "config options");
+
     this._blobServiceClient =
       BlobServiceClient.fromConnectionString(connectionString);
 
