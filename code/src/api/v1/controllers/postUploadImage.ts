@@ -5,7 +5,7 @@ import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 export const postUploadImageController = () => {
   const persistenceHandler = new ImagesPersistenceHandler()
 
-  return async (req: Request, res: Response) => {
+  return async (req: Request, res: Response): Promise<void> => {
     const file = req.file;
 
     const roomId = req.params.roomId;
@@ -16,15 +16,18 @@ export const postUploadImageController = () => {
 
     
     if (await persistenceHandler.exists(fileName)) {
-       return res.status(500).json({ status: "KO", message: "Image already exists" });
+      res.status(500).json({ status: "KO", message: "Image already exists" });
+      return;
     }
 
     try {
       await persistenceHandler.persist(fileName, mimeType, data);
-      return res.status(201).json({ status: "Image created OK", fileName, mimeType });
+      res.status(201).json({ status: "Image created OK", fileName, mimeType });
+      return;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      return res.status(500).json({ status: "KO", message: "Error creating image" });
+      res.status(500).json({ status: "KO", message: "Error creating image" });
+      return;
     }
   };
 }
