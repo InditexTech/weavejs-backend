@@ -30,7 +30,7 @@ jobs:
       AZURE_ACR_NAME: "acrweavejsx0j187"
       AZURE_RESOURCE_GROUP: "cloudcotwo-rsg-weu1-pro-weavejs"
       AZURE_CONTAINER_ENVIRONMENT_NAME: "container-apps-env-weavejs-x0j187"
-      AZURE_CONTAINER_NAME: "backend-app-9"
+      AZURE_CONTAINER_NAME: "weavejs-backend"
       AZURE_IDENTITY_ID: ${{ secrets.AZURE_IDENTITY_ID }}
       AZURE_WEB_PUBSUB_ENDPOINT: ${{ secrets.AZURE_WEB_PUBSUB_ENDPOINT }}
       AZURE_WEB_PUBSUB_KEY: ${{ secrets.AZURE_WEB_PUBSUB_KEY }}
