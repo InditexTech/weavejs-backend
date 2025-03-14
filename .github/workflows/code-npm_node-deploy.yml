@@ -29,8 +29,8 @@ env:
   AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
   AZURE_STORAGE_ROOMS_CONTAINER_NAME: ${{ secrets.AZURE_STORAGE_ROOMS_CONTAINER_NAME }}
   AZURE_STORAGE_IMAGES_CONTAINER_NAME: ${{ secrets.AZURE_STORAGE_IMAGES_CONTAINER_NAME }}
-  PERSIST_FREQUENCY_SEG: 5
-  LOG_LEVEL: "info"
+  PERSIST_FREQUENCY_SEG: ${{ vars.PERSIST_FREQUENCY_SEG }}
+  LOG_LEVEL: ${{ vars.LOG_LEVEL }}
 
 permissions:
   id-token: write
@@ -60,7 +60,6 @@ jobs:
           echo AZURE_STORAGE_IMAGES_CONTAINER_NAME=${{ env.AZURE_STORAGE_IMAGES_CONTAINER_NAME }} >> .env
           echo PERSIST_FREQUENCY_SEG=${{ env.PERSIST_FREQUENCY_SEG }} >> .env
           echo LOG_LEVEL=${{ env.LOG_LEVEL }} >> .env
-          cat .env
 
       - name: Azure Login
         uses: azure/login@v2
