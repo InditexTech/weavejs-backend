@@ -30,7 +30,7 @@ RUN npm run build
 FROM base AS runner
 
 RUN sed -i 's/https/http/' /etc/apk/repositories
-RUN apk add --no-cache libjpeg libpng cairo pango
+RUN apk add --no-cache libjpeg libpng cairo pango libc6-compat
 
 WORKDIR /app
 ENV NODE_ENV production
