@@ -176,4 +176,26 @@ export class ImagesPersistenceHandler {
       return { response: null, mimeType: null };
     }
   }
+
+  async fetchToFile(imageName: string, filePath: string): Promise<void> {
+    try {
+      if (!this._initialized) {
+        await this.setup();
+      }
+
+      const blockBlobClient = this._containerClient.getBlockBlobClient(imageName);
+      if (!(await blockBlobClient.exists())) {
+        this._logger.debug({ imageName }, "Image not found");
+        throw new Error("Image not found");
+      }
+
+      await blockBlobClient.downloadToFile(filePath);
+    } catch (ex) {
+      this._logger.error(
+        { imageName, error: ex },
+        "Error fetching image data",
+      );
+      throw new Error("Error fetching image data");
+    }
+  }
 }

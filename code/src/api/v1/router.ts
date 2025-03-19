@@ -8,6 +8,7 @@ import { getImageController } from "./controllers/getImage.js";
 import { postUploadImageController } from "./controllers/postUploadImage.js";
 import { delImageController } from "./controllers/delImage.js";
 import { getImagesController } from "./controllers/getImages.js";
+import { postRemoveBackgroundController } from "./controllers/postRemoveBackground.js";
 
 const router: Router = Router();
 
@@ -39,6 +40,7 @@ export function setupApiV1Router(app: Express) {
   // Images handling API
   router.get(`/${hubName}/rooms/:roomId/images`, getImagesController());
   router.get(`/${hubName}/rooms/:roomId/images/:imageId`, getImageController());
+  router.post(`/${hubName}/rooms/:roomId/images/:imageId/remove-background`, postRemoveBackgroundController());
   router.post(`/${hubName}/rooms/:roomId/images`, upload.single('file'), postUploadImageController());
   router.delete(`/${hubName}/rooms/:roomId/images/:imageId`, delImageController());
 

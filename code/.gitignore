@@ -29,3 +29,6 @@ vite.config.ts*
 *.pem
 .env*
 .npmrc
+
+temp
+public
