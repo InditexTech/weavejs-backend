@@ -1,5 +1,5 @@
 import { Logger } from "pino";
-import { BlobDownloadResponseParsed, BlobServiceClient, ContainerClient, ContainerListBlobsOptions } from "@azure/storage-blob";
+import { BlobServiceClient, ContainerClient, ContainerListBlobsOptions } from "@azure/storage-blob";
 import { getServiceConfig } from "../config/config.js";
 import { getLogger } from "../logger/logger.js";
 
@@ -152,7 +152,7 @@ export class ImagesPersistenceHandler {
     }
   }
 
-  async fetch(imageName: string): Promise<{ response: BlobDownloadResponseParsed | null; mimeType: string | null }> {
+  async fetch(imageName: string): Promise<{ buffer: Buffer | null; mimeType: string | null }> {
     try {
       if (!this._initialized) {
         await this.setup();
@@ -161,19 +161,19 @@ export class ImagesPersistenceHandler {
       const blockBlobClient = this._containerClient.getBlockBlobClient(imageName);
       if (!(await blockBlobClient.exists())) {
         this._logger.debug({ imageName }, "Image not found");
-        return { response: null, mimeType: null };
+        return { buffer: null, mimeType: null };
       }
 
       const contentType = (await blockBlobClient.getProperties()).contentType ?? "application/octet-stream";
-      const downloadResponse = await blockBlobClient.download();
+      const buffer = await blockBlobClient.downloadToBuffer();
 
-      return { response: downloadResponse, mimeType: contentType };
+      return { buffer, mimeType: contentType };
     } catch (ex) {
       this._logger.error(
         { imageName, error: ex },
         "Error fetching image data",
       );
-      return { response: null, mimeType: null };
+      return { buffer: null, mimeType: null };
     }
   }
 
