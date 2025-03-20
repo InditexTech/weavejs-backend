@@ -14,20 +14,20 @@ export const postUploadImageController = () => {
     
     const fileName = `${roomId}/${uuidv4()}`;
 
-    
     if (await persistenceHandler.exists(fileName)) {
       res.status(500).json({ status: "KO", message: "Image already exists" });
-      return;
     }
 
     try {
-      await persistenceHandler.persist(fileName, mimeType, data);
-      res.status(201).json({ status: "Image created OK", fileName, mimeType });
-      return;
+      if (file) {
+        await persistenceHandler.persist(fileName, { size: file?.size, encoding: file?.encoding, mimeType }, data);
+        res.status(201).json({ status: "Image created OK", fileName, mimeType });
+      } else {
+        res.status(500).json({ status: "KO", message: "Error creating image" });
+      }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       res.status(500).json({ status: "KO", message: "Error creating image" });
-      return;
     }
   };
 }

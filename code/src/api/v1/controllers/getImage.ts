@@ -15,13 +15,12 @@ export const getImageController = () => {
       return 
     }
 
-    const { buffer, mimeType } = await persistenceHandler.fetch(fileName);
+    const { response, mimeType } = await persistenceHandler.fetch(fileName);
 
-    if (buffer) {
+    if (response  && response.readableStreamBody) {
       // Setting headers for the response
       res.setHeader("Content-Type", mimeType ?? "application/octet-stream");
-      
-      res.send(buffer);
+      response.readableStreamBody?.pipe(res);
     } else {
       res.status(500).json({ status: "KO", message: "Error downloading image" });
     }

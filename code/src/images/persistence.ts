@@ -1,5 +1,5 @@
 import { Logger } from "pino";
-import { BlobServiceClient, ContainerClient, ContainerListBlobsOptions } from "@azure/storage-blob";
+import { BlobDownloadResponseParsed, BlobServiceClient, ContainerClient, ContainerListBlobsOptions } from "@azure/storage-blob";
 import { getServiceConfig } from "../config/config.js";
 import { getLogger } from "../logger/logger.js";
 
@@ -95,7 +95,7 @@ export class ImagesPersistenceHandler {
     }
   }
 
-  async persist(imageName: string, mimeType: string, content: Uint8Array): Promise<boolean> {
+  async persist(imageName: string, { mimeType, encoding, size }: { mimeType: string, encoding: string, size: number }, content: Uint8Array): Promise<boolean> {
     try {
       if (!this._initialized) {
         await this.setup();
@@ -104,11 +104,15 @@ export class ImagesPersistenceHandler {
       this._logger.debug({ imageName }, "Persisting image");
 
       const blockBlobClient = this._containerClient.getBlockBlobClient(imageName);
-      const blobOptions = { blobHTTPHeaders: { blobContentType: mimeType } };
-      const uploadBlobResponse = await blockBlobClient.upload(
+      const uploadBlobResponse = await blockBlobClient.uploadData(
         content,
-        content.length,
-        blobOptions,
+        {
+          blockSize: size,
+          blobHTTPHeaders: {
+            blobContentType: mimeType,
+            blobContentEncoding: encoding
+          }
+        }
       );
 
       this._logger.debug(
@@ -152,7 +156,7 @@ export class ImagesPersistenceHandler {
     }
   }
 
-  async fetch(imageName: string): Promise<{ buffer: Buffer | null; mimeType: string | null }> {
+  async fetch(imageName: string): Promise<{ response: BlobDownloadResponseParsed | null; mimeType: string | null }> {
     try {
       if (!this._initialized) {
         await this.setup();
@@ -161,19 +165,19 @@ export class ImagesPersistenceHandler {
       const blockBlobClient = this._containerClient.getBlockBlobClient(imageName);
       if (!(await blockBlobClient.exists())) {
         this._logger.debug({ imageName }, "Image not found");
-        return { buffer: null, mimeType: null };
+        return { response: null, mimeType: null };
       }
 
       const contentType = (await blockBlobClient.getProperties()).contentType ?? "application/octet-stream";
-      const buffer = await blockBlobClient.downloadToBuffer();
+      const response = await blockBlobClient.download();
 
-      return { buffer, mimeType: contentType };
+      return { response, mimeType: contentType };
     } catch (ex) {
       this._logger.error(
         { imageName, error: ex },
         "Error fetching image data",
       );
-      return { buffer: null, mimeType: null };
+      return { response: null, mimeType: null };
     }
   }
 
