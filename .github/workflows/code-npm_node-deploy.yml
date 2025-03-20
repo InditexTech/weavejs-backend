@@ -101,10 +101,12 @@ jobs:
               --registry-server $AZURE_ACR_NAME.azurecr.io \
               --user-assigned "$AZURE_IDENTITY_ID" \
               --registry-identity "$AZURE_IDENTITY_ID" \
-              --ingress internal \
+              --ingress external \
               --target-port 8080 \
               --min-replicas 1 \
               --max-replicas 2 \
+              --cpu 2.0 \
+              --memory 4.0Gi \
               --scale-rule-name http-rule \
               --scale-rule-type http \
               --scale-rule-http-concurrency 10 \
