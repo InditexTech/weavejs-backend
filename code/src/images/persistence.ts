@@ -168,7 +168,7 @@ export class ImagesPersistenceHandler {
       }
 
       const contentType = (await blockBlobClient.getProperties()).contentType ?? "application/octet-stream";
-      const response = await blockBlobClient.download();
+      const response = await blockBlobClient.download(0);
 
       return { response, mimeType: contentType };
     } catch (ex) {
