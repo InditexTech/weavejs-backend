@@ -15,7 +15,7 @@ WORKDIR /app
 # COPY cert.pem ./
 COPY package*.json ./
 RUN npm pkg delete scripts.prepare
-RUN npm ci
+RUN npm install --onnxruntime-node-install-cuda=skip
 
 # Build step
 FROM base AS builder
