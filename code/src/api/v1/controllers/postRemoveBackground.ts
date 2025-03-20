@@ -36,7 +36,7 @@ export const postRemoveBackgroundController = () => {
           // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
           const data = await myBlobToUIntDemo(blob);
           const fileNameRemoved = `${fileName}-removed`;
-          await persistenceHandler.persist(fileNameRemoved, "image/png", data);
+          await persistenceHandler.persist(fileNameRemoved, { size: data.length, mimeType: "image/png" }, data);
           fs.rmSync(filePathDownload);
 
           res.status(201).json({ status: "Image created OK", fileName: fileNameRemoved, mimeType: "image/png" });

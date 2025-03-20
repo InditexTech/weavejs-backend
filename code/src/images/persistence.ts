@@ -95,7 +95,7 @@ export class ImagesPersistenceHandler {
     }
   }
 
-  async persist(imageName: string, { mimeType, encoding, size }: { mimeType: string, encoding: string, size: number }, content: Uint8Array): Promise<boolean> {
+  async persist(imageName: string, { mimeType, size }: { mimeType: string, size: number }, content: Uint8Array): Promise<boolean> {
     try {
       if (!this._initialized) {
         await this.setup();
@@ -109,8 +109,7 @@ export class ImagesPersistenceHandler {
         {
           blockSize: size,
           blobHTTPHeaders: {
-            blobContentType: mimeType,
-            blobContentEncoding: encoding
+            blobContentType: mimeType
           }
         }
       );
