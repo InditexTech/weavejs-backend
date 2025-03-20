@@ -5,10 +5,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc && mkdir -p ./dist/public && mkdir -p ./dist/temp && cp -r ./public ./dist/public",
+    "build": "tsc && mkdir -p ./dist/public && mkdir -p ./dist/temp && cp -r ./public ./dist",
     "bump:snapshot": "npm version $npm_package_version.$(date \"+%s\")",
     "cleanup": "rm package-lock.json && npkill -D -y",
-    "copy:assets": "mkdir -p ./dist && cp -r node_modules/@imgly/background-removal-node/dist/. public",
+    "copy:assets": "mkdir -p ./public && cp -r node_modules/@imgly/background-removal-node/dist/. public",
     "dev": "nodemon --exec \"tsx --env-file=.env src/server.ts\"",
     "docker:build": "docker build -t weavejs-showcase-backend .",
     "git:commit-msg": "commitlint -e",

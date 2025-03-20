@@ -1,21 +1,21 @@
-FROM node:20-alpine as base
+FROM node:20 as base
 
 # Install dependencies step
 FROM base AS deps
 
 # Need to add this in local for CA in order to make the install of dependencies work
-# ENV NODE_EXTRA_CA_CERTS=/app/cert.pem
+ENV NODE_EXTRA_CA_CERTS=/app/cert.pem
 
-RUN sed -i 's/https/http/' /etc/apk/repositories
-RUN apk add --no-cache bash g++ make python3
-RUN apk add --no-cache build-base cairo-dev cairo cairo-tools pango pango-dev jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev tk-dev tcl-dev
+RUN apt-get update -y
+RUN apt-get install -y bash g++ make python3
+RUN apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libtool autoconf automake
 
 WORKDIR /app
 # Need to add this in local for CA in order to make the install of dependencies work
-# COPY cert.pem ./
+COPY cert.pem ./
 COPY package*.json ./
 RUN npm pkg delete scripts.prepare
-RUN npm install --onnxruntime-node-install-cuda=skip
+RUN npm install
 
 # Build step
 FROM base AS builder
@@ -29,8 +29,8 @@ RUN npm run build
 # Runtime image
 FROM base AS runner
 
-RUN sed -i 's/https/http/' /etc/apk/repositories
-RUN apk add --no-cache libjpeg libpng cairo pango libc6-compat
+RUN apt-get update -y
+RUN apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libtool autoconf automake
 
 WORKDIR /app
 ENV NODE_ENV production
