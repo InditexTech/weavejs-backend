@@ -11,7 +11,7 @@ on:
       BASELINE:
         description: "Baseline branch"
         required: true
-        default: "main"
+        default: "internal/GH-1308-azure-test-environment"
 
 permissions:
   id-token: write
@@ -26,7 +26,8 @@ jobs:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      AZURE_ACR_USERNAME: ${{ secrets.AZURE_ACR_USERNAME }}
+      AZURE_ACR_USERNAME_TEST: ${{ secrets.AZURE_ACR_USERNAME_TEST }}
+      AZURE_ACR_PASSWORD_TEST: ${{ secrets.AZURE_ACR_PASSWORD_TEST }}
       AZURE_ACR_NAME: "acrweavejs1eg5uf"
       AZURE_RESOURCE_GROUP: "cloudcotwo-rsg-frc1-pro-wjs"
       AZURE_CONTAINER_ENVIRONMENT_NAME: "container-apps-env-weavejs-1eg5uf"
@@ -68,16 +69,11 @@ jobs:
           subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
       - name: ACR Login
-        run: |
-          ACR_PASSWORD=$(az acr login --name ${{ env.AZURE_ACR_NAME }} --expose-token --output tsv --query accessToken)
-          echo "AZURE_ACR_PASSWORD=$(echo $ACR_PASSWORD)" >> $GITHUB_ENV
-
-      - name: ACR Login
         uses: docker/login-action@v3
         with:
           registry: ${{ env.AZURE_ACR_NAME }}.azurecr.io
-          username: ${{ env.AZURE_ACR_USERNAME }}
-          password: ${{ env.AZURE_ACR_PASSWORD }}
+          username: ${{ env.AZURE_ACR_USERNAME_TEST }}
+          password: ${{ env.AZURE_ACR_PASSWORD_TEST }}
 
       - name: Build image and push it to ACR
         uses: docker/build-push-action@v6
