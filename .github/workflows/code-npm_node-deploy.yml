@@ -21,7 +21,7 @@ jobs:
   deploy:
     name: Deploy to Container Apps
     runs-on: ubuntu-24.04
-    environment: azure-production
+    environment: azure-test
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
