@@ -15,6 +15,7 @@ export default class RoomsEventHandler extends WebPubSubEventHandler {
   private _connections: Map<string, WeaveStoreAzureWebPubSubSyncHost> =
     new Map();
   private _persistFrequencySeg: number;
+  private _docs: Map<string, Y.Doc> = new Map();
   private _persistence: Map<string, NodeJS.Timeout> = new Map();
   private _persistenceHandler: RoomsPersistenceHandler;
 
@@ -35,7 +36,12 @@ export default class RoomsEventHandler extends WebPubSubEventHandler {
   }
 
   private async getDoc(roomId: string) {
-    const doc = new Y.Doc();
+    let doc: Y.Doc = new Y.Doc();
+    if (this._docs.has(roomId)) {
+      doc = this._docs.get(roomId) as Y.Doc;
+    } else {
+      this._docs.set(roomId, doc);
+    }
 
     const persistedDocData = await this._persistenceHandler.fetch(roomId);
     if (persistedDocData) {
