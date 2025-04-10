@@ -1,5 +1,4 @@
----
-name: code-npm-deploy
+name: Code deploy
 
 on:
   pull_request:
