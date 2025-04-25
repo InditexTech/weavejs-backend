@@ -1,5 +1,6 @@
 import { setupApp } from "./app.js";
 import { getLogger, setupLogger } from "./logger/logger.js";
+import { setupStore } from "./store.js";
 import { validateServiceConfig } from "./validate.js";
 
 // Setup service logger
@@ -12,6 +13,9 @@ const config = validateServiceConfig();
 if (!config) {
   process.exit(1);
 }
+
+// Setup the Azure Web Pubsub store
+setupStore();
 
 // Init application
 const app = setupApp();

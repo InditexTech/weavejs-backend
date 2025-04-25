@@ -1,6 +1,5 @@
 import { Express, Router } from "express";
 import multer from "multer";
-import { setupRoomsMiddleware } from "../../middlewares/rooms.js";
 import { getServiceConfig } from "../../config/config.js";
 import { getHealthController } from "./controllers/getHealth.js";
 import { getRoomConnectController } from "./controllers/getRoomConnect.js";
@@ -9,6 +8,7 @@ import { postUploadImageController } from "./controllers/postUploadImage.js";
 import { delImageController } from "./controllers/delImage.js";
 import { getImagesController } from "./controllers/getImages.js";
 import { postRemoveBackgroundController } from "./controllers/postRemoveBackground.js";
+import { getAzureWebPubsubServer } from "../../store.js";
 
 const router: Router = Router();
 
@@ -25,9 +25,6 @@ export function setupApiV1Router(app: Express) {
 
   const router: Router = Router();
 
-  // Setup router middlewares
-  setupRoomsMiddleware(router);
-
   // Setup multer to upload files
   const upload = multer();
 
@@ -35,6 +32,7 @@ export function setupApiV1Router(app: Express) {
   router.get(`/health`, getHealthController());
 
   // Room handling API
+  router.use(getAzureWebPubsubServer().getMiddleware());
   router.get(`/${hubName}/rooms/:roomId/connect`, getRoomConnectController());
 
   // Images handling API

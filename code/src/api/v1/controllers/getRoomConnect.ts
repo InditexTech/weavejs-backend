@@ -1,11 +1,16 @@
 import { Request, Response } from "express";
-import { getRoomsEventHandler } from "../../../middlewares/rooms.js";
+import { getAzureWebPubsubServer } from "../../../store.js";
 
 export const getRoomConnectController =
   () => async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId;
+    
+    if (!getAzureWebPubsubServer) {
+      res.status(500).json({ error: 'Azure Web PubSub server not found' });
+      return;
+    }
 
-    const url = await getRoomsEventHandler().getClientConnectionUrl(roomId);
+    const url = await getAzureWebPubsubServer().clientConnect(roomId);
 
     res.status(200).json({ url });
   };
