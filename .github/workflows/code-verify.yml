@@ -1,5 +1,4 @@
----
-name: code-npm-PR-verify
+name: Code verify
 
 concurrency:
   group: code-PR-verify-${{ github.event.pull_request.number }}

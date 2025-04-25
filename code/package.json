@@ -4,6 +4,10 @@
   "description": "Weave.js showcase backend, an example of how handle CRDT's with Yjs and Azure Web Pub Sub as transport.",
   "main": "index.js",
   "type": "module",
+  "private": true,
+  "author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>",
+  "repository": "github:InditexTech/weavejs-frontend",
+  "license": "Apache-2.0",
   "scripts": {
     "build": "tsc && mkdir -p ./dist/public && mkdir -p ./dist/temp && cp -r ./public ./dist",
     "bump:snapshot": "npm version $npm_package_version.$(date \"+%s\")",
@@ -24,8 +28,6 @@
     "version:development": "export BUMP_DEVELOP_VERSION=$(npm version $(npm version minor)-SNAPSHOT) && lerna version $BUMP_DEVELOP_VERSION --no-git-tag-version --no-push --force-publish --exact --yes && npm version $(npm version minor)-SNAPSHOT",
     "version:release": "npm ci && lerna version --no-git-tag-version --no-push --force-publish --exact --yes $RELEASE_VERSION && npm version $RELEASE_VERSION"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@azure/storage-blob": "^12.26.0",
     "@azure/web-pubsub": "^1.1.4",
