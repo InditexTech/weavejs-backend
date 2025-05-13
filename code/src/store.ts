@@ -78,8 +78,9 @@ export const setupStore = () => {
         return data;
       } catch (ex) {
         console.error(ex);
-        return null;
       }
+
+      return null;
     },
     persistRoom: async (
       docName: string,
@@ -95,7 +96,7 @@ export const setupStore = () => {
         }
   
         const blockBlobClient = containerClient.getBlockBlobClient(docName);
-        const uploadBlobResponse = await blockBlobClient.upload(
+        await blockBlobClient.upload(
           actualState,
           actualState.length,
         );
@@ -103,7 +104,6 @@ export const setupStore = () => {
         return;
       } catch (ex) {
         console.error(ex);
-        return;
       }
     },
   });
