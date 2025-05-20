@@ -41,7 +41,7 @@ SPDX-License-Identifier: Apache-2.0
 <h3 align="center">Weave.js</h3>
 
   <p align="center">
-    Build online whiteboard applications like Excalidraw, Miro, Canva, or Figma!
+    Build visual collaborative tools like Excalidraw, Miro, Canva, or Figma!
     <br />
     <a href="https://github.com/InditexTech/weavejs-backend"><strong>Explore the docs »</strong></a>
     <br />
@@ -92,6 +92,7 @@ It provides robust synchronization based on [Yjs][https://yjs.dev/] and [SyncedS
 
 ### Built With
 
+- [React Reconciler][ReactReconciler-url]
 - [Konva][https://konvajs.org/]
 - [Yjs][https://yjs.dev/]
 - [SyncedStore][https://syncedstore.org/docs/]
