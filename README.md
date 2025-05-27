@@ -97,12 +97,6 @@ It provides robust synchronization based on [Yjs](https://yjs.dev/) and [SyncedS
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Top contributors:
-
-<a href="https://github.com/InditexTech/weavejs/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=InditexTech/weavejs" alt="contrib.rocks image" />
-</a>
-
 <!-- LICENSE -->
 
 ## License
