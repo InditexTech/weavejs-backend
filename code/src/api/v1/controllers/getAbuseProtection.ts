@@ -5,9 +5,8 @@
 import { Request, Response } from "express";
 
 const VALID_ORIGINS = [
-  "https://weavejs.cloud.inditex.com",
-  "https://weavejs-dev.cloud.inditex.com",
-  "https://weavejs-frontend.politemoss-e17eae3c.westeurope.azurecontainerapps.io"
+  "pubsub-weavejs-development.webpubsub.azure.com",
+  "pubsub-weavejs-production.webpubsub.azure.com"
 ]
 
 export const getAbuseProtection = () => (req: Request, res: Response): void => {
