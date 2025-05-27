@@ -53,7 +53,7 @@ export const setupStore = () => {
   
   const {
     pubsub: {
-      validOrigin,
+      endpoint,
     },
   } = config;
 
@@ -65,7 +65,7 @@ export const setupStore = () => {
     },
     eventsHandlerConfig: {
       path: `/webpubsub/hubs/${hubName}`,
-      allowedEndpoints: [validOrigin],
+      allowedEndpoints: [endpoint],
     },
     fetchRoom: async (docName: string) => {
       try {

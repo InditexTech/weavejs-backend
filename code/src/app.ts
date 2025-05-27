@@ -7,6 +7,9 @@ import { setupHttpLoggerMiddleware } from "./middlewares/http-logger.js";
 import { setupHttpResponseHeadersMiddleware } from "./middlewares/http-response-headers.js";
 import { setupBodyParserMiddleware } from "./middlewares/body-parser.js";
 import { setupApiV1Router } from "./api/v1/router.js";
+import { setLogLevel } from "@azure/logger";
+
+setLogLevel("verbose");
 
 let app: Express | null = null;
 
