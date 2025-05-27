@@ -67,15 +67,6 @@ SPDX-License-Identifier: Apache-2.0
         <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
@@ -89,57 +80,20 @@ SPDX-License-Identifier: Apache-2.0
 
 Weave.js is a powerful headless framework for building end-to-end collaborative whiteboard applications. Aimed at developers, it provides all the building blocks and plugins to develop visual collaborative canvas, as well as it handles user interactions in real time, so that changes in the visual canvas can be shared among multi users in real time.
 
-It provides robust synchronization based on [Yjs][https://yjs.dev/] and [SyncedStore][https://syncedstore.org/docs/] as well as an extensible API to streamline the development of interactive, collaborative applications.
+It provides robust synchronization based on [Yjs](https://yjs.dev/) and [SyncedStore](https://syncedstore.org/docs/) as well as an extensible API to streamline the development of interactive, collaborative applications.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Built With
 
-- [React Reconciler][ReactReconciler-url]
-- [Konva][https://konvajs.org/]
-- [Yjs][https://yjs.dev/]
-- [SyncedStore][https://syncedstore.org/docs/]
+- [Express.js](https://expressjs.com/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Related repositories
 
-- [Weave.js][https://github.com/InditexTech/weavejs]
-- [Weave.js frontend][https://github.com/InditexTech/weavejs-frontend]
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- GETTING STARTED -->
-
-## Getting Started
-
-Follow the [Quickstart documentation][docs-quick-start-url#backend] to create the backend server, which will handle all the real-time synchronization using a Weave.js Store provider, and to startup the backend server running on your local development environment.
-
-Follow the [Weave.js documentation][docs-url] for details on setup instructions, usage guidelines, architecture details, and more.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Prerequisites
-
-- macOS, Windows (WSL), or Linux.
-- Node.js 18.18.0 or later.
-- React 18.2.0 or less than 19.x.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- ROADMAP -->
-
-## Roadmap
-
-Check out [Weave.js roadmap][docs-roadmap-url] for details on planned work and the features that will come next.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- CONTRIBUTING -->
-
-## Contributing
-
-Contributions are welcome! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to contribute to this project.
+- [Weave.js](https://github.com/InditexTech/weavejs)
+- [Weave.js frontend](https://github.com/InditexTech/weavejs-frontend)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
