@@ -13,6 +13,7 @@ import { delImageController } from "./controllers/delImage.js";
 import { getImagesController } from "./controllers/getImages.js";
 import { postRemoveBackgroundController } from "./controllers/postRemoveBackground.js";
 import { getAzureWebPubsubServer } from "../../store.js";
+import { getAbuseProtection } from "./controllers/getAbuseProtection.js";
 
 const router: Router = Router();
 
@@ -34,7 +35,7 @@ export function setupApiV1Router(app: Express) {
 
   // Setup router routes
   router.get(`/health`, getHealthController());
-  router.get(`/abuse-protection`, getAbuseProtection());
+  router.options(`/abuse-protection`, getAbuseProtection());
 
   // Room handling API
   router.use(getAzureWebPubsubServer().getMiddleware());
