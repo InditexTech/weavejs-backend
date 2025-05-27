@@ -40,6 +40,12 @@ const serviceConfigSchema = z.object({
           "Define the Azure Web PubSub hub name on the environment variable AZURE_WEB_PUBSUB_HUB_NAME",
       })
       .trim(),
+    validOrigin: z
+      .string({
+        required_error:
+          "Define the Azure Web PubSub hub valid origin (protection abuse) on the environment variable AZURE_WEB_PUBSUB_VALID_ORIGIN",
+      })
+      .trim(),
     persistFrequencySeg: z
       .number({
         required_error:
@@ -85,6 +91,7 @@ export function getServiceConfig(): ServiceConfig {
   const endpoint = process.env.AZURE_WEB_PUBSUB_ENDPOINT;
   const key = process.env.AZURE_WEB_PUBSUB_KEY;
   const hubName = process.env.AZURE_WEB_PUBSUB_HUB_NAME;
+  const validOrigin = process.env.AZURE_WEB_PUBSUB_VALID_ORIGIN;
   const persistFrequencySeg = parseInt(
     process.env.PERSIST_FREQUENCY_SEG || "10",
   );
@@ -93,6 +100,7 @@ export function getServiceConfig(): ServiceConfig {
     endpoint,
     key,
     hubName,
+    validOrigin,
     persistFrequencySeg,
   };
 

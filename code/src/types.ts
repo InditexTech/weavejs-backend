@@ -11,6 +11,7 @@ export type ServiceConfig = {
     endpoint: string;
     key: string;
     hubName: string;
+    validOrigin: string;
     persistFrequencySeg: number;
   };
   storage: {

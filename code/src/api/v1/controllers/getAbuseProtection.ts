@@ -3,23 +3,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Request, Response } from "express";
-
-const VALID_ORIGINS = [
-  "pubsub-weavejs-development.webpubsub.azure.com",
-  "pubsub-weavejs-production.webpubsub.azure.com"
-]
+import { getServiceConfig } from "../../../config/config.js";
 
 export const getAbuseProtection = () => (req: Request, res: Response): void => {
   const requestOrigin = req.get('WebHook-Request-Origin');
+  const config = getServiceConfig();
 
   if (typeof requestOrigin !== "undefined") {
     res.status(400).json({ status: "BAD_REQUEST" });
   }
 
-  if (!VALID_ORIGINS.includes(requestOrigin as string)) {
+  if (config.pubsub.validOrigin === (requestOrigin as string)) {
     res.status(500).send("KO");
   }
 
-  res.set('WebHook-Allowed-Origin', requestOrigin);
+  res.set('WebHook-Allowed-Origin', config.pubsub.validOrigin);
   res.status(200).send("OK");
 };
