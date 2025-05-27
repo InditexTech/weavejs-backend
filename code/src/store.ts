@@ -64,7 +64,7 @@ export const setupStore = () => {
       hubName,
     },
     eventsHandlerConfig: {
-      path: `/webpubsub/hubs/${hubName}`,
+      path: `/api/v1/api/webpubsub/hubs/${hubName}`,
       allowedEndpoints: [endpoint],
     },
     fetchRoom: async (docName: string) => {
