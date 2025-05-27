@@ -13,7 +13,6 @@ import { delImageController } from "./controllers/delImage.js";
 import { getImagesController } from "./controllers/getImages.js";
 import { postRemoveBackgroundController } from "./controllers/postRemoveBackground.js";
 import { getAzureWebPubsubServer } from "../../store.js";
-import { getAbuseProtection } from "./controllers/getAbuseProtection.js";
 import { getCorsMiddleware } from "../../middlewares/cors.js";
 
 const router: Router = Router();
@@ -39,10 +38,9 @@ export function setupApiV1Router(app: Express) {
 
   // Setup router routes
   router.get(`/health`, cors, getHealthController());
-  router.options(`/abuse-protection`, getAbuseProtection());
 
   // Room handling API
-  router.use(cors, getAzureWebPubsubServer().getMiddleware());
+  router.use(getAzureWebPubsubServer().getMiddleware());
   router.get(`/${hubName}/rooms/:roomId/connect`, cors, getRoomConnectController());
 
   // Images handling API

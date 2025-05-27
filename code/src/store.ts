@@ -49,11 +49,23 @@ async function setupStorage() {
 }
 
 export const setupStore = () => {
+  const config = getServiceConfig();
+  
+  const {
+    pubsub: {
+      validOrigin,
+    },
+  } = config;
+
   azureWebPubsubServer = new WeaveAzureWebPubsubServer({
     pubsubConfig: {
       endpoint,
       key,
       hubName,
+    },
+    eventsHandlerConfig: {
+      path: `/webpubsub/hubs/${hubName}`,
+      allowedEndpoints: [validOrigin],
     },
     fetchRoom: async (docName: string) => {
       try {
