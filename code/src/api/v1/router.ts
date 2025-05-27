@@ -34,6 +34,7 @@ export function setupApiV1Router(app: Express) {
 
   // Setup router routes
   router.get(`/health`, getHealthController());
+  router.get(`/abuse-protection`, getAbuseProtection());
 
   // Room handling API
   router.use(getAzureWebPubsubServer().getMiddleware());
