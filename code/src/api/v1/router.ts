@@ -14,6 +14,7 @@ import { getImagesController } from "./controllers/getImages.js";
 import { postRemoveBackgroundController } from "./controllers/postRemoveBackground.js";
 import { getAzureWebPubsubServer } from "../../store.js";
 import { getAbuseProtection } from "./controllers/getAbuseProtection.js";
+import { getCorsMiddleware } from "../../middlewares/cors.js";
 
 const router: Router = Router();
 
@@ -33,20 +34,23 @@ export function setupApiV1Router(app: Express) {
   // Setup multer to upload files
   const upload = multer();
 
+  // Setup cors
+  const cors = getCorsMiddleware();
+
   // Setup router routes
-  router.get(`/health`, getHealthController());
+  router.get(`/health`, cors, getHealthController());
   router.options(`/abuse-protection`, getAbuseProtection());
 
   // Room handling API
-  router.use(getAzureWebPubsubServer().getMiddleware());
-  router.get(`/${hubName}/rooms/:roomId/connect`, getRoomConnectController());
+  router.use(cors, getAzureWebPubsubServer().getMiddleware());
+  router.get(`/${hubName}/rooms/:roomId/connect`, cors, getRoomConnectController());
 
   // Images handling API
-  router.get(`/${hubName}/rooms/:roomId/images`, getImagesController());
-  router.get(`/${hubName}/rooms/:roomId/images/:imageId`, getImageController());
-  router.post(`/${hubName}/rooms/:roomId/images/:imageId/remove-background`, postRemoveBackgroundController());
-  router.post(`/${hubName}/rooms/:roomId/images`, upload.single('file'), postUploadImageController());
-  router.delete(`/${hubName}/rooms/:roomId/images/:imageId`, delImageController());
+  router.get(`/${hubName}/rooms/:roomId/images`, cors, getImagesController());
+  router.get(`/${hubName}/rooms/:roomId/images/:imageId`, cors, getImageController());
+  router.post(`/${hubName}/rooms/:roomId/images/:imageId/remove-background`, cors, postRemoveBackgroundController());
+  router.post(`/${hubName}/rooms/:roomId/images`, cors, upload.single('file'), postUploadImageController());
+  router.delete(`/${hubName}/rooms/:roomId/images/:imageId`, cors, delImageController());
 
   app.use("/api/v1", router);
 }

@@ -4,7 +4,6 @@
 
 import express, { type Express } from "express";
 import { setupHttpLoggerMiddleware } from "./middlewares/http-logger.js";
-import { setupCorsMiddleware } from "./middlewares/cors.js";
 import { setupHttpResponseHeadersMiddleware } from "./middlewares/http-response-headers.js";
 import { setupBodyParserMiddleware } from "./middlewares/body-parser.js";
 import { setupApiV1Router } from "./api/v1/router.js";
@@ -25,7 +24,6 @@ export function setupApp() {
 
   // Setup Middlewares
   setupHttpLoggerMiddleware(app);
-  setupCorsMiddleware(app);
   setupHttpResponseHeadersMiddleware(app);
   setupBodyParserMiddleware(app);
 

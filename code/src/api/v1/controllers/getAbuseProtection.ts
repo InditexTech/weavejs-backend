@@ -9,12 +9,14 @@ export const getAbuseProtection = () => (req: Request, res: Response): void => {
   const requestOrigin = req.get('WebHook-Request-Origin');
   const config = getServiceConfig();
 
-  if (typeof requestOrigin !== "undefined") {
+  if (!requestOrigin) {
     res.status(400).json({ status: "BAD_REQUEST" });
+    return;
   }
 
-  if (config.pubsub.validOrigin === (requestOrigin as string)) {
+  if (requestOrigin && config.pubsub.validOrigin !== requestOrigin) {
     res.status(500).send("KO");
+    return;
   }
 
   res.set('WebHook-Allowed-Origin', config.pubsub.validOrigin);

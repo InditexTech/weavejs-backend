@@ -2,11 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Express } from "express";
 import cors from "cors";
 import { getLogger } from "../logger/logger.js";
 
-export function setupCorsMiddleware(app: Express) {
+export function getCorsMiddleware() {
   const logger = getLogger().child({ module: "middlewares.cors" });
 
   // Setup CORS configuration
@@ -16,5 +15,5 @@ export function setupCorsMiddleware(app: Express) {
 
   logger.info({ corsOptions }, "Setting up CORS middleware");
 
-  app.use(cors(corsOptions));
+  return cors(corsOptions);
 }
