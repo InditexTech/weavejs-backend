@@ -41,7 +41,7 @@ SPDX-License-Identifier: Apache-2.0
     </picture>
   </a>
 
-<h3 align="center">Weave.js</h3>
+<h3 align="center">Weave.js Backend Showcase</h3>
 
   <p align="center">
     Build visual collaborative tools like Excalidraw, Miro, Canva, or Figma!
@@ -58,7 +58,7 @@ SPDX-License-Identifier: Apache-2.0
 </div>
 
 <!-- TABLE OF CONTENTS -->
-<details>
+<!-- <details>
   <summary>Table of Contents</summary>
   <ol>
     <li>
@@ -70,7 +70,7 @@ SPDX-License-Identifier: Apache-2.0
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
-</details>
+</details> -->
 
 <!-- ABOUT THE PROJECT -->
 
@@ -78,40 +78,67 @@ SPDX-License-Identifier: Apache-2.0
 
 [![Weave.js Screen Shot][product-screenshot]](images/screenshot.png)
 
-Weave.js is a powerful headless framework for building end-to-end collaborative whiteboard applications. Aimed at developers, it provides all the building blocks and plugins to develop visual collaborative canvas, as well as it handles user interactions in real time, so that changes in the visual canvas can be shared among multi users in real time.
+This repository contain the Weave.js showcase backend, its a demo of a backend that handles
+the real-time collaboration infrastructure for the Weave.js showcase frontend. It serves as the server-side component that:
 
-It provides robust synchronization based on [Yjs](https://yjs.dev/) and [SyncedStore](https://syncedstore.org/docs/) as well as an extensible API to streamline the development of interactive, collaborative applications.
+- 🌐 Manages room sessions and user connections
+- 🔄 Handles real-time synchronization of canvas state (e.g. using Yjs or WebSocket)
+- 👥 Supports multi-user presence, awareness, and broadcasting
+- 🔐 May include persistence, authentication, or permission logic
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+This backend is designed to demonstrate how Weave.js can be integrated into a full-stack collaborative environment, enabling live shared editing across clients.
+
+<!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
 ### Built With
 
 - [Express.js](https://expressjs.com/)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
-### Related repositories
+### Related repos
 
 - [Weave.js](https://github.com/InditexTech/weavejs)
-- [Weave.js frontend](https://github.com/InditexTech/weavejs-frontend)
+- Weave.js [showcase frontend](https://github.com/InditexTech/weavejs-frontend)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
+
+## Quickstart
+
+You can locally launch the backend showcase by:
+
+- Install dependencies with: `npm install`
+- Create a `.env` file on the folder `/code`, and setup the necessary configuration:
+
+  ```
+  HOSTNAME=0.0.0.0
+  PORT=8081
+  LOG_LEVEL=debug
+
+  AZURE_WEB_PUBSUB_ENDPOINT=<azure-web-pubsub-endpoint>
+  AZURE_WEB_PUBSUB_KEY=<key>
+  AZURE_WEB_PUBSUB_HUB_NAME=weavejs
+  PERSIST_FREQUENCY_SEG=10
+
+  AZURE_STORAGE_CONNECTION_STRING=<azure-storage-connection-string>
+  AZURE_STORAGE_ROOMS_CONTAINER_NAME=rooms
+  AZURE_STORAGE_IMAGES_CONTAINER_NAME=images
+  ```
+
+- Run the frontend: `npm run dev`
+
+You'll need access to a:
+
+- [Azure Web PubSub](https://azure.microsoft.com/es-es/products/web-pubsub) instance.
+- [Azure Blob Storage](https://azure.microsoft.com/es-es/products/storage/blobs) instance.
 
 <!-- LICENSE -->
 
 ## License
 
-Distributed under the MIT. See `LICENSE.txt` for more information.
+This project is licensed under the terms of the [Apache-2.0](LICENSE) license.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- CONTACT -->
-
-## Contact
-
-Jesus Manuel Piñeiro Cid - jesusmpc@inditex.com
-
-Project Link: [https://github.com/InditexTech/weavejs-backend](https://github.com/InditexTech/weavejs-backend)
+© 2025 INDUSTRIA DE DISEÑO TEXTIL S.A. (INDITEX S.A.)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
