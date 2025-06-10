@@ -13,13 +13,17 @@ const serviceConfigSchema = z.object({
         required_error:
           "Define the service hostname on the environment variable HOSTNAME",
       })
-      .trim().optional().default("0.0.0.0"),
+      .trim()
+      .optional()
+      .default("0.0.0.0"),
     port: z
       .number({
         required_error:
           "Define the service port on the environment variable PORT",
       })
-      .int({ message: "The post must be an integer" }).optional().default(DEFAULT_PORT),
+      .int({ message: "The post must be an integer" })
+      .optional()
+      .default(DEFAULT_PORT),
   }),
   pubsub: z.object({
     endpoint: z

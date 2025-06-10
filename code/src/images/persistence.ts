@@ -3,7 +3,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Logger } from "pino";
-import { BlobDownloadResponseParsed, BlobServiceClient, ContainerClient, ContainerListBlobsOptions } from "@azure/storage-blob";
+import {
+  BlobDownloadResponseParsed,
+  BlobServiceClient,
+  ContainerClient,
+  ContainerListBlobsOptions,
+} from "@azure/storage-blob";
 import { getServiceConfig } from "../config/config.js";
 import { getLogger } from "../logger/logger.js";
 
@@ -46,7 +51,11 @@ export class ImagesPersistenceHandler {
     this._initialized = true;
   }
 
-  async list(prefix: string, pageSize: number = 20, continuationToken: string | undefined = undefined) {
+  async list(
+    prefix: string,
+    pageSize: number = 20,
+    continuationToken: string | undefined = undefined,
+  ) {
     try {
       if (!this._initialized) {
         await this.setup();
@@ -55,12 +64,14 @@ export class ImagesPersistenceHandler {
         includeMetadata: true,
         prefix,
       };
-    
+
       const images: string[] = [];
-      const iterator = await this._containerClient.listBlobsFlat(listOptions).byPage({
-        continuationToken,
-        maxPageSize: pageSize,
-      });
+      const iterator = await this._containerClient
+        .listBlobsFlat(listOptions)
+        .byPage({
+          continuationToken,
+          maxPageSize: pageSize,
+        });
 
       const response = await iterator.next();
 
@@ -74,10 +85,7 @@ export class ImagesPersistenceHandler {
 
       return { images, continuationToken: response.value.continuationToken };
     } catch (ex) {
-      this._logger.error(
-        { error: ex },
-        "Error getting images list",
-      );
+      this._logger.error({ error: ex }, "Error getting images list");
       return { images: [], continuationToken: undefined };
     }
   }
@@ -87,8 +95,9 @@ export class ImagesPersistenceHandler {
       if (!this._initialized) {
         await this.setup();
       }
-     
-      const blockBlobClient = this._containerClient.getBlockBlobClient(imageName);
+
+      const blockBlobClient =
+        this._containerClient.getBlockBlobClient(imageName);
       return await blockBlobClient.exists();
     } catch (ex) {
       this._logger.error(
@@ -99,7 +108,11 @@ export class ImagesPersistenceHandler {
     }
   }
 
-  async persist(imageName: string, { mimeType, size }: { mimeType: string, size: number }, content: Uint8Array): Promise<boolean> {
+  async persist(
+    imageName: string,
+    { mimeType, size }: { mimeType: string; size: number },
+    content: Uint8Array,
+  ): Promise<boolean> {
     try {
       if (!this._initialized) {
         await this.setup();
@@ -107,16 +120,14 @@ export class ImagesPersistenceHandler {
 
       this._logger.debug({ imageName }, "Persisting image");
 
-      const blockBlobClient = this._containerClient.getBlockBlobClient(imageName);
-      const uploadBlobResponse = await blockBlobClient.uploadData(
-        content,
-        {
-          blockSize: size,
-          blobHTTPHeaders: {
-            blobContentType: mimeType
-          }
-        }
-      );
+      const blockBlobClient =
+        this._containerClient.getBlockBlobClient(imageName);
+      const uploadBlobResponse = await blockBlobClient.uploadData(content, {
+        blockSize: size,
+        blobHTTPHeaders: {
+          blobContentType: mimeType,
+        },
+      });
 
       this._logger.debug(
         { imageName, requestId: uploadBlobResponse.requestId },
@@ -138,7 +149,8 @@ export class ImagesPersistenceHandler {
 
       this._logger.debug({ imageName }, "Deleting image");
 
-      const blockBlobClient = this._containerClient.getBlockBlobClient(imageName);
+      const blockBlobClient =
+        this._containerClient.getBlockBlobClient(imageName);
 
       if (!(await blockBlobClient.exists())) {
         this._logger.debug({ imageName }, "Image not found");
@@ -159,27 +171,32 @@ export class ImagesPersistenceHandler {
     }
   }
 
-  async fetch(imageName: string): Promise<{ response: BlobDownloadResponseParsed | null; mimeType: string | null }> {
+  async fetch(
+    imageName: string,
+  ): Promise<{
+    response: BlobDownloadResponseParsed | null;
+    mimeType: string | null;
+  }> {
     try {
       if (!this._initialized) {
         await this.setup();
       }
 
-      const blockBlobClient = this._containerClient.getBlockBlobClient(imageName);
+      const blockBlobClient =
+        this._containerClient.getBlockBlobClient(imageName);
       if (!(await blockBlobClient.exists())) {
         this._logger.debug({ imageName }, "Image not found");
         return { response: null, mimeType: null };
       }
 
-      const contentType = (await blockBlobClient.getProperties()).contentType ?? "application/octet-stream";
+      const contentType =
+        (await blockBlobClient.getProperties()).contentType ??
+        "application/octet-stream";
       const response = await blockBlobClient.download(0);
 
       return { response, mimeType: contentType };
     } catch (ex) {
-      this._logger.error(
-        { imageName, error: ex },
-        "Error fetching image data",
-      );
+      this._logger.error({ imageName, error: ex }, "Error fetching image data");
       return { response: null, mimeType: null };
     }
   }
@@ -190,7 +207,8 @@ export class ImagesPersistenceHandler {
         await this.setup();
       }
 
-      const blockBlobClient = this._containerClient.getBlockBlobClient(imageName);
+      const blockBlobClient =
+        this._containerClient.getBlockBlobClient(imageName);
       if (!(await blockBlobClient.exists())) {
         this._logger.debug({ imageName }, "Image not found");
         throw new Error("Image not found");
@@ -198,10 +216,7 @@ export class ImagesPersistenceHandler {
 
       await blockBlobClient.downloadToFile(filePath);
     } catch (ex) {
-      this._logger.error(
-        { imageName, error: ex },
-        "Error fetching image data",
-      );
+      this._logger.error({ imageName, error: ex }, "Error fetching image data");
       throw new Error("Error fetching image data");
     }
   }

@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 
 export const delImageController = () => {
-  const persistenceHandler = new ImagesPersistenceHandler()
+  const persistenceHandler = new ImagesPersistenceHandler();
 
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId;
@@ -23,4 +23,4 @@ export const delImageController = () => {
 
     res.status(404).json({ status: "KO", message: "Image not found" });
   };
-}
+};
