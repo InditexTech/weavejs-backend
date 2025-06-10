@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { WeaveAzureWebPubsubServer } from '@inditextech/weave-store-azure-web-pubsub/server';
+import { WeaveAzureWebPubsubServer } from "@inditextech/weave-store-azure-web-pubsub/server";
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { streamToBuffer } from "./utils.js";
 import { getServiceConfig } from "./config/config.js";
@@ -12,17 +12,17 @@ const key = process.env.AZURE_WEB_PUBSUB_KEY;
 const hubName = process.env.AZURE_WEB_PUBSUB_HUB_NAME;
 
 if (!endpoint || !key || !hubName) {
-  throw new Error('Missing required environment variables');
+  throw new Error("Missing required environment variables");
 }
 
 let azureWebPubsubServer: WeaveAzureWebPubsubServer | null = null;
 let storageInitialized: boolean = false;
-let blobServiceClient: BlobServiceClient| null = null;
-let containerClient: ContainerClient| null = null;
+let blobServiceClient: BlobServiceClient | null = null;
+let containerClient: ContainerClient | null = null;
 
 export const getAzureWebPubsubServer = () => {
   if (!azureWebPubsubServer) {
-    throw new Error('Azure Web Pubsub server not initialized');
+    throw new Error("Azure Web Pubsub server not initialized");
   }
 
   return azureWebPubsubServer;
@@ -38,23 +38,19 @@ async function setupStorage() {
     },
   } = config;
 
-  blobServiceClient =
-        BlobServiceClient.fromConnectionString(connectionString);
+  blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
   containerClient = blobServiceClient.getContainerClient(containerName);
   if (!(await containerClient.exists())) {
-    containerClient = (
-      await blobServiceClient.createContainer(containerName)
-    ).containerClient;
+    containerClient = (await blobServiceClient.createContainer(containerName))
+      .containerClient;
   }
 }
 
 export const setupStore = () => {
   const config = getServiceConfig();
-  
+
   const {
-    pubsub: {
-      endpoint,
-    },
+    pubsub: { endpoint },
   } = config;
 
   azureWebPubsubServer = new WeaveAzureWebPubsubServer({
@@ -72,25 +68,23 @@ export const setupStore = () => {
         if (!storageInitialized) {
           await setupStorage();
         }
-  
+
         if (!containerClient || !blobServiceClient) {
           return null;
         }
-  
+
         const blockBlobClient = containerClient.getBlockBlobClient(docName);
         if (!(await blockBlobClient.exists())) {
           return null;
         }
-  
+
         const downloadResponse = await blockBlobClient.download();
         if (!downloadResponse.readableStreamBody) {
           return null;
         }
-  
-        const data = await streamToBuffer(
-          downloadResponse.readableStreamBody,
-        );
-  
+
+        const data = await streamToBuffer(downloadResponse.readableStreamBody);
+
         return data;
       } catch (ex) {
         console.error(ex);
@@ -100,23 +94,20 @@ export const setupStore = () => {
     },
     persistRoom: async (
       docName: string,
-      actualState: Uint8Array<ArrayBufferLike>
+      actualState: Uint8Array<ArrayBufferLike>,
     ) => {
       try {
         if (!storageInitialized) {
           await setupStorage();
         }
-  
+
         if (!containerClient || !blobServiceClient) {
           return;
         }
-  
+
         const blockBlobClient = containerClient.getBlockBlobClient(docName);
-        await blockBlobClient.upload(
-          actualState,
-          actualState.length,
-        );
-  
+        await blockBlobClient.upload(actualState, actualState.length);
+
         return;
       } catch (ex) {
         console.error(ex);

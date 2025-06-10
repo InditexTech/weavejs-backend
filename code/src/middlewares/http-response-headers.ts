@@ -14,7 +14,9 @@ export function setupHttpResponseHeadersMiddleware(app: Express) {
   logger.info("Setting up HTTP response headers middleware");
 
   // Use Helmet for setting security-related HTTP headers
-  app.use(helmet({
-    crossOriginResourcePolicy: false,
-  }));
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: false,
+    }),
+  );
 }
