@@ -40,7 +40,7 @@ export function setupApiV1Router(app: Express) {
   router.get(`/health`, cors, getHealthController());
 
   // Room handling API
-  router.use(getAzureWebPubsubServer().getMiddleware());
+  router.use(getAzureWebPubsubServer().getExpressJsMiddleware());
   router.get(
     `/${hubName}/rooms/:roomId/connect`,
     cors,

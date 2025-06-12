@@ -54,7 +54,7 @@ export const setupStore = () => {
   } = config;
 
   azureWebPubsubServer = new WeaveAzureWebPubsubServer({
-    pubsubConfig: {
+    pubSubConfig: {
       endpoint,
       key,
       hubName,
@@ -64,54 +64,44 @@ export const setupStore = () => {
       allowedEndpoints: [endpoint],
     },
     fetchRoom: async (docName: string) => {
-      try {
-        if (!storageInitialized) {
-          await setupStorage();
-        }
-
-        if (!containerClient || !blobServiceClient) {
-          return null;
-        }
-
-        const blockBlobClient = containerClient.getBlockBlobClient(docName);
-        if (!(await blockBlobClient.exists())) {
-          return null;
-        }
-
-        const downloadResponse = await blockBlobClient.download();
-        if (!downloadResponse.readableStreamBody) {
-          return null;
-        }
-
-        const data = await streamToBuffer(downloadResponse.readableStreamBody);
-
-        return data;
-      } catch (ex) {
-        console.error(ex);
+      if (!storageInitialized) {
+        await setupStorage();
       }
 
-      return null;
+      if (!containerClient || !blobServiceClient) {
+        return null;
+      }
+        
+      const blockBlobClient = containerClient.getBlockBlobClient(docName);
+      if (!(await blockBlobClient.exists())) {
+        return null;
+      }
+
+      const downloadResponse = await blockBlobClient.download();
+      if (!downloadResponse.readableStreamBody) {
+        return null;
+      }
+
+      const data = await streamToBuffer(downloadResponse.readableStreamBody);
+
+      return data;
     },
     persistRoom: async (
       docName: string,
       actualState: Uint8Array<ArrayBufferLike>,
     ) => {
-      try {
-        if (!storageInitialized) {
-          await setupStorage();
-        }
-
-        if (!containerClient || !blobServiceClient) {
-          return;
-        }
-
-        const blockBlobClient = containerClient.getBlockBlobClient(docName);
-        await blockBlobClient.upload(actualState, actualState.length);
-
-        return;
-      } catch (ex) {
-        console.error(ex);
+      if (!storageInitialized) {
+        await setupStorage();
       }
+
+      if (!containerClient || !blobServiceClient) {
+        return;
+      }
+
+      const blockBlobClient = containerClient.getBlockBlobClient(docName);
+      await blockBlobClient.upload(actualState, actualState.length);
+
+      return;
     },
   });
 };
