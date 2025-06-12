@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { setupApp } from "./app.js";
 import { getLogger, setupLogger } from "./logger/logger.js";
+import { setupApp } from "./app.js";
 import { setupStore } from "./store.js";
 import { validateServiceConfig } from "./validate.js";
 
