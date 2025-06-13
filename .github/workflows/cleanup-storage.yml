@@ -45,16 +45,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Create .env file
-        working-directory: code
-        run: |
-          touch src/actions/storage-cleanup/.env
-          echo AZURE_STORAGE_CONNECTION_STRING="${{ env.AZURE_STORAGE_CONNECTION_STRING }}" >> src/actions/storage-cleanup/.env
-          echo AZURE_STORAGE_ROOMS_CONTAINER_NAME=${{ env.AZURE_STORAGE_ROOMS_CONTAINER_NAME }} >> src/actions/storage-cleanup/.env
-          echo AZURE_STORAGE_IMAGES_CONTAINER_NAME=${{ env.AZURE_STORAGE_IMAGES_CONTAINER_NAME }} >> src/actions/storage-cleanup/.env
-          echo DRY_RUN=${{ env.DRY_RUN }} >> src/actions/storage-cleanup/.env
-          cat src/actions/storage-cleanup/.env
-
       - name: Checkout / Branch Head
         uses: actions/checkout@v4
         with:
@@ -98,8 +88,18 @@ jobs:
           mkdir -p "$HOME"/.npm
           mkdir -p "$HOME"/.asdf/data
 
+      - name: Create .env file
+        working-directory: code
+        run: |
+          touch ./src/actions/storage-cleanup/.env
+          echo AZURE_STORAGE_CONNECTION_STRING="${{ env.AZURE_STORAGE_CONNECTION_STRING }}" >> ./src/actions/storage-cleanup/.env
+          echo AZURE_STORAGE_ROOMS_CONTAINER_NAME=${{ env.AZURE_STORAGE_ROOMS_CONTAINER_NAME }} >> ./src/actions/storage-cleanup/.env
+          echo AZURE_STORAGE_IMAGES_CONTAINER_NAME=${{ env.AZURE_STORAGE_IMAGES_CONTAINER_NAME }} >> ./src/actions/storage-cleanup/.env
+          echo DRY_RUN=${{ env.DRY_RUN }} >> ./src/actions/storage-cleanup/.env
+
       - name: NPM / Run Storage Cleanup
         working-directory: code
         run: |
           npm ci
+          cat ./src/actions/storage-cleanup/.env
           npm run storage:cleanup
