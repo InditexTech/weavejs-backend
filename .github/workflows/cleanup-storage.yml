@@ -77,6 +77,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-asdf-
 
+      - name: Save tool-versions content
+        run: |
+          {
+            echo "TOOL_VERSIONS<<EOF"
+            cat code/.tool-versions
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
       - name: NPM / Setup asdf environment
         uses: asdf-vm/actions/install@v3
         # https://github.com/asdf-vm/actions/issues/356
