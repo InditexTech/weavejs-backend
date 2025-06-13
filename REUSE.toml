@@ -17,6 +17,7 @@ path = [
     "**/package*.json",
 
     # code/ directory licensing
+    "code/src/actions/storage-cleanup/whitelist.json",
     "code/.husky/**",
     "code/.prettierrc",
     "code/.tool-versions",

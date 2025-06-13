@@ -44,6 +44,8 @@ async function setupStorage() {
     containerClient = (await blobServiceClient.createContainer(containerName))
       .containerClient;
   }
+
+  storageInitialized = true;
 }
 
 export const setupStore = () => {
