@@ -46,7 +46,7 @@ jobs:
           persist-credentials: false
 
       - name: Create .env.production file
-        working-directory: code/actions/storage-cleanup
+        working-directory: code/src/actions/storage-cleanup
         run: |
           touch .env
           echo AZURE_STORAGE_CONNECTION_STRING="${{ env.AZURE_STORAGE_CONNECTION_STRING }}" >> .env
@@ -90,6 +90,6 @@ jobs:
           mkdir -p "$HOME"/.asdf/data
 
       - name: NPM / Run Storage Cleanup
-        working-directory: code/actions/storage-cleanup
+        working-directory: code
         run: |
           npm run storage:cleanup

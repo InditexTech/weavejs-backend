@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from "zod";
-import { ActionConfig } from "./types";
+import { ActionConfig } from "./types.js";
 
 const actionConfigSchema = z.object({
   dryRun: z.boolean(),

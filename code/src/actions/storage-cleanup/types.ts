@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export type ActionConfig = {
+  dryRun: boolean;
   storage: {
-    name: string;
     connectionString: string;
     rooms: {
       containerName: string;

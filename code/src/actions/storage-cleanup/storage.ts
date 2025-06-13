@@ -3,9 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
-import { getActionConfig } from "./config";
+import { getActionConfig } from "./config.js";
 
-let storageInitialized: boolean = false;
 let blobServiceClient: BlobServiceClient | null = null;
 let roomsContainerClient: ContainerClient | null = null;
 let imagesContainerClient: ContainerClient | null = null;
@@ -24,8 +23,6 @@ export async function setupStorage() {
   blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
   roomsContainerClient = blobServiceClient.getContainerClient(containerName);
   imagesContainerClient = blobServiceClient.getContainerClient(imagesContainerName);
-  
-  storageInitialized = true;
 }
 
 export async function fetchRooms(): Promise<string[]> {

@@ -4,7 +4,7 @@
 
 import { getActionConfig } from "./config.js";
 import { deleteRoom, deleteRoomImage, fetchRoomImages, fetchRooms, setupStorage } from "./storage.js";
-import whitelist from "./whitelist.json";
+import whitelist from "./whitelist.json" with { type: "json" };
 
 (async () => {
   const config = getActionConfig();
@@ -59,7 +59,7 @@ import whitelist from "./whitelist.json";
     for (const image of roomImages) {
       process.stdout.write('.');
       if (!config.dryRun) {
-        // await deleteRoomImage(image);
+        await deleteRoomImage(image);
       }
     }
   }
@@ -71,7 +71,7 @@ import whitelist from "./whitelist.json";
   for (const room of roomsToDelete) {
     process.stdout.write('.');
     if (!config.dryRun) {
-      // await deleteRoom(room)
+      await deleteRoom(room)
     }
   }
   console.log('');
