@@ -24,7 +24,7 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy to Container Apps
+    name: Cleanup Storage
     runs-on: ubuntu-24.04
     environment: ${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-production' }}
     env:
