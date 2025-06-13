@@ -45,7 +45,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Create .env.production file
+      - name: Create .env file
         working-directory: code
         run: |
           touch src/actions/storage-cleanup/.env
@@ -53,6 +53,7 @@ jobs:
           echo AZURE_STORAGE_ROOMS_CONTAINER_NAME=${{ env.AZURE_STORAGE_ROOMS_CONTAINER_NAME }} >> src/actions/storage-cleanup/.env
           echo AZURE_STORAGE_IMAGES_CONTAINER_NAME=${{ env.AZURE_STORAGE_IMAGES_CONTAINER_NAME }} >> src/actions/storage-cleanup/.env
           echo DRY_RUN=${{ env.DRY_RUN }} >> src/actions/storage-cleanup/.env
+          cat src/actions/storage-cleanup/.env
 
       - name: Checkout / Branch Head
         uses: actions/checkout@v4
