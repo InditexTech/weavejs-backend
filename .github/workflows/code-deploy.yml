@@ -49,9 +49,15 @@ jobs:
       PERSIST_FREQUENCY_SEG: ${{ vars.PERSIST_FREQUENCY_SEG }}
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}
     steps:
+      - name: Get input parameters
+        run: |
+          BASELINE_BRANCH=${{ github.event.inputs.BASELINE || 'main' }}
+          echo "BASELINE_BRANCH=${BASELINE_BRANCH#refs/heads/}" >> "$GITHUB_ENV"
+
       - name: Checkout merge commit
         uses: actions/checkout@v4
         with:
+          ref: ${{ env.BASELINE_BRANCH }}
           fetch-depth: 0
           persist-credentials: false
 

@@ -25,6 +25,7 @@
     "prepare": "cd ../ && node code/.husky/install.mjs",
     "publish:snapshot": "nx run-many -t publish:snapshot -- --verbose --tag next --registry $NPM_PUBLISHING_REGISTRY --unsafe-perm",
     "start": "node --experimental-specifier-resolution=node --env-file=.env --loader ts-node/esm dist/server.js",
+    "storage:cleanup": "tsx --env-file=./actions/storage-cleanup/.env ./actions/storage-cleanup/action.ts",
     "verify": "npm ci && npm run lint && npm run build",
     "version:development": "export BUMP_DEVELOP_VERSION=$(npm version $(npm version minor)-SNAPSHOT) && lerna version $BUMP_DEVELOP_VERSION --no-git-tag-version --no-push --force-publish --exact --yes && npm version $(npm version minor)-SNAPSHOT",
     "version:release": "npm ci && lerna version --no-git-tag-version --no-push --force-publish --exact --yes $RELEASE_VERSION && npm version $RELEASE_VERSION"
