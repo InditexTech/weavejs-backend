@@ -7,9 +7,8 @@ concurrency:
 on:
   pull_request:
     paths:
-      - 'code/**'
-      - '.github/workflows/code*'
-
+      - "code/**"
+      - ".github/workflows/code*"
 
 jobs:
   unit-tests:
@@ -63,6 +62,7 @@ jobs:
       - name: NPM / Verify
         working-directory: code
         run: |
+          npm ci
           npm run verify
 
       - name: Store project information
