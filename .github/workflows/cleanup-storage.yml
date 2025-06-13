@@ -24,7 +24,7 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy to Container Apps
+    name: Cleanup Storage
     runs-on: ubuntu-24.04
     environment: ${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-production' }}
     env:
@@ -76,6 +76,14 @@ jobs:
           key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
           restore-keys: |
             ${{ runner.os }}-asdf-
+
+      - name: Save tool-versions content
+        run: |
+          {
+            echo "TOOL_VERSIONS<<EOF"
+            cat code/.tool-versions
+            echo "EOF"
+          } >> "$GITHUB_ENV"
 
       - name: NPM / Setup asdf environment
         uses: asdf-vm/actions/install@v3
