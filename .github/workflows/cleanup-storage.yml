@@ -100,4 +100,5 @@ jobs:
       - name: NPM / Run Storage Cleanup
         working-directory: code
         run: |
+          npm ci
           npm run storage:cleanup
