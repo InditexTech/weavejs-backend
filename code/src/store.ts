@@ -6,6 +6,8 @@ import { WeaveAzureWebPubsubServer } from "@inditextech/weave-store-azure-web-pu
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { streamToBuffer } from "./utils.js";
 import { getServiceConfig } from "./config/config.js";
+import * as Y from "yjs";
+import { observeDeep, syncedStore, getYjsDoc } from "@syncedstore/core";
 
 const endpoint = process.env.AZURE_WEB_PUBSUB_ENDPOINT;
 const key = process.env.AZURE_WEB_PUBSUB_KEY;
@@ -27,6 +29,17 @@ export const getAzureWebPubsubServer = () => {
 
   return azureWebPubsubServer;
 };
+
+function extractImageIdFromNode(images: string[], node: any) {
+  if (node.props.nodeType === "image" && node.props.imageId) {
+    images.push(node.props.imageId);
+  } 
+  if (node.props.children) {
+    for (const child of node.props.children) {
+      extractImageIdFromNode(images, child);
+    }
+  }   
+}
 
 async function setupStorage() {
   const config = getServiceConfig();
@@ -96,12 +109,31 @@ export const setupStore = () => {
         await setupStorage();
       }
 
-      if (!containerClient || !blobServiceClient) {
-        return;
-      }
+      let state: any = syncedStore({
+        weave: {},
+      });
 
-      const blockBlobClient = containerClient.getBlockBlobClient(docName);
-      await blockBlobClient.upload(actualState, actualState.length);
+      observeDeep(state, async () => {
+        if (!containerClient || !blobServiceClient) {
+          return;
+        }
+
+        const jsonState = JSON.parse(JSON.stringify(state, undefined, 2));
+
+        const mainLayer = jsonState.weave?.props.children?.find((child: any) => child.key === "mainLayer");
+        let images: string[] = [];
+        if (mainLayer) {
+          extractImageIdFromNode(images, mainLayer);
+          // Do something with the images
+        }
+
+        const blockBlobClient = containerClient.getBlockBlobClient(docName);
+        await blockBlobClient.upload(actualState, actualState.length);
+        state = null;
+      });
+
+      const document = getYjsDoc(state);
+      Y.applyUpdate(document, actualState);
 
       return;
     },
