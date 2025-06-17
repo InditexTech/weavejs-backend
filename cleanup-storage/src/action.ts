@@ -67,7 +67,6 @@ import whitelist from "./whitelist.json" with { type: "json" };
   for (const room of roomsToDelete) {
     const roomImages = roomsImages[room];
     for (const image of roomImages) {
-      process.stdout.write(".");
       if (!config.dryRun) {
         await deleteRoomImage(image);
       }
@@ -79,7 +78,6 @@ import whitelist from "./whitelist.json" with { type: "json" };
 
   console.log("Deleting rooms...");
   for (const room of roomsToDelete) {
-    process.stdout.write(".");
     if (!config.dryRun) {
       await deleteRoom(room);
     }

@@ -62,12 +62,15 @@ export async function deleteRoom(blobName: string) {
   }
 
   if (!roomsContainerClient.getBlobClient(blobName).exists()) {
+    console.log(`${blobName}, blob does not exist`);
     return;
   }
 
   const blobClient = roomsContainerClient.getBlobClient(blobName);
 
   await blobClient.delete();
+
+  console.log(`${blobName} deleted`);
 }
 
 export async function deleteRoomImage(blobName: string) {
@@ -76,10 +79,13 @@ export async function deleteRoomImage(blobName: string) {
   }
 
   if (!imagesContainerClient.getBlobClient(blobName).exists()) {
+    console.log(`${blobName}, blob does not exist`);
     return;
   }
 
   const blobClient = imagesContainerClient.getBlobClient(blobName);
 
   await blobClient.delete();
+
+  console.log(`${blobName} deleted`);
 }
