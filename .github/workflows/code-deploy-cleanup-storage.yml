@@ -43,6 +43,7 @@ jobs:
       - name: Get input parameters
         run: |
           ENVIRONMENT=${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-production' }}
+          echo "ENVIRONMENT=${ENVIRONMENT}" >> "$GITHUB_ENV"
           BASELINE_BRANCH=${{ github.event.inputs.BASELINE || 'main' }}
           echo "BASELINE_BRANCH=${BASELINE_BRANCH#refs/heads/}" >> "$GITHUB_ENV"
 
