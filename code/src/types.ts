@@ -22,6 +22,11 @@ export type ServiceConfig = {
       containerName: string;
     };
   };
+  llmService: {
+    endpoint: string;
+    apiKey: string;
+    timeoutSecs: number;
+  };
 };
 
 export type RoomsEventHandlerOptions = {

@@ -75,6 +75,26 @@ const serviceConfigSchema = z.object({
         .trim(),
     }),
   }),
+  llmService: z.object({
+    endpoint: z
+      .string({
+        required_error:
+          "Define the LLM Endpoiint on the environment variable LLM_ENDPOINT",
+      })
+      .trim(),
+    apiKey: z
+      .string({
+        required_error:
+          "Define the LLM Api key on the environment variable LLM_API_KEY",
+      })
+      .trim(),
+    timeoutSecs: z
+      .number({
+        required_error:
+          "Define the LLM timeout on the environment variable LLM_TIMEOUT_SECS",
+      })
+      .int({ message: "The timeout must be an integer" }),
+  }),
 });
 
 export function getServiceConfig(): ServiceConfig {
@@ -90,7 +110,7 @@ export function getServiceConfig(): ServiceConfig {
   const key = process.env.AZURE_WEB_PUBSUB_KEY;
   const hubName = process.env.AZURE_WEB_PUBSUB_HUB_NAME;
   const persistFrequencySeg = parseInt(
-    process.env.PERSIST_FREQUENCY_SEG || "10",
+    process.env.PERSIST_FREQUENCY_SEG || "10"
   );
 
   const pubsub = {
@@ -114,7 +134,23 @@ export function getServiceConfig(): ServiceConfig {
     },
   };
 
-  const serviceConfig = { service, pubsub, storage };
+  const server = process.env.LLM_ENDPOINT;
+  const apiKey = process.env.LLM_API_KEY;
+  let timeoutSecs = 60;
+  try {
+    timeoutSecs = parseInt(process.env.LLM_TIMEOUT_SECS ?? "60");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    throw new Error("LLM_TIMEOUT_SECS must be an integer");
+  }
+
+  const llmService = {
+    endpoint: server,
+    apiKey,
+    timeoutSecs,
+  };
+
+  const serviceConfig = { service, pubsub, storage, llmService };
 
   return serviceConfigSchema.parse(serviceConfig);
 }

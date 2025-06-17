@@ -4,28 +4,26 @@
 
 import { Request, Response } from "express";
 import axios from "axios";
+import { getServiceConfig } from "../../../config/config.js";
 
 export const postGenerateImageController = () => {
+  const config = getServiceConfig();
+
   return async (req: Request, res: Response): Promise<void> => {
     const { model, prompt } = req.body;
 
-    const server =
-      "https://iop-litellm-moyaint.apps.devtoolspro2.devtools.paas.azcl.inditex.com";
-    const apiKey = "sk-vbFYGSNYMhFHBxH-DBAyvQ";
-    const timeoutSecs = 60;
-
     try {
-      req.setTimeout(timeoutSecs * 1000);
+      req.setTimeout(config.llmService.timeoutSecs * 1000);
       const response = await axios.post(
-        `${server}/v1/images/generations`,
+        `${config.llmService.endpoint}/v1/images/generations`,
         {
           model,
           prompt,
         },
         {
-          timeout: timeoutSecs * 1000,
+          timeout: config.llmService.timeoutSecs * 1000,
           headers: {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${config.llmService.apiKey}`,
           },
         }
       );

@@ -54,7 +54,7 @@ export class ImagesPersistenceHandler {
   async list(
     prefix: string,
     pageSize: number = 20,
-    continuationToken: string | undefined = undefined,
+    continuationToken: string | undefined = undefined
   ) {
     try {
       if (!this._initialized) {
@@ -102,7 +102,7 @@ export class ImagesPersistenceHandler {
     } catch (ex) {
       this._logger.error(
         { imageName, error: ex },
-        "Error checking if image exists",
+        "Error checking if image exists"
       );
       return false;
     }
@@ -111,7 +111,7 @@ export class ImagesPersistenceHandler {
   async persist(
     imageName: string,
     { mimeType, size }: { mimeType: string; size: number },
-    content: Uint8Array,
+    content: Uint8Array
   ): Promise<boolean> {
     try {
       if (!this._initialized) {
@@ -131,7 +131,7 @@ export class ImagesPersistenceHandler {
 
       this._logger.debug(
         { imageName, requestId: uploadBlobResponse.requestId },
-        "Persisted image",
+        "Persisted image"
       );
 
       return !uploadBlobResponse.errorCode;
@@ -161,7 +161,7 @@ export class ImagesPersistenceHandler {
 
       this._logger.debug(
         { imageName, requestId: deleteBlobResponse.requestId },
-        "Deleted image",
+        "Deleted image"
       );
 
       return !deleteBlobResponse.errorCode;
@@ -171,9 +171,7 @@ export class ImagesPersistenceHandler {
     }
   }
 
-  async fetch(
-    imageName: string,
-  ): Promise<{
+  async fetch(imageName: string): Promise<{
     response: BlobDownloadResponseParsed | null;
     mimeType: string | null;
   }> {
