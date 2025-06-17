@@ -88,5 +88,5 @@ jobs:
           push: true
           platforms: linux/amd64
           context: cleanup-storage
-          tags: ${{ env.AZURE_ACR_NAME }}.azurecr.io/${{ env.AZURE_CONTAINER_NAME }}-${{ env.ENVIRONMENT }}:${{ github.sha }}
+          tags: ${{ env.AZURE_ACR_NAME }}.azurecr.io/${{ env.AZURE_CONTAINER_NAME }}-${{ env.ENVIRONMENT }}:latest
           file: cleanup-storage/Dockerfile
