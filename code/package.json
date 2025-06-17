@@ -36,6 +36,7 @@
     "@inditextech/weave-sdk": "0.27.2",
     "@inditextech/weave-store-azure-web-pubsub": "0.27.2",
     "@syncedstore/core": "^0.6.0",
+    "axios": "^1.10.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",

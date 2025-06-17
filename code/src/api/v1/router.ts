@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Express, Router } from "express";
+import express, { Express, Router } from "express";
 import multer from "multer";
 import { getServiceConfig } from "../../config/config.js";
 import { getHealthController } from "./controllers/getHealth.js";
@@ -14,6 +14,7 @@ import { getImagesController } from "./controllers/getImages.js";
 import { postRemoveBackgroundController } from "./controllers/postRemoveBackground.js";
 import { getAzureWebPubsubServer } from "../../store.js";
 import { getCorsMiddleware } from "../../middlewares/cors.js";
+import { postGenerateImageController } from "./controllers/postGenerateImage.js";
 
 const router: Router = Router();
 
@@ -44,7 +45,7 @@ export function setupApiV1Router(app: Express) {
   router.get(
     `/${hubName}/rooms/:roomId/connect`,
     cors,
-    getRoomConnectController(),
+    getRoomConnectController()
   );
 
   // Images handling API
@@ -52,23 +53,29 @@ export function setupApiV1Router(app: Express) {
   router.get(
     `/${hubName}/rooms/:roomId/images/:imageId`,
     cors,
-    getImageController(),
+    getImageController()
   );
   router.post(
     `/${hubName}/rooms/:roomId/images/:imageId/remove-background`,
     cors,
-    postRemoveBackgroundController(),
+    postRemoveBackgroundController()
+  );
+  router.post(
+    `/${hubName}/rooms/:roomId/images/generate`,
+    cors,
+    express.json(),
+    postGenerateImageController()
   );
   router.post(
     `/${hubName}/rooms/:roomId/images`,
     cors,
     upload.single("file"),
-    postUploadImageController(),
+    postUploadImageController()
   );
   router.delete(
     `/${hubName}/rooms/:roomId/images/:imageId`,
     cors,
-    delImageController(),
+    delImageController()
   );
 
   app.use("/api/v1", router);
