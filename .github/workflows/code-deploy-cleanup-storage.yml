@@ -21,7 +21,7 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  build:
     name: Build Cleanup Storage Image
     runs-on: ubuntu-24.04
     environment: ${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-production' }}
