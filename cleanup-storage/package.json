@@ -1,0 +1,38 @@
+{
+  "name": "cleanup-storage",
+  "version": "0.1.0",
+  "description": "Weave.js showcase backend cleanup storage process.",
+  "main": "index.js",
+  "type": "module",
+  "private": true,
+  "author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>",
+  "repository": "github:InditexTech/weavejs-frontend",
+  "license": "Apache-2.0",
+  "scripts": {
+    "cleanup": "rm package-lock.json && npkill -D -y",
+    "build": "rm -rf dist && tsc",
+    "docker:build": "docker build -t weavejs-cleanup-storage .",
+    "format": "prettier --write ./src",
+    "lint": "eslint src/**/* --ext .ts",
+    "lint:fix": "eslint src/**/* --ext .ts --fix",
+    "start": "node --env-file=./.env ./dist/action.js"
+  },
+  "dependencies": {
+    "@azure/storage-blob": "^12.26.0",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@types/node": "^22.13.5",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/parser": "^8.25.0",
+    "eslint": "^9.21.0",
+    "npkill": "^0.12.2",
+    "prettier": "^3.5.3",
+    "prettier-eslint": "^16.3.0",
+    "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.25.0"
+  }
+}
