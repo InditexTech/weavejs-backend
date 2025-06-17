@@ -3,7 +3,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { getActionConfig } from "./config.js";
-import { deleteRoom, deleteRoomImage, fetchRoomImages, fetchRooms, setupStorage } from "./storage.js";
+import {
+  deleteRoom,
+  deleteRoomImage,
+  fetchRoomImages,
+  fetchRooms,
+  setupStorage,
+} from "./storage.js";
 import whitelist from "./whitelist.json" with { type: "json" };
 
 (async () => {
@@ -11,8 +17,12 @@ import whitelist from "./whitelist.json" with { type: "json" };
   console.log(`configuration:`);
   console.log(`- storage:`);
   console.log(`--- connection string: ${config.storage.connectionString}`);
-  console.log(`--- rooms container name: ${config.storage.rooms.containerName}`);
-  console.log(`--- images container name: ${config.storage.images.containerName}`);
+  console.log(
+    `--- rooms container name: ${config.storage.rooms.containerName}`
+  );
+  console.log(
+    `--- images container name: ${config.storage.images.containerName}`
+  );
   console.log(`- dry-run: ${config.dryRun}`);
   console.log("");
 
@@ -20,7 +30,7 @@ import whitelist from "./whitelist.json" with { type: "json" };
   await setupStorage();
   console.log("Storage setup complete");
   console.log("");
-  
+
   console.log("Fetching rooms...");
   const rooms: string[] = await fetchRooms();
   console.log(`Rooms fetching complete [${rooms.length}]`);
@@ -53,29 +63,29 @@ import whitelist from "./whitelist.json" with { type: "json" };
   console.log(`Rooms images fetching complete [${imagesAmount}]`);
   console.log("");
 
-  console.log('Deleting rooms images...');
+  console.log("Deleting rooms images...");
   for (const room of roomsToDelete) {
     const roomImages = roomsImages[room];
     for (const image of roomImages) {
-      process.stdout.write('.');
+      process.stdout.write(".");
       if (!config.dryRun) {
         await deleteRoomImage(image);
       }
     }
   }
-  console.log('');
-  console.log('Rooms images deletion complete');
+  console.log("");
+  console.log("Rooms images deletion complete");
   console.log("");
 
-  console.log('Deleting rooms...');
+  console.log("Deleting rooms...");
   for (const room of roomsToDelete) {
-    process.stdout.write('.');
+    process.stdout.write(".");
     if (!config.dryRun) {
-      await deleteRoom(room)
+      await deleteRoom(room);
     }
   }
-  console.log('');
-  console.log('Rooms images deletion complete');
+  console.log("");
+  console.log("Rooms images deletion complete");
   console.log("");
 
   console.log("Storage cleanup complete");

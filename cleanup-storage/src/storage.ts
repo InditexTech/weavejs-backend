@@ -22,7 +22,8 @@ export async function setupStorage() {
 
   blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
   roomsContainerClient = blobServiceClient.getContainerClient(containerName);
-  imagesContainerClient = blobServiceClient.getContainerClient(imagesContainerName);
+  imagesContainerClient =
+    blobServiceClient.getContainerClient(imagesContainerName);
 }
 
 export async function fetchRooms(): Promise<string[]> {
@@ -46,7 +47,9 @@ export async function fetchRoomImages(room: string) {
 
   const rooms = [];
 
-  for await (const blob of imagesContainerClient.listBlobsFlat({ prefix: room })) {
+  for await (const blob of imagesContainerClient.listBlobsFlat({
+    prefix: room,
+  })) {
     rooms.push(blob.name);
   }
 
@@ -58,6 +61,10 @@ export async function deleteRoom(blobName: string) {
     throw new Error("Container client not initialized");
   }
 
+  if (!roomsContainerClient.getBlobClient(blobName).exists()) {
+    return;
+  }
+
   const blobClient = roomsContainerClient.getBlobClient(blobName);
 
   await blobClient.delete();
@@ -66,6 +73,10 @@ export async function deleteRoom(blobName: string) {
 export async function deleteRoomImage(blobName: string) {
   if (!imagesContainerClient) {
     throw new Error("Container client not initialized");
+  }
+
+  if (!imagesContainerClient.getBlobClient(blobName).exists()) {
+    return;
   }
 
   const blobClient = imagesContainerClient.getBlobClient(blobName);
