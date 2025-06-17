@@ -1,4 +1,4 @@
-name: Code deploy / Cleanup Storage
+name: Build / Cleanup Storage Image
 
 on:
   workflow_dispatch:
@@ -88,27 +88,3 @@ jobs:
           context: cleanup-storage
           tags: ${{ env.AZURE_ACR_NAME }}.azurecr.io/${{ env.AZURE_CONTAINER_NAME }}:${{ github.sha }}
           file: cleanup-storage/Dockerfile
-
-      - name: Deploy
-        uses: azure/cli@v2
-        with:
-          azcliversion: latest
-          inlineScript: |
-            az containerapp create \
-              --name $AZURE_CONTAINER_NAME \
-              --resource-group $AZURE_RESOURCE_GROUP \
-              --environment $AZURE_CONTAINER_ENVIRONMENT_NAME \
-              --image $AZURE_ACR_NAME.azurecr.io/$AZURE_CONTAINER_NAME:${{ github.sha }} \
-              --registry-server $AZURE_ACR_NAME.azurecr.io \
-              --user-assigned "$AZURE_IDENTITY_ID" \
-              --registry-identity "$AZURE_IDENTITY_ID" \
-              --ingress internal \
-              --target-port 8080 \
-              --min-replicas 1 \
-              --max-replicas 2 \
-              --cpu 2.0 \
-              --memory 4.0Gi \
-              --scale-rule-name http-rule \
-              --scale-rule-type http \
-              --scale-rule-http-concurrency 10 \
-              --query properties.configuration.ingress.fqdn
