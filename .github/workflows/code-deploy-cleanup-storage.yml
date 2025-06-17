@@ -42,6 +42,7 @@ jobs:
     steps:
       - name: Get input parameters
         run: |
+          ENVIRONMENT=${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-production' }}
           BASELINE_BRANCH=${{ github.event.inputs.BASELINE || 'main' }}
           echo "BASELINE_BRANCH=${BASELINE_BRANCH#refs/heads/}" >> "$GITHUB_ENV"
 
@@ -86,5 +87,5 @@ jobs:
           push: true
           platforms: linux/amd64
           context: cleanup-storage
-          tags: ${{ env.AZURE_ACR_NAME }}.azurecr.io/${{ env.AZURE_CONTAINER_NAME }}:${{ github.sha }}
+          tags: ${{ env.AZURE_ACR_NAME }}.azurecr.io/${{ env.AZURE_CONTAINER_NAME }}-${{ env.ENVIRONMENT }}:${{ github.sha }}
           file: cleanup-storage/Dockerfile
