@@ -33,8 +33,8 @@
   "dependencies": {
     "@azure/storage-blob": "^12.26.0",
     "@imgly/background-removal-node": "^1.4.5",
-    "@inditextech/weave-sdk": "0.27.3",
-    "@inditextech/weave-store-azure-web-pubsub": "0.27.3",
+    "@inditextech/weave-sdk": "0.28.0",
+    "@inditextech/weave-store-azure-web-pubsub": "0.28.0",
     "@syncedstore/core": "^0.6.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
