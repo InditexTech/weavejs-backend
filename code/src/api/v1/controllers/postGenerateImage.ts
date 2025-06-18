@@ -10,7 +10,15 @@ export const postGenerateImageController = () => {
   const config = getServiceConfig();
 
   return async (req: Request, res: Response): Promise<void> => {
-    const { model, prompt } = req.body;
+    const {
+      model,
+      prompt,
+      // size,
+      // aspectRatio,
+      // sampleImageStyle,
+      // personGeneration,
+      // outputOptions: { mimeType, compressionQuality },
+    } = req.body;
 
     try {
       req.setTimeout(config.llmService.timeoutSecs * 1000);
@@ -19,6 +27,11 @@ export const postGenerateImageController = () => {
         {
           model,
           prompt,
+          // size: "1024x1024",
+          // aspectRatio,
+          // sampleImageStyle,
+          // personGeneration,
+          // outputOptions: { mimeType, compression },
         },
         {
           timeout: config.llmService.timeoutSecs * 1000,
