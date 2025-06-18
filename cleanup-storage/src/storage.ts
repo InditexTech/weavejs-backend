@@ -61,16 +61,11 @@ export async function deleteRoom(blobName: string) {
     throw new Error("Container client not initialized");
   }
 
-  if (!roomsContainerClient.getBlobClient(blobName).exists()) {
-    console.log(`${blobName}, blob does not exist`);
-    return;
-  }
-
   const blobClient = roomsContainerClient.getBlobClient(blobName);
 
-  await blobClient.delete();
+  const deleteResult = await blobClient.deleteIfExists();
 
-  console.log(`${blobName} deleted`);
+  console.log(deleteResult ? `${blobName} deleted` : `${blobName} not found`);
 }
 
 export async function deleteRoomImage(blobName: string) {
@@ -78,14 +73,9 @@ export async function deleteRoomImage(blobName: string) {
     throw new Error("Container client not initialized");
   }
 
-  if (!imagesContainerClient.getBlobClient(blobName).exists()) {
-    console.log(`${blobName}, blob does not exist`);
-    return;
-  }
-
   const blobClient = imagesContainerClient.getBlobClient(blobName);
 
-  await blobClient.delete();
+  const deleteResult = await blobClient.deleteIfExists();
 
-  console.log(`${blobName} deleted`);
+  console.log(deleteResult ? `${blobName} deleted` : `${blobName} not found`);
 }
