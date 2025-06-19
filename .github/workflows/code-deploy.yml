@@ -49,7 +49,7 @@ jobs:
       AI_PASSWORD: ${{ secrets.AI_PASSWORD }}
       GCP_CLIENT_CONFIG_KEY: ${{ secrets.GCP_CLIENT_CONFIG_KEY }}
       GCP_ENDPOINT: ${{ vars.GCP_ENDPOINT }}
-      GPC_TIMEOUT_SECS: ${{ vars.GPC_TIMEOUT_SECS }}
+      GCP_TIMEOUT_SECS: ${{ vars.GCP_TIMEOUT_SECS }}
       PERSIST_FREQUENCY_SEG: ${{ vars.PERSIST_FREQUENCY_SEG }}
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}
     steps:
@@ -80,7 +80,7 @@ jobs:
           echo AI_PASSWORD=${{ env.AI_PASSWORD }} >> .env
           echo GCP_ENDPOINT=${{ env.GCP_ENDPOINT }} >> .env
           echo GCP_CLIENT_CONFIG_KEY=${{ env.GCP_CLIENT_CONFIG_KEY }} >> .env
-          echo GPC_TIMEOUT_SECS=${{ env.GPC_TIMEOUT_SECS }} >> .env
+          echo GCP_TIMEOUT_SECS=${{ env.GCP_TIMEOUT_SECS }} >> .env
           echo LOG_LEVEL=${{ env.LOG_LEVEL }} >> .env
 
       - name: Azure Login

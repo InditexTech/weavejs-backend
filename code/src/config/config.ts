@@ -87,7 +87,7 @@ const serviceConfigSchema = z.object({
     endpoint: z
       .string({
         required_error:
-          "Define the GCP Endpoint on the environment variable GPC_ENDPOINT",
+          "Define the GCP Endpoint on the environment variable GCP_ENDPOINT",
       })
       .trim(),
     configKey: z
@@ -99,7 +99,7 @@ const serviceConfigSchema = z.object({
     timeoutSecs: z
       .number({
         required_error:
-          "Define the GCP timeout on the environment variable GPC_TIMEOUT_SECS",
+          "Define the GCP timeout on the environment variable GCP_TIMEOUT_SECS",
       })
       .int({ message: "The timeout must be an integer" }),
   }),
@@ -142,25 +142,28 @@ export function getServiceConfig(): ServiceConfig {
     },
   };
 
-  const gcpClientConfigKey = process.env.GCP_CLIENT_CONFIG_KEY;
+  console.log(process.env);
 
-  const gcpClient = {
-    configKey: gcpClientConfigKey,
-  };
+  const gcpClientConfigKey = process.env.GCP_CLIENT_CONFIG_KEY;
 
   const gpcEndpoint = process.env.GCP_ENDPOINT;
   let timeoutSecs = 60;
   try {
-    timeoutSecs = parseInt(process.env.GPC_TIMEOUT_SECS ?? "60");
+    timeoutSecs = parseInt(process.env.GCP_TIMEOUT_SECS ?? "60");
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    throw new Error("GPC_TIMEOUT_SECS must be an integer");
+    throw new Error("GCP_TIMEOUT_SECS must be an integer");
   }
+
+  const gcpClient = {
+    endpoint: gpcEndpoint,
+    timeoutSecs,
+    configKey: gcpClientConfigKey,
+  };
+
   const aiPassword = process.env.AI_PASSWORD;
 
   const ai = {
-    endpoint: gpcEndpoint,
-    timeoutSecs,
     password: aiPassword,
   };
 
