@@ -142,8 +142,6 @@ export function getServiceConfig(): ServiceConfig {
     },
   };
 
-  console.log(process.env);
-
   const gcpClientConfigKey = process.env.GCP_CLIENT_CONFIG_KEY;
 
   const gpcEndpoint = process.env.GCP_ENDPOINT;
