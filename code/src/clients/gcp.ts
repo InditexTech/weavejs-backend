@@ -15,7 +15,8 @@ export const getGcpClient = () => {
   const config = getServiceConfig();
 
   const configKey = config.gcpClient.configKey;
-  const configKeyJson = JSON.parse(configKey);
+  const decodedKey = atob(configKey);
+  const configKeyJson = JSON.parse(decodedKey);
 
   const client = new JWT({
     email: configKeyJson.client_email,
