@@ -75,6 +75,34 @@ const serviceConfigSchema = z.object({
         .trim(),
     }),
   }),
+  ai: z.object({
+    password: z
+      .string({
+        required_error:
+          "Define the AI password on the environment variable AI_PASSWORD",
+      })
+      .trim(),
+  }),
+  gcpClient: z.object({
+    endpoint: z
+      .string({
+        required_error:
+          "Define the GCP Endpoint on the environment variable GPC_ENDPOINT",
+      })
+      .trim(),
+    configKey: z
+      .string({
+        required_error:
+          "Define the GCP client key on the environment variable GCP_CLIENT_CONFIG_KEY",
+      })
+      .trim(),
+    timeoutSecs: z
+      .number({
+        required_error:
+          "Define the GCP timeout on the environment variable GPC_TIMEOUT_SECS",
+      })
+      .int({ message: "The timeout must be an integer" }),
+  }),
 });
 
 export function getServiceConfig(): ServiceConfig {
@@ -90,7 +118,7 @@ export function getServiceConfig(): ServiceConfig {
   const key = process.env.AZURE_WEB_PUBSUB_KEY;
   const hubName = process.env.AZURE_WEB_PUBSUB_HUB_NAME;
   const persistFrequencySeg = parseInt(
-    process.env.PERSIST_FREQUENCY_SEG || "10",
+    process.env.PERSIST_FREQUENCY_SEG || "10"
   );
 
   const pubsub = {
@@ -114,7 +142,29 @@ export function getServiceConfig(): ServiceConfig {
     },
   };
 
-  const serviceConfig = { service, pubsub, storage };
+  const gcpClientConfigKey = process.env.GCP_CLIENT_CONFIG_KEY;
+
+  const gcpClient = {
+    configKey: gcpClientConfigKey,
+  };
+
+  const gpcEndpoint = process.env.GCP_ENDPOINT;
+  let timeoutSecs = 60;
+  try {
+    timeoutSecs = parseInt(process.env.GPC_TIMEOUT_SECS ?? "60");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    throw new Error("GPC_TIMEOUT_SECS must be an integer");
+  }
+  const aiPassword = process.env.AI_PASSWORD;
+
+  const ai = {
+    endpoint: gpcEndpoint,
+    timeoutSecs,
+    password: aiPassword,
+  };
+
+  const serviceConfig = { service, pubsub, storage, ai, gcpClient };
 
   return serviceConfigSchema.parse(serviceConfig);
 }

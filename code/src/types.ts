@@ -22,6 +22,14 @@ export type ServiceConfig = {
       containerName: string;
     };
   };
+  ai: {
+    password: string;
+  };
+  gcpClient: {
+    endpoint: string;
+    timeoutSecs: number;
+    configKey: string;
+  };
 };
 
 export type RoomsEventHandlerOptions = {
