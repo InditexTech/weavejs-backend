@@ -46,6 +46,10 @@ jobs:
       AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
       AZURE_STORAGE_ROOMS_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_ROOMS_CONTAINER_NAME }}
       AZURE_STORAGE_IMAGES_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_IMAGES_CONTAINER_NAME }}
+      AI_PASSWORD: ${{ secrets.AI_PASSWORD }}
+      GCP_CLIENT_CONFIG_KEY: ${{ secrets.GCP_CLIENT_CONFIG_KEY }}
+      GCP_ENDPOINT: ${{ vars.GCP_ENDPOINT }}
+      GPC_TIMEOUT_SECS: ${{ vars.GPC_TIMEOUT_SECS }}
       PERSIST_FREQUENCY_SEG: ${{ vars.PERSIST_FREQUENCY_SEG }}
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}
     steps:
@@ -73,6 +77,10 @@ jobs:
           echo AZURE_STORAGE_ROOMS_CONTAINER_NAME=${{ env.AZURE_STORAGE_ROOMS_CONTAINER_NAME }} >> .env
           echo AZURE_STORAGE_IMAGES_CONTAINER_NAME=${{ env.AZURE_STORAGE_IMAGES_CONTAINER_NAME }} >> .env
           echo PERSIST_FREQUENCY_SEG=${{ env.PERSIST_FREQUENCY_SEG }} >> .env
+          echo AI_PASSWORD=${{ env.AI_PASSWORD }} >> .env
+          echo GCP_ENDPOINT=${{ env.GCP_ENDPOINT }} >> .env
+          echo GCP_CLIENT_CONFIG_KEY=${{ env.GCP_CLIENT_CONFIG_KEY }} >> .env
+          echo GPC_TIMEOUT_SECS=${{ env.GPC_TIMEOUT_SECS }} >> .env
           echo LOG_LEVEL=${{ env.LOG_LEVEL }} >> .env
 
       - name: Azure Login
