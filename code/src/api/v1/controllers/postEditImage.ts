@@ -6,11 +6,11 @@ import { Request, Response } from "express";
 import { getServiceConfig } from "../../../config/config.js";
 import { getGcpClient } from "../../../clients/gcp.js";
 
-export const postGenerateImageController = () => {
+export const postEditImageController = () => {
   const config = getServiceConfig();
 
   return async (req: Request, res: Response): Promise<void> => {
-    const { model, prompt } = req.body;
+    const { model, prompt, image, style, styleStrength } = req.body;
     const password = req.query.password;
 
     if (password !== config.ai.password) {
@@ -36,6 +36,9 @@ export const postGenerateImageController = () => {
       instances: [
         {
           prompt,
+          image: {
+            bytesBase64Encoded: image,
+          },
         },
       ],
       parameters: {
@@ -44,6 +47,8 @@ export const postGenerateImageController = () => {
         includeSafetyAttributes: true,
         personGeneration,
         outputOptions,
+        imageGenerationStyle: style,
+        styleStrength,
       },
     };
 
@@ -60,6 +65,7 @@ export const postGenerateImageController = () => {
 
       const client = getGcpClient();
       const response = await client.fetch(
+        // `${config.llmService.endpoint}/v1/images/generations`,
         `${config.gcpClient.endpoint}/v1/projects/itx-moyaint-pre/locations/us-central1/publishers/google/models/${model}:predict`,
         {
           method: "POST",
@@ -85,7 +91,7 @@ export const postGenerateImageController = () => {
         console.error("Unknown error:", ex);
       }
 
-      res.status(500).json({ error: ex, message: "Error generating image" });
+      res.status(500).json({ error: ex, message: "Error editing image" });
     }
   };
 };

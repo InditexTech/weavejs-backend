@@ -14,7 +14,6 @@ export function validateServiceConfig() {
   try {
     config = getServiceConfig();
   } catch (ex) {
-    // console.log(ex);
     if (ex instanceof ZodError) {
       for (const issue of ex.issues) {
         logger.error(issue.message);

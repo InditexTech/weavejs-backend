@@ -22,10 +22,13 @@ export type ServiceConfig = {
       containerName: string;
     };
   };
-  llmService: {
+  ai: {
+    password: string;
+  };
+  gcpClient: {
     endpoint: string;
-    apiKey: string;
     timeoutSecs: number;
+    configKey: string;
   };
 };
 

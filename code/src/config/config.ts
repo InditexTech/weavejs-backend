@@ -75,23 +75,31 @@ const serviceConfigSchema = z.object({
         .trim(),
     }),
   }),
-  llmService: z.object({
+  ai: z.object({
+    password: z
+      .string({
+        required_error:
+          "Define the AI password on the environment variable AI_PASSWORD",
+      })
+      .trim(),
+  }),
+  gcpClient: z.object({
     endpoint: z
       .string({
         required_error:
-          "Define the LLM Endpoiint on the environment variable LLM_ENDPOINT",
+          "Define the GCP Endpoint on the environment variable GPC_ENDPOINT",
       })
       .trim(),
-    apiKey: z
+    configKey: z
       .string({
         required_error:
-          "Define the LLM Api key on the environment variable LLM_API_KEY",
+          "Define the GCP client key on the environment variable GCP_CLIENT_CONFIG_KEY",
       })
       .trim(),
     timeoutSecs: z
       .number({
         required_error:
-          "Define the LLM timeout on the environment variable LLM_TIMEOUT_SECS",
+          "Define the GCP timeout on the environment variable GPC_TIMEOUT_SECS",
       })
       .int({ message: "The timeout must be an integer" }),
   }),
@@ -134,23 +142,29 @@ export function getServiceConfig(): ServiceConfig {
     },
   };
 
-  const server = process.env.LLM_ENDPOINT;
-  const apiKey = process.env.LLM_API_KEY;
-  let timeoutSecs = 60;
-  try {
-    timeoutSecs = parseInt(process.env.LLM_TIMEOUT_SECS ?? "60");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (error) {
-    throw new Error("LLM_TIMEOUT_SECS must be an integer");
-  }
+  const gcpClientConfigKey = process.env.GCP_CLIENT_CONFIG_KEY;
 
-  const llmService = {
-    endpoint: server,
-    apiKey,
-    timeoutSecs,
+  const gcpClient = {
+    configKey: gcpClientConfigKey,
   };
 
-  const serviceConfig = { service, pubsub, storage, llmService };
+  const gpcEndpoint = process.env.GCP_ENDPOINT;
+  let timeoutSecs = 60;
+  try {
+    timeoutSecs = parseInt(process.env.GPC_TIMEOUT_SECS ?? "60");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    throw new Error("GPC_TIMEOUT_SECS must be an integer");
+  }
+  const aiPassword = process.env.AI_PASSWORD;
+
+  const ai = {
+    endpoint: gpcEndpoint,
+    timeoutSecs,
+    password: aiPassword,
+  };
+
+  const serviceConfig = { service, pubsub, storage, ai, gcpClient };
 
   return serviceConfigSchema.parse(serviceConfig);
 }

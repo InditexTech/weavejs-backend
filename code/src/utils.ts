@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export async function streamToBuffer(
-  readableStream: NodeJS.ReadableStream,
+  readableStream: NodeJS.ReadableStream
 ): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Uint8Array[] = [];
@@ -16,3 +16,8 @@ export async function streamToBuffer(
     readableStream.on("error", reject);
   });
 }
+
+export const keyEscaper = (key: any) => {
+  const keyString = JSON.stringify(key);
+  return keyString;
+};

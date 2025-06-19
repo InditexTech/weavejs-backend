@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import express, { Express, Router } from "express";
+import { Express, Router } from "express";
 import multer from "multer";
 import { getServiceConfig } from "../../config/config.js";
 import { getHealthController } from "./controllers/getHealth.js";
@@ -15,6 +15,8 @@ import { postRemoveBackgroundController } from "./controllers/postRemoveBackgrou
 import { getAzureWebPubsubServer } from "../../store.js";
 import { getCorsMiddleware } from "../../middlewares/cors.js";
 import { postGenerateImageController } from "./controllers/postGenerateImage.js";
+import { postEditImageController } from "./controllers/postEditImage.js";
+import { postValidateAIPassword } from "./controllers/postValidateIAPassword.js";
 
 const router: Router = Router();
 
@@ -63,8 +65,13 @@ export function setupApiV1Router(app: Express) {
   router.post(
     `/${hubName}/rooms/:roomId/images/generate`,
     cors,
-    express.json(),
     postGenerateImageController()
+  );
+  router.post(`/ai/password/validate`, cors, postValidateAIPassword());
+  router.post(
+    `/${hubName}/rooms/:roomId/images/edit`,
+    cors,
+    postEditImageController()
   );
   router.post(
     `/${hubName}/rooms/:roomId/images`,
