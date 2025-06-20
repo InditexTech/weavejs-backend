@@ -48,7 +48,7 @@ export async function fetchRoomImages(room: string) {
   const rooms = [];
 
   for await (const blob of imagesContainerClient.listBlobsFlat({
-    prefix: room,
+    prefix: `${room}/`,
   })) {
     rooms.push(blob.name);
   }

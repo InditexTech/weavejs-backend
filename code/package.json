@@ -30,11 +30,14 @@
     "version:development": "export BUMP_DEVELOP_VERSION=$(npm version $(npm version minor)-SNAPSHOT) && lerna version $BUMP_DEVELOP_VERSION --no-git-tag-version --no-push --force-publish --exact --yes && npm version $(npm version minor)-SNAPSHOT",
     "version:release": "npm ci && lerna version --no-git-tag-version --no-push --force-publish --exact --yes $RELEASE_VERSION && npm version $RELEASE_VERSION"
   },
+  "overrides": {
+    "yjs": "13.6.27"
+  },
   "dependencies": {
     "@azure/storage-blob": "^12.26.0",
     "@imgly/background-removal-node": "^1.4.5",
-    "@inditextech/weave-sdk": "0.30.0",
-    "@inditextech/weave-store-azure-web-pubsub": "0.30.0",
+    "@inditextech/weave-sdk": "0.30.1",
+    "@inditextech/weave-store-azure-web-pubsub": "0.30.1",
     "@syncedstore/core": "^0.6.0",
     "axios": "^1.10.0",
     "cors": "^2.8.5",
@@ -49,7 +52,7 @@
     "pino-pretty": "^13.0.0",
     "ts-node": "^10.9.2",
     "uuid": "^11.1.0",
-    "yjs": "^13.6.27",
+    "yjs": "13.6.27",
     "zod": "^3.24.2"
   },
   "devDependencies": {
