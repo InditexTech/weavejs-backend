@@ -10,49 +10,34 @@ export const postEditImageController = () => {
   const config = getServiceConfig();
 
   return async (req: Request, res: Response): Promise<void> => {
-    const { model, prompt, image, style, styleStrength } = req.body;
+    const { prompt, negative_prompt, image, guidance_scale, strength } =
+      req.body;
     const password = req.query.password;
 
     if (password !== config.ai.password) {
       res.status(401).json({ status: "KO", message: "Not enabled" });
-    }
-
-    let aspectRatio = "1:1";
-    if (req.body.aspectRatio) {
-      aspectRatio = req.body.aspectRatio;
-    }
-
-    let personGeneration = "allow_adult";
-    if (req.body.personGeneration) {
-      personGeneration = req.body.personGeneration;
-    }
-
-    let outputOptions = { mimeType: "image/png", compressionQuality: 75 };
-    if (req.body.outputOptions) {
-      outputOptions = req.body.outputOptions;
+      return;
     }
 
     const requestBody = {
       instances: [
         {
           prompt,
+          negative_prompt,
           image: {
             bytesBase64Encoded: image,
           },
         },
       ],
       parameters: {
-        sampleCount: 1,
-        aspectRatio,
-        includeSafetyAttributes: true,
-        personGeneration,
-        outputOptions,
-        imageGenerationStyle: style,
-        styleStrength,
+        number_of_images: 1,
+        seed: 42,
+        guidance_scale,
+        strength,
       },
     };
 
-    console.log("requestBody", requestBody);
+    // console.log("requestBody", requestBody);
 
     try {
       req.setTimeout(config.gcpClient.timeoutSecs * 1000);
@@ -65,8 +50,7 @@ export const postEditImageController = () => {
 
       const client = getGcpClient();
       const response = await client.fetch(
-        // `${config.llmService.endpoint}/v1/images/generations`,
-        `${config.gcpClient.endpoint}/v1/projects/itx-moyaint-pre/locations/us-central1/publishers/google/models/${model}:predict`,
+        `${config.gcpClient.fluxEndpoint}/v1/projects/655051647031/locations/us-central1/endpoints/4703566707602489344:predict`,
         {
           method: "POST",
           headers: {

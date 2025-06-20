@@ -26,7 +26,8 @@ export type ServiceConfig = {
     password: string;
   };
   gcpClient: {
-    endpoint: string;
+    vertexEndpoint: string;
+    fluxEndpoint: string;
     timeoutSecs: number;
     configKey: string;
   };

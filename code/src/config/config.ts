@@ -84,10 +84,16 @@ const serviceConfigSchema = z.object({
       .trim(),
   }),
   gcpClient: z.object({
-    endpoint: z
+    vertexEndpoint: z
       .string({
         required_error:
-          "Define the GCP Endpoint on the environment variable GCP_ENDPOINT",
+          "Define the GCP Vertex Endpoint on the environment variable GCP_VERTEX_ENDPOINT",
+      })
+      .trim(),
+    fluxEndpoint: z
+      .string({
+        required_error:
+          "Define the GCP Flux Endpoint on the environment variable GCP_FLUX_ENDPOINT",
       })
       .trim(),
     configKey: z
@@ -144,7 +150,8 @@ export function getServiceConfig(): ServiceConfig {
 
   const gcpClientConfigKey = process.env.GCP_CLIENT_CONFIG_KEY;
 
-  const gpcEndpoint = process.env.GCP_ENDPOINT;
+  const gcpVertexEndpoint = process.env.GCP_VERTEX_ENDPOINT;
+  const gcpFluxEndpoint = process.env.GCP_FLUX_ENDPOINT;
   let timeoutSecs = 60;
   try {
     timeoutSecs = parseInt(process.env.GCP_TIMEOUT_SECS ?? "60");
@@ -154,7 +161,8 @@ export function getServiceConfig(): ServiceConfig {
   }
 
   const gcpClient = {
-    endpoint: gpcEndpoint,
+    vertexEndpoint: gcpVertexEndpoint,
+    fluxEndpoint: gcpFluxEndpoint,
     timeoutSecs,
     configKey: gcpClientConfigKey,
   };
