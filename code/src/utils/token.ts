@@ -3,12 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { JWT } from "google-auth-library";
-import keyJson from "./itx-moyaint-pre.json" with { type: "json" };
 
-const getAccessToken = () => {
+const getAccessToken = async () => {
+  const keyJson = await import("./itx-moyaint-pre.json", {
+    assert: { type: "json" },
+  });
+
   const client = new JWT({
-    email: keyJson.client_email,
-    key: keyJson.private_key,
+    email: keyJson.default.client_email,
+    key: keyJson.default.private_key,
     scopes: ["https://www.googleapis.com/auth/cloud-platform"],
   });
 
