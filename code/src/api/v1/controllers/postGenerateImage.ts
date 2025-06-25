@@ -15,6 +15,7 @@ export const postGenerateImageController = () => {
 
     if (password !== config.ai.password) {
       res.status(401).json({ status: "KO", message: "Not enabled" });
+      return;
     }
 
     let aspectRatio = "1:1";
@@ -47,7 +48,7 @@ export const postGenerateImageController = () => {
       },
     };
 
-    console.log("requestBody", requestBody);
+    // console.log("requestBody", requestBody);
 
     try {
       req.setTimeout(config.gcpClient.timeoutSecs * 1000);
@@ -60,7 +61,7 @@ export const postGenerateImageController = () => {
 
       const client = getGcpClient();
       const response = await client.fetch(
-        `${config.gcpClient.endpoint}/v1/projects/itx-moyaint-pre/locations/us-central1/publishers/google/models/${model}:predict`,
+        `${config.gcpClient.vertexEndpoint}/v1/projects/itx-moyaint-pre/locations/us-central1/publishers/google/models/${model}:predict`,
         {
           method: "POST",
           headers: {
