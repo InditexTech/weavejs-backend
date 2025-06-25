@@ -30,7 +30,8 @@ export const postEditImageController = () => {
         },
       ],
       parameters: {
-        number_of_images: 1,
+        // sampleCount: 1,
+        // num_inference_steps: 4,
         seed: 42,
         guidance_scale,
         strength,
@@ -49,8 +50,11 @@ export const postEditImageController = () => {
       );
 
       const client = getGcpClient();
+
+      console.log("sent", requestBody);
+
       const response = await client.fetch(
-        `${config.gcpClient.fluxEndpoint}/v1/projects/655051647031/locations/us-central1/endpoints/4703566707602489344:predict`,
+        `${config.gcpClient.fluxEndpoint}/v1/projects/655051647031/locations/us-central1/endpoints/1463930463151194112:predict`,
         {
           method: "POST",
           headers: {
