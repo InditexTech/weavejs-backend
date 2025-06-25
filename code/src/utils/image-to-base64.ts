@@ -18,8 +18,10 @@ const getImageBase64 = async (imageLoc: string): Promise<string> => {
 };
 
 (async () => {
-  const accessToken = await getImageBase64(
-    "../../../assets/44d83348-16e9-4b58-9345-67fe4e42e467.png"
-  );
+  if (!process.env.IMAGE_PATH) {
+    throw new Error("IMAGE_PATH not found in environment variables");
+  }
+
+  const accessToken = await getImageBase64(process.env.IMAGE_PATH);
   console.log("image Base64", accessToken);
 })();

@@ -5,13 +5,15 @@
 import { JWT } from "google-auth-library";
 
 const getAccessToken = async () => {
-  const keyJson = await import("./itx-moyaint-pre.json", {
-    assert: { type: "json" },
-  });
+  if (!process.env.ACCESS_KEY_JSON) {
+    throw new Error("ACCESS_KEY_JSON not found in environment variables");
+  }
+
+  const config = JSON.parse(process.env.ACCESS_KEY_JSON);
 
   const client = new JWT({
-    email: keyJson.default.client_email,
-    key: keyJson.default.private_key,
+    email: config.client_email,
+    key: config.private_key,
     scopes: ["https://www.googleapis.com/auth/cloud-platform"],
   });
 
