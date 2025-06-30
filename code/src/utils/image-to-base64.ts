@@ -4,12 +4,10 @@
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import clipboard from "clipboardy";
 
-const getImageBase64 = async (imageLoc: string): Promise<string> => {
-  const imagePath = path.join(__dirname, imageLoc);
-  console.log("imagePath", imagePath);
+const getImageBase64 = async (imagePath: string): Promise<string> => {
   const imageBuffer = fs.readFileSync(imagePath);
 
   const base64String = imageBuffer.toString("base64");
@@ -22,6 +20,7 @@ const getImageBase64 = async (imageLoc: string): Promise<string> => {
     throw new Error("IMAGE_PATH not found in environment variables");
   }
 
-  const accessToken = await getImageBase64(process.env.IMAGE_PATH);
-  console.log("image Base64", accessToken);
+  const imageBase64 = await getImageBase64(process.env.IMAGE_PATH);
+  await clipboard.write(imageBase64);
+  console.log("Image copied to clipboard");
 })();

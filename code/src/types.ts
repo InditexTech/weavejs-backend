@@ -25,6 +25,11 @@ export type ServiceConfig = {
   ai: {
     password: string;
   };
+  azureCsClient: {
+    endpoint: string;
+    apiKey: string;
+    timeoutSecs: number;
+  };
   gcpClient: {
     vertexEndpoint: string;
     fluxEndpoint: string;

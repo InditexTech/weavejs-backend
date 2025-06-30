@@ -7,6 +7,7 @@ import { setupHttpLoggerMiddleware } from "./middlewares/http-logger.js";
 import { setupHttpResponseHeadersMiddleware } from "./middlewares/http-response-headers.js";
 import { setupBodyParserMiddleware } from "./middlewares/body-parser.js";
 import { setupApiV1Router } from "./api/v1/router.js";
+import { setupApiV2Router } from "./api/v2/router.js";
 import { setLogLevel } from "@azure/logger";
 
 setLogLevel("verbose");
@@ -32,6 +33,7 @@ export function setupApp() {
 
   // Setup Routers
   setupApiV1Router(app);
+  setupApiV2Router(app);
 
   return app;
 }

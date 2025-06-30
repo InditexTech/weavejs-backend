@@ -10,8 +10,17 @@ export const postEditImageController = () => {
   const config = getServiceConfig();
 
   return async (req: Request, res: Response): Promise<void> => {
-    const { prompt, negative_prompt, image, guidance_scale, strength } =
-      req.body;
+    const {
+      sample_count,
+      prompt,
+      negative_prompt,
+      image,
+      imageMask,
+      seed,
+      edit_mode,
+      base_steps,
+      guidance_strength,
+    } = req.body;
     const password = req.query.password;
 
     if (password !== config.ai.password) {
@@ -19,26 +28,52 @@ export const postEditImageController = () => {
       return;
     }
 
-    const requestBody = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const requestBody: any = {
       instances: [
         {
           prompt,
-          negative_prompt,
-          image: {
-            bytesBase64Encoded: image,
-          },
+          referenceImages: [
+            {
+              referenceType: "REFERENCE_TYPE_RAW",
+              referenceId: 1,
+              referenceImage: {
+                bytesBase64Encoded: image,
+              },
+            },
+          ],
         },
       ],
       parameters: {
-        // sampleCount: 1,
-        // num_inference_steps: 4,
-        seed: 42,
-        guidance_scale,
-        strength,
+        sampleCount: sample_count,
+        ...(negative_prompt &&
+          negative_prompt !== "" && { negativePrompt: negative_prompt }),
+        seed,
+        ...(imageMask && {
+          editConfig: {
+            baseSteps: base_steps,
+          },
+          editMode: edit_mode,
+        }),
+        ...(!imageMask && {
+          guidanceScale: guidance_strength,
+        }),
       },
     };
 
-    // console.log("requestBody", requestBody);
+    if (imageMask) {
+      requestBody.instances[0].referenceImages.push({
+        referenceType: "REFERENCE_TYPE_MASK",
+        referenceId: 2,
+        referenceImage: {
+          bytesBase64Encoded: imageMask,
+        },
+        maskImageConfig: {
+          maskMode: "MASK_MODE_USER_PROVIDED",
+          dilation: 0.01,
+        },
+      });
+    }
 
     try {
       req.setTimeout(config.gcpClient.timeoutSecs * 1000);
@@ -51,10 +86,9 @@ export const postEditImageController = () => {
 
       const client = getGcpClient();
 
-      console.log("sent", requestBody);
-
       const response = await client.fetch(
-        `${config.gcpClient.fluxEndpoint}/v1/projects/655051647031/locations/us-central1/endpoints/1463930463151194112:predict`,
+        // `${config.gcpClient.fluxEndpoint}/v1/projects/655051647031/locations/us-central1/endpoints/1463930463151194112:predict`,
+        `${config.gcpClient.vertexEndpoint}/v1/projects/itx-moyaint-pre/locations/us-central1/publishers/google/models/imagen-3.0-capability-001:predict`,
         {
           method: "POST",
           headers: {
