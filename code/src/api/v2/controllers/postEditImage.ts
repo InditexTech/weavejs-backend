@@ -6,19 +6,27 @@ import { Request, Response } from "express";
 import { getServiceConfig } from "../../../config/config.js";
 import { getGcpClient } from "../../../clients/gcp.js";
 
-function base64ToBlob(dataURL: string): Blob {
-  const [metadata, base64] = dataURL.split(",");
-  const mimeMatch = metadata.match(/:(.*?);/);
+const DATA_URL_REGEX = /^data:([a-z]+\/[a-z0-9.+-]+)?(;base64)?,/i;
 
-  if (!mimeMatch) {
+function isValidDataURL(url: string): boolean {
+  return DATA_URL_REGEX.test(url);
+}
+
+function base64ToBlob(dataURL: string): Blob {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, base64] = dataURL.split(",");
+
+  if (!isValidDataURL(dataURL)) {
     throw new Error("Invalid data URL");
   }
 
-  const mime = mimeMatch[1];
+  const mime = "image/png";
 
-  const MAX_BASE64_LENGTH = 10 * 1024 * 1024; // Define a reasonable maximum length (10 MB)
+  const MAX_BASE64_LENGTH = 50 * 1024 * 1024; // Define a reasonable maximum length (50 MB)
   if (base64.length > MAX_BASE64_LENGTH) {
-    throw new Error(`Base64 string exceeds maximum allowed length of ${MAX_BASE64_LENGTH} characters`);
+    throw new Error(
+      `Base64 string exceeds maximum allowed length of ${MAX_BASE64_LENGTH} characters`
+    );
   }
 
   const binary = atob(base64);
@@ -64,9 +72,11 @@ export const postEditImageController = () => {
       );
 
       if (Array.isArray(reference_images) && reference_images.length > 0) {
-        const maxLength = 100; // Define a reasonable maximum length
+        const maxLength = 4; // Define a reasonable maximum length
         if (reference_images.length > maxLength) {
-          throw new Error(`reference_images exceeds maximum allowed length of ${maxLength}`);
+          throw new Error(
+            `reference_images exceeds maximum allowed length of ${maxLength}`
+          );
         }
         for (let i = 0; i < reference_images.length; i++) {
           const referenceImage = reference_images[i];
