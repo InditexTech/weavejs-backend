@@ -57,7 +57,11 @@ export const postEditImageController = () => {
         file
       );
 
-      if (reference_images && reference_images.length > 0) {
+      if (Array.isArray(reference_images) && reference_images.length > 0) {
+        const maxLength = 100; // Define a reasonable maximum length
+        if (reference_images.length > maxLength) {
+          throw new Error(`reference_images exceeds maximum allowed length of ${maxLength}`);
+        }
         for (let i = 0; i < reference_images.length; i++) {
           const referenceImage = reference_images[i];
           const referenceBlob = base64ToBlob(referenceImage);
