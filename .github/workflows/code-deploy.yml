@@ -48,8 +48,12 @@ jobs:
       AZURE_STORAGE_IMAGES_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_IMAGES_CONTAINER_NAME }}
       AI_PASSWORD: ${{ secrets.AI_PASSWORD }}
       GCP_CLIENT_CONFIG_KEY: ${{ secrets.GCP_CLIENT_CONFIG_KEY }}
-      GCP_ENDPOINT: ${{ vars.GCP_ENDPOINT }}
+      GCP_VERTEX_ENDPOINT: ${{ vars.GCP_VERTEX_ENDPOINT }}
+      GCP_FLUX_ENDPOINT: ${{ vars.GCP_FLUX_ENDPOINT }}
       GCP_TIMEOUT_SECS: ${{ vars.GCP_TIMEOUT_SECS }}
+      AZURE_CS_API_KEY: ${{ secrets.AZURE_CS_API_KEY }}
+      AZURE_CS_ENDPOINT: ${{ vars.AZURE_CS_ENDPOINT }}
+      AZURE_CS_TIMEOUT_SECS: ${{ vars.AZURE_CS_TIMEOUT_SECS }}
       PERSIST_FREQUENCY_SEG: ${{ vars.PERSIST_FREQUENCY_SEG }}
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}
     steps:
@@ -78,9 +82,13 @@ jobs:
           echo AZURE_STORAGE_IMAGES_CONTAINER_NAME=${{ env.AZURE_STORAGE_IMAGES_CONTAINER_NAME }} >> .env
           echo PERSIST_FREQUENCY_SEG=${{ env.PERSIST_FREQUENCY_SEG }} >> .env
           echo AI_PASSWORD=${{ env.AI_PASSWORD }} >> .env
-          echo GCP_ENDPOINT=${{ env.GCP_ENDPOINT }} >> .env
+          echo GCP_VERTEX_ENDPOINT=${{ env.GCP_VERTEX_ENDPOINT }} >> .env
+          echo GCP_FLUX_ENDPOINT=${{ env.GCP_FLUX_ENDPOINT }} >> .env
           echo GCP_CLIENT_CONFIG_KEY=${{ env.GCP_CLIENT_CONFIG_KEY }} >> .env
           echo GCP_TIMEOUT_SECS=${{ env.GCP_TIMEOUT_SECS }} >> .env
+          echo AZURE_CS_ENDPOINT=${{ env.AZURE_CS_ENDPOINT }} >> .env
+          echo AZURE_CS_API_KEY=${{ env.AZURE_CS_API_KEY }} >> .env
+          echo AZURE_CS_TIMEOUT_SECS=${{ env.AZURE_CS_TIMEOUT_SECS }} >> .env
           echo LOG_LEVEL=${{ env.LOG_LEVEL }} >> .env
 
       - name: Azure Login

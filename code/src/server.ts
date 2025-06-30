@@ -25,8 +25,8 @@ setupStore();
 const app = setupApp();
 
 // Start server
-app.listen(config.service.port, config.service.hostname, () => {
+const server = app.listen(config.service.port, config.service.hostname, () => {
   logger.info(
-    `Server started: http://${config.service.hostname}:${config.service.port}`,
+    `Server started: http://${config.service.hostname}:${config.service.port}`
   );
 });

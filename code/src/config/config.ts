@@ -83,11 +83,37 @@ const serviceConfigSchema = z.object({
       })
       .trim(),
   }),
-  gcpClient: z.object({
+  azureCsClient: z.object({
     endpoint: z
       .string({
         required_error:
-          "Define the GCP Endpoint on the environment variable GCP_ENDPOINT",
+          "Define the Azure CS endpoint on the environment variable AZURE_CS_ENDPOINT",
+      })
+      .trim(),
+    apiKey: z
+      .string({
+        required_error:
+          "Define the Azure CS api key on the environment variable AZURE_CS_API_KEY",
+      })
+      .trim(),
+    timeoutSecs: z
+      .number({
+        required_error:
+          "Define the Azure CS timeout on the environment variable AZURE_CS_TIMEOUT_SECS",
+      })
+      .int({ message: "The timeout must be an integer" }),
+  }),
+  gcpClient: z.object({
+    vertexEndpoint: z
+      .string({
+        required_error:
+          "Define the GCP Vertex Endpoint on the environment variable GCP_VERTEX_ENDPOINT",
+      })
+      .trim(),
+    fluxEndpoint: z
+      .string({
+        required_error:
+          "Define the GCP Flux Endpoint on the environment variable GCP_FLUX_ENDPOINT",
       })
       .trim(),
     configKey: z
@@ -142,9 +168,8 @@ export function getServiceConfig(): ServiceConfig {
     },
   };
 
-  const gcpClientConfigKey = process.env.GCP_CLIENT_CONFIG_KEY;
-
-  const gpcEndpoint = process.env.GCP_ENDPOINT;
+  const gcpVertexEndpoint = process.env.GCP_VERTEX_ENDPOINT;
+  const gcpFluxEndpoint = process.env.GCP_FLUX_ENDPOINT;
   let timeoutSecs = 60;
   try {
     timeoutSecs = parseInt(process.env.GCP_TIMEOUT_SECS ?? "60");
@@ -152,11 +177,29 @@ export function getServiceConfig(): ServiceConfig {
   } catch (error) {
     throw new Error("GCP_TIMEOUT_SECS must be an integer");
   }
+  const gcpClientConfigKey = process.env.GCP_CLIENT_CONFIG_KEY;
 
   const gcpClient = {
-    endpoint: gpcEndpoint,
+    vertexEndpoint: gcpVertexEndpoint,
+    fluxEndpoint: gcpFluxEndpoint,
     timeoutSecs,
     configKey: gcpClientConfigKey,
+  };
+
+  const azureCsClientApiKey = process.env.AZURE_CS_API_KEY;
+  let azureCsTimeoutSecs = 60;
+  try {
+    azureCsTimeoutSecs = parseInt(process.env.AZURE_CS_TIMEOUT_SECS ?? "60");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    throw new Error("AZURE_CS_TIMEOUT_SECS must be an integer");
+  }
+  const azureCsClientEndpoint = process.env.AZURE_CS_ENDPOINT;
+
+  const azureCsClient = {
+    endpoint: azureCsClientEndpoint,
+    apiKey: azureCsClientApiKey,
+    timeoutSecs: azureCsTimeoutSecs,
   };
 
   const aiPassword = process.env.AI_PASSWORD;
@@ -165,7 +208,14 @@ export function getServiceConfig(): ServiceConfig {
     password: aiPassword,
   };
 
-  const serviceConfig = { service, pubsub, storage, ai, gcpClient };
+  const serviceConfig = {
+    service,
+    pubsub,
+    storage,
+    ai,
+    azureCsClient,
+    gcpClient,
+  };
 
   return serviceConfigSchema.parse(serviceConfig);
 }
