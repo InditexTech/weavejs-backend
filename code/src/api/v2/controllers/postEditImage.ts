@@ -15,6 +15,12 @@ function base64ToBlob(dataURL: string): Blob {
   }
 
   const mime = mimeMatch[1];
+
+  const MAX_BASE64_LENGTH = 10 * 1024 * 1024; // Define a reasonable maximum length (10 MB)
+  if (base64.length > MAX_BASE64_LENGTH) {
+    throw new Error(`Base64 string exceeds maximum allowed length of ${MAX_BASE64_LENGTH} characters`);
+  }
+
   const binary = atob(base64);
   const len = binary.length;
   const arrayBuffer = new Uint8Array(len);
