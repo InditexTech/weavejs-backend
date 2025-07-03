@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
+import { DefaultAzureCredential } from "@azure/identity";
 import { getActionConfig } from "./config.js";
 
 let blobServiceClient: BlobServiceClient | null = null;
@@ -14,13 +15,17 @@ export async function setupStorage() {
 
   const {
     storage: {
-      connectionString,
+      accountName,
       rooms: { containerName },
       images: { containerName: imagesContainerName },
     },
   } = config;
 
-  blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+
+  const credential = new DefaultAzureCredential();
+  const storageAccountUrl = `https://${accountName}.blob.core.windows.net`;
+  blobServiceClient = new BlobServiceClient(storageAccountUrl, credential);
+  
   roomsContainerClient = blobServiceClient.getContainerClient(containerName);
   imagesContainerClient =
     blobServiceClient.getContainerClient(imagesContainerName);

@@ -4,16 +4,16 @@
 
 import { WeaveAzureWebPubsubServer } from "@inditextech/weave-store-azure-web-pubsub/server";
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
+import { DefaultAzureCredential } from "@azure/identity";
 import { streamToBuffer } from "./utils.js";
 import { getServiceConfig } from "./config/config.js";
 import * as Y from "yjs";
 import { observeDeep, syncedStore, getYjsDoc } from "@syncedstore/core";
 
 const endpoint = process.env.AZURE_WEB_PUBSUB_ENDPOINT;
-const key = process.env.AZURE_WEB_PUBSUB_KEY;
 const hubName = process.env.AZURE_WEB_PUBSUB_HUB_NAME;
 
-if (!endpoint || !key || !hubName) {
+if (!endpoint || !hubName) {
   throw new Error("Missing required environment variables");
 }
 
@@ -46,12 +46,15 @@ async function setupStorage() {
 
   const {
     storage: {
-      connectionString,
+      accountName,
       rooms: { containerName },
     },
   } = config;
 
-  blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+  const credential = new DefaultAzureCredential();
+  const storageAccountUrl = `https://${accountName}.blob.core.windows.net`;
+  blobServiceClient = new BlobServiceClient(storageAccountUrl, credential);
+  
   containerClient = blobServiceClient.getContainerClient(containerName);
   if (!(await containerClient.exists())) {
     containerClient = (await blobServiceClient.createContainer(containerName))
@@ -65,14 +68,13 @@ export const setupStore = () => {
   const config = getServiceConfig();
 
   const {
-    pubsub: { endpoint },
+    pubsub: { endpoint, hubName },
   } = config;
 
   azureWebPubsubServer = new WeaveAzureWebPubsubServer({
     pubSubConfig: {
       endpoint,
-      key,
-      hubName,
+      hubName
     },
     eventsHandlerConfig: {
       path: `/api/v1/api/webpubsub/hubs/${hubName}`,

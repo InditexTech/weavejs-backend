@@ -32,12 +32,6 @@ const serviceConfigSchema = z.object({
           "Define the Azure Web PubSub endpoint on the environment variable AZURE_WEB_PUBSUB_ENDPOINT",
       })
       .trim(),
-    key: z
-      .string({
-        required_error:
-          "Define the Azure Web PubSub key on the environment variable AZURE_WEB_PUBSUB_KEY",
-      })
-      .trim(),
     hubName: z
       .string({
         required_error:
@@ -52,10 +46,10 @@ const serviceConfigSchema = z.object({
       .int({ message: "The persist frequency must be an integer" }),
   }),
   storage: z.object({
-    connectionString: z
+    accountName: z
       .string({
         required_error:
-          "Define the Azure Blob Storage connection string on the environment variable AZURE_STORAGE_CONNECTION_STRING",
+          "Define the Azure Storage account name on the environment variable AZURE_STORAGE_ACCOUNT_NAME",
       })
       .trim(),
     rooms: z.object({
@@ -141,7 +135,6 @@ export function getServiceConfig(): ServiceConfig {
   };
 
   const endpoint = process.env.AZURE_WEB_PUBSUB_ENDPOINT;
-  const key = process.env.AZURE_WEB_PUBSUB_KEY;
   const hubName = process.env.AZURE_WEB_PUBSUB_HUB_NAME;
   const persistFrequencySeg = parseInt(
     process.env.PERSIST_FREQUENCY_SEG || "10"
@@ -149,17 +142,16 @@ export function getServiceConfig(): ServiceConfig {
 
   const pubsub = {
     endpoint,
-    key,
     hubName,
     persistFrequencySeg,
   };
 
-  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+  const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
   const roomsContainerName = process.env.AZURE_STORAGE_ROOMS_CONTAINER_NAME;
   const imagesContainerName = process.env.AZURE_STORAGE_IMAGES_CONTAINER_NAME;
 
   const storage = {
-    connectionString,
+    accountName,
     rooms: {
       containerName: roomsContainerName,
     },
