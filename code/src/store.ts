@@ -31,14 +31,14 @@ export const getAzureWebPubsubServer = () => {
 };
 
 function extractImageIdFromNode(images: string[], node: any) {
-  if (node.props.nodeType === "image" && node.props.imageId) {
+  if (node.props && node.props.nodeType === "image" && node.props.imageId) {
     images.push(node.props.imageId);
-  } 
-  if (node.props.children) {
+  }
+  if (node.props && node.props.children) {
     for (const child of node.props.children) {
       extractImageIdFromNode(images, child);
     }
-  }   
+  }
 }
 
 async function setupStorage() {
@@ -86,7 +86,7 @@ export const setupStore = () => {
       if (!containerClient || !blobServiceClient) {
         return null;
       }
-        
+
       const blockBlobClient = containerClient.getBlockBlobClient(docName);
       if (!(await blockBlobClient.exists())) {
         return null;
@@ -103,7 +103,7 @@ export const setupStore = () => {
     },
     persistRoom: async (
       docName: string,
-      actualState: Uint8Array<ArrayBufferLike>,
+      actualState: Uint8Array<ArrayBufferLike>
     ) => {
       if (!storageInitialized) {
         await setupStorage();
@@ -120,7 +120,9 @@ export const setupStore = () => {
 
         const jsonState = JSON.parse(JSON.stringify(state, undefined, 2));
 
-        const mainLayer = jsonState.weave?.props.children?.find((child: any) => child.key === "mainLayer");
+        const mainLayer = jsonState.weave?.props.children?.find(
+          (child: any) => child.key === "mainLayer"
+        );
         let images: string[] = [];
         if (mainLayer) {
           extractImageIdFromNode(images, mainLayer);
