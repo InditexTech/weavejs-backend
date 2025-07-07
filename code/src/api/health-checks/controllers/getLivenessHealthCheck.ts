@@ -26,7 +26,7 @@ export const getLivenessHealthCheckController =
       return;
     }
 
-    if (!isStorageConnected()) {
+    if (!(await isStorageConnected())) {
       res.status(500).json({ status: "Azure Blob Storage failed to connect." });
       return;
     }

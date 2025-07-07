@@ -10,7 +10,7 @@ import {
 
 export const getReadinessHealthCheckController =
   () =>
-  async (req: Request, res: Response): Promise<void> => {
+  (req: Request, res: Response): void => {
     if (!getAzureWebPubsubServer || !isStorageInitialized()) {
       res.status(500).json({ status: "Not initialized" });
       return;
