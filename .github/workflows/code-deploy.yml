@@ -37,7 +37,6 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       AZURE_ACR_USERNAME: ${{ secrets.AZURE_ACR_USERNAME }}
       AZURE_ACR_NAME: ${{ vars.AZURE_ACR_NAME }}
-      AZURE_CONTAINER_ENVIRONMENT_NAME: ${{ vars.AZURE_CONTAINER_ENVIRONMENT_NAME }}
       AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
       AZURE_CONTAINER_NAME: "weavejs-backend"
       AZURE_WEB_PUBSUB_ENDPOINT: ${{ vars.AZURE_WEB_PUBSUB_ENDPOINT }}
@@ -112,13 +111,14 @@ jobs:
 
       - name: Deploy
         uses: azure/cli@v2
+        env:
+          GITHUB_SHA: ${{ github.sha }}
         with:
           azcliversion: latest
           inlineScript: |
             az containerapp update \
               --name $AZURE_CONTAINER_NAME \
               --resource-group $AZURE_RESOURCE_GROUP \
-              --environment $AZURE_CONTAINER_ENVIRONMENT_NAME \
-              --image $AZURE_ACR_NAME.azurecr.io/$AZURE_CONTAINER_NAME:${{ github.sha }} \
-              --revision-suffix "${{ github.sha }}" \
+              --image $AZURE_ACR_NAME.azurecr.io/$AZURE_CONTAINER_NAME:$GITHUB_SHA \
+              --revision-suffix $GITHUB_SHA \
               --query properties.configuration.ingress.fqdn
