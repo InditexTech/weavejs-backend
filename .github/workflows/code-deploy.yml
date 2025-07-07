@@ -48,6 +48,7 @@ jobs:
       AZURE_CS_ENDPOINT: ${{ vars.AZURE_CS_ENDPOINT }}
       AZURE_CS_TIMEOUT_SECS: ${{ vars.AZURE_CS_TIMEOUT_SECS }}
       PERSIST_FREQUENCY_SEG: ${{ vars.PERSIST_FREQUENCY_SEG }}
+      AZURE_LOG_LEVEL: ${{ vars.AZURE_LOG_LEVEL }}
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}
       AZURE_CS_API_KEY: ${{ secrets.AZURE_CS_API_KEY }}
       AI_PASSWORD: ${{ secrets.AI_PASSWORD }}
@@ -79,6 +80,7 @@ jobs:
           echo AZURE_CS_ENDPOINT=${{ env.AZURE_CS_ENDPOINT }} >> .env
           echo AZURE_CS_API_KEY=${{ env.AZURE_CS_API_KEY }} >> .env
           echo AZURE_CS_TIMEOUT_SECS=${{ env.AZURE_CS_TIMEOUT_SECS }} >> .env
+          echo AZURE_LOG_LEVEL=${{ env.AZURE_LOG_LEVEL }} >> .env
           echo LOG_LEVEL=${{ env.LOG_LEVEL }} >> .env
 
       - name: Azure Login
@@ -114,11 +116,11 @@ jobs:
         env:
           GITHUB_SHA: ${{ github.sha }}
         with:
-          azcliversion: latest
           inlineScript: |
+          azcliversion: latest
             az containerapp update \
-              --name $AZURE_CONTAINER_NAME \
-              --resource-group $AZURE_RESOURCE_GROUP \
-              --image $AZURE_ACR_NAME.azurecr.io/$AZURE_CONTAINER_NAME:$GITHUB_SHA \
-              --revision-suffix $GITHUB_SHA \
-              --query properties.configuration.ingress.fqdn
+            --name $AZURE_CONTAINER_NAME \
+            --resource-group $AZURE_RESOURCE_GROUP \
+            --image $AZURE_ACR_NAME.azurecr.io/$AZURE_CONTAINER_NAME:$GITHUB_SHA \
+            --revision-suffix $GITHUB_SHA \
+            --query properties.configuration.ingress.fqdn
