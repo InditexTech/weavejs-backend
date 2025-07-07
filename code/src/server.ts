@@ -9,7 +9,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { getLogger, setupLogger } from "./logger/logger.js";
 import { setupApp } from "./app.js";
-import { setupStore } from "./store.js";
+import { setupStorage, setupStore } from "./store.js";
 import { validateServiceConfig } from "./validate.js";
 
 // __dirname equivalent in ESM
@@ -27,6 +27,8 @@ if (!config) {
   process.exit(1);
 }
 
+// Setup the Azure Web Pubsub store
+await setupStorage();
 // Setup the Azure Web Pubsub store
 setupStore();
 

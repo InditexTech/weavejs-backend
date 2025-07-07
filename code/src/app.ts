@@ -10,6 +10,7 @@ import { setupHttpResponseHeadersMiddleware } from "./middlewares/http-response-
 import { setupBodyParserMiddleware } from "./middlewares/body-parser.js";
 import { setupApiV1Router } from "./api/v1/router.js";
 import { setupApiV2Router } from "./api/v2/router.js";
+import { setupHealthChecksRouter } from "./api/health-checks/router.js";
 import { setLogLevel } from "@azure/logger";
 import { getLogger } from "./logger/logger.js";
 
@@ -36,6 +37,9 @@ export function setupApp() {
   setupHttpLoggerMiddleware(app);
   setupHttpResponseHeadersMiddleware(app);
   setupBodyParserMiddleware(app);
+
+  // Setup Health Checks Router
+  setupHealthChecksRouter(app);
 
   // Setup Routers
   setupApiV1Router(app);

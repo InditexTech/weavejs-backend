@@ -41,7 +41,23 @@ function extractImageIdFromNode(images: string[], node: any) {
   }
 }
 
-async function setupStorage() {
+export const isStorageInitialized = () => storageInitialized;
+
+export const isStorageConnected = async () => {
+  if (!storageInitialized) {
+    await setupStorage();
+  }
+
+  if (!containerClient || !blobServiceClient) {
+    return null;
+  }
+
+  const exists = await containerClient.exists();
+
+  return exists;
+};
+
+export async function setupStorage() {
   const config = getServiceConfig();
 
   const {

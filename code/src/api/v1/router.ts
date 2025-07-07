@@ -5,7 +5,6 @@
 import { Express, Router } from "express";
 import multer from "multer";
 import { getServiceConfig } from "../../config/config.js";
-import { getHealthController } from "./controllers/getHealth.js";
 import { getRoomConnectController } from "./controllers/getRoomConnect.js";
 import { getImageController } from "./controllers/getImage.js";
 import { postUploadImageController } from "./controllers/postUploadImage.js";
@@ -36,9 +35,6 @@ export function setupApiV1Router(app: Express) {
 
   // Setup cors
   const cors = getCorsMiddleware();
-
-  // Setup router routes
-  router.get(`/health`, cors, getHealthController());
 
   // Room handling API
   router.use(getAzureWebPubsubServer().getExpressJsMiddleware());
