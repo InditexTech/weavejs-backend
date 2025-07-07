@@ -32,13 +32,13 @@ setupStore();
 // Init application
 const app = setupApp();
 
-const options = {
-  key: fs.readFileSync(path.join(__dirname, "../server.key")),
-  cert: fs.readFileSync(path.join(__dirname, "../server.crt")),
-};
-
 // Start server
 if (process.env.HTTPS_ENABLED === "true") {
+  const options = {
+    key: fs.readFileSync(path.join(__dirname, "../server.key")),
+    cert: fs.readFileSync(path.join(__dirname, "../server.crt")),
+  };
+
   const server = https
     .createServer(options, app)
     .listen(config.service.port, config.service.hostname, () => {
