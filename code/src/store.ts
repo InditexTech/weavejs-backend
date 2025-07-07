@@ -33,12 +33,12 @@ export const getAzureWebPubsubServer = () => {
 function extractImageIdFromNode(images: string[], node: any) {
   if (node.props.nodeType === "image" && node.props.imageId) {
     images.push(node.props.imageId);
-  } 
+  }
   if (node.props.children) {
     for (const child of node.props.children) {
       extractImageIdFromNode(images, child);
     }
-  }   
+  }
 }
 
 async function setupStorage() {
@@ -51,10 +51,10 @@ async function setupStorage() {
     },
   } = config;
 
-  const credential = new DefaultAzureCredential();
+  const credentials = new DefaultAzureCredential();
   const storageAccountUrl = `https://${accountName}.blob.core.windows.net`;
-  blobServiceClient = new BlobServiceClient(storageAccountUrl, credential);
-  
+  blobServiceClient = new BlobServiceClient(storageAccountUrl, credentials);
+
   containerClient = blobServiceClient.getContainerClient(containerName);
   if (!(await containerClient.exists())) {
     containerClient = (await blobServiceClient.createContainer(containerName))
@@ -74,7 +74,7 @@ export const setupStore = () => {
   azureWebPubsubServer = new WeaveAzureWebPubsubServer({
     pubSubConfig: {
       endpoint,
-      hubName
+      hubName,
     },
     eventsHandlerConfig: {
       path: `/api/v1/api/webpubsub/hubs/${hubName}`,
@@ -88,7 +88,7 @@ export const setupStore = () => {
       if (!containerClient || !blobServiceClient) {
         return null;
       }
-        
+
       const blockBlobClient = containerClient.getBlockBlobClient(docName);
       if (!(await blockBlobClient.exists())) {
         return null;
@@ -105,7 +105,7 @@ export const setupStore = () => {
     },
     persistRoom: async (
       docName: string,
-      actualState: Uint8Array<ArrayBufferLike>,
+      actualState: Uint8Array<ArrayBufferLike>
     ) => {
       if (!storageInitialized) {
         await setupStorage();
@@ -122,7 +122,9 @@ export const setupStore = () => {
 
         const jsonState = JSON.parse(JSON.stringify(state, undefined, 2));
 
-        const mainLayer = jsonState.weave?.props.children?.find((child: any) => child.key === "mainLayer");
+        const mainLayer = jsonState.weave?.props.children?.find(
+          (child: any) => child.key === "mainLayer"
+        );
         let images: string[] = [];
         if (mainLayer) {
           extractImageIdFromNode(images, mainLayer);

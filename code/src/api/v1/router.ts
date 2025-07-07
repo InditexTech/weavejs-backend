@@ -14,8 +14,6 @@ import { getImagesController } from "./controllers/getImages.js";
 import { postRemoveBackgroundController } from "./controllers/postRemoveBackground.js";
 import { getAzureWebPubsubServer } from "../../store.js";
 import { getCorsMiddleware } from "../../middlewares/cors.js";
-import { postGenerateImageController } from "./controllers/postGenerateImage.js";
-import { postEditImageController } from "./controllers/postEditImage.js";
 import { postValidateAIPassword } from "./controllers/postValidateIAPassword.js";
 
 const router: Router = Router();
@@ -62,17 +60,7 @@ export function setupApiV1Router(app: Express) {
     cors,
     postRemoveBackgroundController()
   );
-  router.post(
-    `/${hubName}/rooms/:roomId/images/generate`,
-    cors,
-    postGenerateImageController()
-  );
   router.post(`/ai/password/validate`, cors, postValidateAIPassword());
-  router.post(
-    `/${hubName}/rooms/:roomId/images/edit`,
-    cors,
-    postEditImageController()
-  );
   router.post(
     `/${hubName}/rooms/:roomId/images`,
     cors,

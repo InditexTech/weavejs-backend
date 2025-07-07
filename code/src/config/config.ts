@@ -97,32 +97,6 @@ const serviceConfigSchema = z.object({
       })
       .int({ message: "The timeout must be an integer" }),
   }),
-  gcpClient: z.object({
-    vertexEndpoint: z
-      .string({
-        required_error:
-          "Define the GCP Vertex Endpoint on the environment variable GCP_VERTEX_ENDPOINT",
-      })
-      .trim(),
-    fluxEndpoint: z
-      .string({
-        required_error:
-          "Define the GCP Flux Endpoint on the environment variable GCP_FLUX_ENDPOINT",
-      })
-      .trim(),
-    configKey: z
-      .string({
-        required_error:
-          "Define the GCP client key on the environment variable GCP_CLIENT_CONFIG_KEY",
-      })
-      .trim(),
-    timeoutSecs: z
-      .number({
-        required_error:
-          "Define the GCP timeout on the environment variable GCP_TIMEOUT_SECS",
-      })
-      .int({ message: "The timeout must be an integer" }),
-  }),
 });
 
 export function getServiceConfig(): ServiceConfig {
@@ -160,24 +134,6 @@ export function getServiceConfig(): ServiceConfig {
     },
   };
 
-  const gcpVertexEndpoint = process.env.GCP_VERTEX_ENDPOINT;
-  const gcpFluxEndpoint = process.env.GCP_FLUX_ENDPOINT;
-  let timeoutSecs = 60;
-  try {
-    timeoutSecs = parseInt(process.env.GCP_TIMEOUT_SECS ?? "60");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (error) {
-    throw new Error("GCP_TIMEOUT_SECS must be an integer");
-  }
-  const gcpClientConfigKey = process.env.GCP_CLIENT_CONFIG_KEY;
-
-  const gcpClient = {
-    vertexEndpoint: gcpVertexEndpoint,
-    fluxEndpoint: gcpFluxEndpoint,
-    timeoutSecs,
-    configKey: gcpClientConfigKey,
-  };
-
   const azureCsClientApiKey = process.env.AZURE_CS_API_KEY;
   let azureCsTimeoutSecs = 60;
   try {
@@ -206,7 +162,6 @@ export function getServiceConfig(): ServiceConfig {
     storage,
     ai,
     azureCsClient,
-    gcpClient,
   };
 
   return serviceConfigSchema.parse(serviceConfig);

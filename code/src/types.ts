@@ -29,12 +29,6 @@ export type ServiceConfig = {
     apiKey: string;
     timeoutSecs: number;
   };
-  gcpClient: {
-    vertexEndpoint: string;
-    fluxEndpoint: string;
-    timeoutSecs: number;
-    configKey: string;
-  };
 };
 
 export type RoomsEventHandlerOptions = {
