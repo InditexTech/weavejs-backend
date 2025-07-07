@@ -16,10 +16,10 @@ export function getLogger() {
 }
 
 export function setupLogger() {
-  setLogLevel((process.env.AZURE_LOG_LEVEL || "error") as AzureLogLevel);
+  setLogLevel((process.env.AZURE_LOG_LEVEL ?? "error") as AzureLogLevel);
 
   logger = pino({
-    level: process.env.LOG_LEVEL || "error",
+    level: process.env.LOG_LEVEL ?? "error",
     transport: {
       target: "pino-pretty",
       options: {

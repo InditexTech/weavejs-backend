@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import http from "node:http";
 import https from "node:https";
 import fs from "node:fs";
 import path from "node:path";
@@ -39,7 +40,7 @@ if (process.env.HTTPS_ENABLED === "true") {
     cert: fs.readFileSync(path.join(__dirname, "../server.crt")),
   };
 
-  const server = https
+  https
     .createServer(options, app)
     .listen(config.service.port, config.service.hostname, () => {
       logger.info(
@@ -47,13 +48,11 @@ if (process.env.HTTPS_ENABLED === "true") {
       );
     });
 } else {
-  const server = app.listen(
-    config.service.port,
-    config.service.hostname,
-    () => {
+  http
+    .createServer(app)
+    .listen(config.service.port, config.service.hostname, () => {
       logger.info(
         `Server started: http://${config.service.hostname}:${config.service.port}`
       );
-    }
-  );
+    });
 }
