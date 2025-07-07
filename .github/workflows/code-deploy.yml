@@ -32,7 +32,6 @@ jobs:
     runs-on: ubuntu-24.04
     environment: ${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-develop' }}
     env:
-      AZURE_IDENTITY_ID: ${{ secrets.AZURE_IDENTITY_ID }}
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
