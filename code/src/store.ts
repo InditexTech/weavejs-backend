@@ -31,10 +31,10 @@ export const getAzureWebPubsubServer = () => {
 };
 
 function extractImageIdFromNode(images: string[], node: any) {
-  if (node.props.nodeType === "image" && node.props.imageId) {
+  if (node.props && node.props.nodeType === "image" && node.props.imageId) {
     images.push(node.props.imageId);
   }
-  if (node.props.children) {
+  if (node.props && node.props.children) {
     for (const child of node.props.children) {
       extractImageIdFromNode(images, child);
     }
