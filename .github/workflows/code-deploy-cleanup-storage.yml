@@ -12,9 +12,11 @@ on:
         required: true
         type: choice
         options:
+          - azure-develop
           - azure-development
+          - azure-pro
           - azure-production
-        default: "azure-development"
+        default: "azure-pro"
 
 permissions:
   id-token: write
@@ -24,7 +26,7 @@ jobs:
   build:
     name: Build Cleanup Storage Image
     runs-on: ubuntu-24.04
-    environment: ${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-production' }}
+    environment: ${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-develop' }}
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -43,7 +45,7 @@ jobs:
     steps:
       - name: Get input parameters
         run: |
-          ENVIRONMENT=${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-production' }}
+          ENVIRONMENT=${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-develop' }}
           echo "ENVIRONMENT=${ENVIRONMENT}" >> "$GITHUB_ENV"
           BASELINE_BRANCH=${{ github.event.inputs.BASELINE || 'main' }}
           echo "BASELINE_BRANCH=${BASELINE_BRANCH#refs/heads/}" >> "$GITHUB_ENV"

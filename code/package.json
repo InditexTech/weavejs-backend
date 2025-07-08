@@ -14,7 +14,7 @@
     "cleanup": "rm package-lock.json && npkill -D -y",
     "copy:assets": "mkdir -p ./public && cp -r node_modules/@imgly/background-removal-node/dist/. public",
     "dev": "nodemon --exec \"tsx --env-file=.env src/server.ts\"",
-    "dev:https": "cross-env HTTPS_ENABLED=true nodemon --exec \"tsx --env-file=.env.https src/server.ts\"",
+    "dev:https": "cross-env HTTPS_ENABLED=true nodemon --exec \"tsx --env-file=.env src/server.ts\"",
     "image:base64": "tsx src/utils/image-to-base64.ts",
     "docker:build": "docker build -t weavejs-showcase-backend .",
     "format": "prettier --write ./src",
