@@ -18,7 +18,7 @@
     "start": "node --env-file=./.env ./dist/action.js"
   },
   "dependencies": {
-    "@azure/identity": "^4.10.1",
+    "@azure/identity": "^4.10.2",
     "@azure/storage-blob": "^12.26.0",
     "zod": "^3.25.67"
   },
