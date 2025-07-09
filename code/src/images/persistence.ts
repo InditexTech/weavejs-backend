@@ -9,6 +9,7 @@ import {
   ContainerClient,
   ContainerListBlobsOptions,
 } from "@azure/storage-blob";
+import { DefaultAzureCredential } from "@azure/identity";
 import { getServiceConfig } from "../config/config.js";
 import { getLogger } from "../logger/logger.js";
 
@@ -32,13 +33,15 @@ export class ImagesPersistenceHandler {
 
     const {
       storage: {
-        connectionString,
+        accountName,
         images: { containerName },
       },
     } = config;
 
-    this._blobServiceClient =
-      BlobServiceClient.fromConnectionString(connectionString);
+    const credential = new DefaultAzureCredential();
+    const storageAccountUrl = `https://${accountName}.blob.core.windows.net`;
+    
+    this._blobServiceClient = new BlobServiceClient(storageAccountUrl, credential);
 
     this._containerClient =
       this._blobServiceClient.getContainerClient(containerName);

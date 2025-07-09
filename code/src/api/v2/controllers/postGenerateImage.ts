@@ -4,7 +4,6 @@
 
 import { Request, Response } from "express";
 import { getServiceConfig } from "../../../config/config.js";
-import { getGcpClient } from "../../../clients/gcp.js";
 
 export const postGenerateImageController = () => {
   const config = getServiceConfig();
@@ -37,8 +36,7 @@ export const postGenerateImageController = () => {
         config.azureCsClient.timeoutSecs * 1000
       );
 
-      const client = getGcpClient();
-      const response = await client.fetch(
+      const response = await fetch(
         `${config.azureCsClient.endpoint}/openai/deployments/gpt-image-1/images/generations?api-version=2025-04-01-preview`,
         {
           method: "POST",
@@ -51,8 +49,10 @@ export const postGenerateImageController = () => {
         }
       );
 
+      const jsonData = await response.json();
       clearTimeout(timeout);
-      res.status(response.status).json(response.data);
+
+      res.status(response.status).json(jsonData);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (ex: any) {
       if (ex.name === "AbortError") {

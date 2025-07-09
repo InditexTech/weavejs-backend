@@ -32,12 +32,6 @@ const serviceConfigSchema = z.object({
           "Define the Azure Web PubSub endpoint on the environment variable AZURE_WEB_PUBSUB_ENDPOINT",
       })
       .trim(),
-    key: z
-      .string({
-        required_error:
-          "Define the Azure Web PubSub key on the environment variable AZURE_WEB_PUBSUB_KEY",
-      })
-      .trim(),
     hubName: z
       .string({
         required_error:
@@ -52,10 +46,10 @@ const serviceConfigSchema = z.object({
       .int({ message: "The persist frequency must be an integer" }),
   }),
   storage: z.object({
-    connectionString: z
+    accountName: z
       .string({
         required_error:
-          "Define the Azure Blob Storage connection string on the environment variable AZURE_STORAGE_CONNECTION_STRING",
+          "Define the Azure Storage account name on the environment variable AZURE_STORAGE_ACCOUNT_NAME",
       })
       .trim(),
     rooms: z.object({
@@ -103,32 +97,6 @@ const serviceConfigSchema = z.object({
       })
       .int({ message: "The timeout must be an integer" }),
   }),
-  gcpClient: z.object({
-    vertexEndpoint: z
-      .string({
-        required_error:
-          "Define the GCP Vertex Endpoint on the environment variable GCP_VERTEX_ENDPOINT",
-      })
-      .trim(),
-    fluxEndpoint: z
-      .string({
-        required_error:
-          "Define the GCP Flux Endpoint on the environment variable GCP_FLUX_ENDPOINT",
-      })
-      .trim(),
-    configKey: z
-      .string({
-        required_error:
-          "Define the GCP client key on the environment variable GCP_CLIENT_CONFIG_KEY",
-      })
-      .trim(),
-    timeoutSecs: z
-      .number({
-        required_error:
-          "Define the GCP timeout on the environment variable GCP_TIMEOUT_SECS",
-      })
-      .int({ message: "The timeout must be an integer" }),
-  }),
 });
 
 export function getServiceConfig(): ServiceConfig {
@@ -141,7 +109,6 @@ export function getServiceConfig(): ServiceConfig {
   };
 
   const endpoint = process.env.AZURE_WEB_PUBSUB_ENDPOINT;
-  const key = process.env.AZURE_WEB_PUBSUB_KEY;
   const hubName = process.env.AZURE_WEB_PUBSUB_HUB_NAME;
   const persistFrequencySeg = parseInt(
     process.env.PERSIST_FREQUENCY_SEG || "10"
@@ -149,41 +116,22 @@ export function getServiceConfig(): ServiceConfig {
 
   const pubsub = {
     endpoint,
-    key,
     hubName,
     persistFrequencySeg,
   };
 
-  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+  const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
   const roomsContainerName = process.env.AZURE_STORAGE_ROOMS_CONTAINER_NAME;
   const imagesContainerName = process.env.AZURE_STORAGE_IMAGES_CONTAINER_NAME;
 
   const storage = {
-    connectionString,
+    accountName,
     rooms: {
       containerName: roomsContainerName,
     },
     images: {
       containerName: imagesContainerName,
     },
-  };
-
-  const gcpVertexEndpoint = process.env.GCP_VERTEX_ENDPOINT;
-  const gcpFluxEndpoint = process.env.GCP_FLUX_ENDPOINT;
-  let timeoutSecs = 60;
-  try {
-    timeoutSecs = parseInt(process.env.GCP_TIMEOUT_SECS ?? "60");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (error) {
-    throw new Error("GCP_TIMEOUT_SECS must be an integer");
-  }
-  const gcpClientConfigKey = process.env.GCP_CLIENT_CONFIG_KEY;
-
-  const gcpClient = {
-    vertexEndpoint: gcpVertexEndpoint,
-    fluxEndpoint: gcpFluxEndpoint,
-    timeoutSecs,
-    configKey: gcpClientConfigKey,
   };
 
   const azureCsClientApiKey = process.env.AZURE_CS_API_KEY;
@@ -214,7 +162,6 @@ export function getServiceConfig(): ServiceConfig {
     storage,
     ai,
     azureCsClient,
-    gcpClient,
   };
 
   return serviceConfigSchema.parse(serviceConfig);

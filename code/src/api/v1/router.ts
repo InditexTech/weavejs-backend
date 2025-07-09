@@ -5,7 +5,6 @@
 import { Express, Router } from "express";
 import multer from "multer";
 import { getServiceConfig } from "../../config/config.js";
-import { getHealthController } from "./controllers/getHealth.js";
 import { getRoomConnectController } from "./controllers/getRoomConnect.js";
 import { getImageController } from "./controllers/getImage.js";
 import { postUploadImageController } from "./controllers/postUploadImage.js";
@@ -14,8 +13,6 @@ import { getImagesController } from "./controllers/getImages.js";
 import { postRemoveBackgroundController } from "./controllers/postRemoveBackground.js";
 import { getAzureWebPubsubServer } from "../../store.js";
 import { getCorsMiddleware } from "../../middlewares/cors.js";
-import { postGenerateImageController } from "./controllers/postGenerateImage.js";
-import { postEditImageController } from "./controllers/postEditImage.js";
 import { postValidateAIPassword } from "./controllers/postValidateIAPassword.js";
 
 const router: Router = Router();
@@ -39,9 +36,6 @@ export function setupApiV1Router(app: Express) {
   // Setup cors
   const cors = getCorsMiddleware();
 
-  // Setup router routes
-  router.get(`/health`, cors, getHealthController());
-
   // Room handling API
   router.use(getAzureWebPubsubServer().getExpressJsMiddleware());
   router.get(
@@ -62,17 +56,7 @@ export function setupApiV1Router(app: Express) {
     cors,
     postRemoveBackgroundController()
   );
-  router.post(
-    `/${hubName}/rooms/:roomId/images/generate`,
-    cors,
-    postGenerateImageController()
-  );
   router.post(`/ai/password/validate`, cors, postValidateAIPassword());
-  router.post(
-    `/${hubName}/rooms/:roomId/images/edit`,
-    cors,
-    postEditImageController()
-  );
   router.post(
     `/${hubName}/rooms/:roomId/images`,
     cors,

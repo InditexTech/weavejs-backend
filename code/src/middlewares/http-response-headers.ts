@@ -17,6 +17,6 @@ export function setupHttpResponseHeadersMiddleware(app: Express) {
   app.use(
     helmet({
       crossOriginResourcePolicy: false,
-    }),
+    })
   );
 }

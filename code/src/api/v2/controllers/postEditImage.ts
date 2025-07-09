@@ -4,7 +4,6 @@
 
 import { Request, Response } from "express";
 import { getServiceConfig } from "../../../config/config.js";
-import { getGcpClient } from "../../../clients/gcp.js";
 
 const DATA_URL_REGEX = /^data:([a-z]+\/[a-z0-9.+-]+)?(;base64)?,/i;
 
@@ -121,9 +120,7 @@ export const postEditImageController = () => {
         config.azureCsClient.timeoutSecs * 1000
       );
 
-      const client = getGcpClient();
-
-      const response = await client.fetch(
+      const response = await fetch(
         `${config.azureCsClient.endpoint}/openai/deployments/gpt-image-1/images/edits?api-version=2025-04-01-preview`,
         {
           method: "POST",
@@ -135,8 +132,10 @@ export const postEditImageController = () => {
         }
       );
 
+      const jsonData = await response.json();
       clearTimeout(timeout);
-      res.status(response.status).json(response.data);
+
+      res.status(response.status).json(jsonData);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (ex: any) {
       if (ex.name === "AbortError") {

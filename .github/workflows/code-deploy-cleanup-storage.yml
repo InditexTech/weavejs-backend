@@ -12,9 +12,11 @@ on:
         required: true
         type: choice
         options:
+          - azure-develop
           - azure-development
+          - azure-pro
           - azure-production
-        default: "azure-development"
+        default: "azure-pro"
 
 permissions:
   id-token: write
@@ -24,7 +26,7 @@ jobs:
   build:
     name: Build Cleanup Storage Image
     runs-on: ubuntu-24.04
-    environment: ${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-production' }}
+    environment: ${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-develop' }}
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -35,7 +37,7 @@ jobs:
       AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
       AZURE_CONTAINER_NAME: "weavejs-cleanup-storage"
       AZURE_IDENTITY_ID: ${{ secrets.AZURE_IDENTITY_ID }}
-      AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+      AZURE_STORAGE_ACCOUNT_NAME: ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}
       AZURE_STORAGE_ROOMS_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_ROOMS_CONTAINER_NAME }}
       AZURE_STORAGE_IMAGES_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_IMAGES_CONTAINER_NAME }}
       AZURE_STORAGE_CLEANUP_DRY_RUN: ${{ vars.AZURE_STORAGE_CLEANUP_DRY_RUN }}
@@ -43,7 +45,7 @@ jobs:
     steps:
       - name: Get input parameters
         run: |
-          ENVIRONMENT=${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-production' }}
+          ENVIRONMENT=${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-develop' }}
           echo "ENVIRONMENT=${ENVIRONMENT}" >> "$GITHUB_ENV"
           BASELINE_BRANCH=${{ github.event.inputs.BASELINE || 'main' }}
           echo "BASELINE_BRANCH=${BASELINE_BRANCH#refs/heads/}" >> "$GITHUB_ENV"
@@ -59,7 +61,7 @@ jobs:
         working-directory: cleanup-storage
         run: |
           touch .env
-          echo AZURE_STORAGE_CONNECTION_STRING="${{ env.AZURE_STORAGE_CONNECTION_STRING }}" >> .env
+          echo AZURE_STORAGE_ACCOUNT_NAME="${{ env.AZURE_STORAGE_ACCOUNT_NAME }}" >> .env
           echo AZURE_STORAGE_ROOMS_CONTAINER_NAME=${{ env.AZURE_STORAGE_ROOMS_CONTAINER_NAME }} >> .env
           echo AZURE_STORAGE_IMAGES_CONTAINER_NAME=${{ env.AZURE_STORAGE_IMAGES_CONTAINER_NAME }} >> .env
           echo DRY_RUN=${{ env.AZURE_STORAGE_CLEANUP_DRY_RUN }} >> .env

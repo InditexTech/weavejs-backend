@@ -5,7 +5,7 @@
 export type ActionConfig = {
   dryRun: boolean;
   storage: {
-    connectionString: string;
+    accountName: string;
     rooms: {
       containerName: string;
     };

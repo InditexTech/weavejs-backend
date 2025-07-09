@@ -8,10 +8,10 @@ import { ActionConfig } from "./types.js";
 const actionConfigSchema = z.object({
   dryRun: z.boolean(),
   storage: z.object({
-    connectionString: z
+    accountName: z
         .string({
           required_error:
-            "Define the Azure Blob Storage connection string on the environment variable AZURE_STORAGE_CONNECTION_STRING",
+            "Define the Azure Storage account name on the environment variable AZURE_STORAGE_ACCOUNT_NAME",
         })
         .trim(),
     rooms: z.object({
@@ -35,12 +35,12 @@ const actionConfigSchema = z.object({
 
 export function getActionConfig(): ActionConfig {
   const dryRun = process.env.DRY_RUN === "true";
-  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+  const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
   const roomsContainerName = process.env.AZURE_STORAGE_ROOMS_CONTAINER_NAME;
   const imagesContainerName = process.env.AZURE_STORAGE_IMAGES_CONTAINER_NAME;
 
   const storage = {
-    connectionString,
+    accountName,
     rooms: {
       containerName: roomsContainerName,
     },
