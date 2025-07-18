@@ -17,10 +17,8 @@ on:
         type: choice
         options:
           - azure-develop
-          - azure-development
           - azure-pro
-          - azure-production
-        default: "azure-development"
+        default: "azure-develop"
 
 permissions:
   id-token: write
