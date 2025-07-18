@@ -8,7 +8,6 @@ import { DefaultAzureCredential } from "@azure/identity";
 import { streamToBuffer } from "./utils.js";
 import { getServiceConfig } from "./config/config.js";
 import * as Y from "yjs";
-import { observeDeep, syncedStore, getYjsDoc } from "@syncedstore/core";
 
 const endpoint = process.env.AZURE_WEB_PUBSUB_ENDPOINT;
 const hubName = process.env.AZURE_WEB_PUBSUB_HUB_NAME;
@@ -127,35 +126,32 @@ export const setupStore = () => {
         await setupStorage();
       }
 
-      let state: any = syncedStore({
-        weave: {},
-      });
+      if (!containerClient || !blobServiceClient) {
+        return;
+      }
 
-      observeDeep(state, async () => {
-        if (!containerClient || !blobServiceClient) {
-          return;
-        }
+      const actualStateJson = getStateAsJson(actualState);
 
-        const jsonState = JSON.parse(JSON.stringify(state, undefined, 2));
+      const mainLayer = actualStateJson.props.children?.find(
+        (child: any) => child.key === "mainLayer"
+      );
 
-        const mainLayer = jsonState.weave?.props.children?.find(
-          (child: any) => child.key === "mainLayer"
-        );
-        let images: string[] = [];
-        if (mainLayer) {
-          extractImageIdFromNode(images, mainLayer);
-          // Do something with the images
-        }
+      let images: string[] = [];
+      if (mainLayer) {
+        extractImageIdFromNode(images, mainLayer);
+        // Do something with the extracted images if needed
+      }
 
-        const blockBlobClient = containerClient.getBlockBlobClient(docName);
-        await blockBlobClient.upload(actualState, actualState.length);
-        state = null;
-      });
-
-      const document = getYjsDoc(state);
-      Y.applyUpdate(document, actualState);
-
-      return;
+      const blockBlobClient = containerClient.getBlockBlobClient(docName);
+      await blockBlobClient.upload(actualState, actualState.length);
     },
   });
 };
+
+function getStateAsJson(actualState: Uint8Array<ArrayBufferLike>) {
+  const document = new Y.Doc();
+  Y.applyUpdate(document, actualState);
+  const actualStateString = JSON.stringify(document.getMap("weave").toJSON());
+  const actualStateJson = JSON.parse(actualStateString);
+  return actualStateJson;
+}
