@@ -40,8 +40,8 @@
     "@azure/storage-blob": "^12.26.0",
     "@azure/web-pubsub": "^1.2.0",
     "@imgly/background-removal-node": "^1.4.5",
-    "@inditextech/weave-sdk": "0.39.3",
-    "@inditextech/weave-store-azure-web-pubsub": "0.39.3",
+    "@inditextech/weave-sdk": "0.40.0",
+    "@inditextech/weave-store-azure-web-pubsub": "0.40.0",
     "@syncedstore/core": "^0.6.0",
     "axios": "^1.10.0",
     "cors": "^2.8.5",
@@ -57,7 +57,6 @@
     "pino-pretty": "^13.0.0",
     "ts-node": "^10.9.2",
     "uuid": "^11.1.0",
-    "yjs": "13.6.27",
     "zod": "^3.24.2"
   },
   "devDependencies": {
