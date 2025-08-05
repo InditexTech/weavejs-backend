@@ -5,8 +5,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Request, Response } from "express";
+import mimeTypes from "mime-types";
 import { removeBackground } from "@imgly/background-removal-node";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
+import { saveBase64ToFile } from "../../../utils.js";
 
 async function myBlobToUIntDemo(blob: Blob) {
   const arrayBuffer = await blob.arrayBuffer();
@@ -20,19 +22,18 @@ export const postRemoveBackgroundController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId;
     const imageId = req.params.imageId;
+    const {
+      image: { dataBase64, contentType },
+    } = req.body;
 
-    const fileName = `${roomId}/${imageId}`;
+    const extension = mimeTypes.extension(contentType) || "png";
+    const fileName = `${roomId}/${imageId}.${extension}`;
+    const filePath = path.join(process.cwd(), "temp", fileName);
 
-    if (!(await persistenceHandler.exists(fileName))) {
-      res.status(404).json({ status: "KO", message: "Image doesn't exists" });
-      return;
-    }
+    await saveBase64ToFile(dataBase64, filePath);
 
     try {
-      const filePathDownload = path.join(process.cwd(), "temp", imageId);
-      await persistenceHandler.fetchToFile(fileName, filePathDownload);
-
-      removeBackground(filePathDownload, {
+      removeBackground(filePath, {
         publicPath: `file://${path.join(process.cwd(), "public")}/`,
         output: { format: "image/png", quality: 1 },
       })
@@ -43,25 +44,25 @@ export const postRemoveBackgroundController = () => {
           await persistenceHandler.persist(
             fileNameRemoved,
             { size: data.length, mimeType: "image/png" },
-            data,
+            data
           );
-          fs.rmSync(filePathDownload);
+          fs.rmSync(filePath);
 
-          res
-            .status(201)
-            .json({
-              status: "Image created OK",
-              fileName: fileNameRemoved,
-              mimeType: "image/png",
-            });
+          res.status(201).json({
+            status: "Image created OK",
+            fileName: fileNameRemoved,
+            mimeType: "image/png",
+          });
         })
         .catch((err) => {
+          fs.rmSync(filePath);
           console.error(err);
           res
             .status(500)
             .json({ status: "KO", message: "Error transforming the image" });
         });
     } catch (ex) {
+      fs.rmSync(filePath);
       console.error(ex);
       res
         .status(500)
