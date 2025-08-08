@@ -11,9 +11,9 @@ import { getLogger, setupLogger } from "./logger/logger.js";
 import { setupApp } from "./app.js";
 import { setupStore } from "./store.js";
 import { validateServiceConfig } from "./validate.js";
-import { setupWorkloads } from "./workloads/workloads.js";
-import { setupEvents } from "./events/events.js";
-import { getDatabaseInstance, setupDatabase } from "./database/database.js";
+// import { setupWorkloads } from "./workloads/workloads.js";
+// import { setupEvents } from "./events/events.js";
+// import { getDatabaseInstance, setupDatabase } from "./database/database.js";
 import { setupStorage } from "./storage/storage.js";
 
 // __dirname equivalent in ESM
@@ -32,13 +32,13 @@ if (!config) {
 }
 
 // Setup database
-await setupDatabase();
+// await setupDatabase();
 
 // Setup events
-await setupEvents();
+// await setupEvents();
 
 // Setup the workloads
-await setupWorkloads(getDatabaseInstance());
+// await setupWorkloads(getDatabaseInstance());
 
 // Setup the Azure Storage
 await setupStorage();

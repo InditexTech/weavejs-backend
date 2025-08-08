@@ -9,7 +9,7 @@ import { postGenerateImageController } from "./controllers/postGenerateImage.js"
 import { postEditImageController } from "./controllers/postEditImage.js";
 import { postRemoveBackgroundController } from "./controllers/postRemoveBackground.js";
 import { getServerSideEvents } from "./controllers/getServerSideEvents.js";
-import { getTasksController } from "./controllers/getTasks.js";
+// import { getTasksController } from "./controllers/getTasks.js";
 
 const router: Router = Router();
 
@@ -49,7 +49,7 @@ export function setupApiV2Router(app: Express) {
   );
 
   // Tasks API
-  router.get(`/${hubName}/rooms/:roomId/tasks`, cors, getTasksController());
+  // router.get(`/${hubName}/rooms/:roomId/tasks`, cors, getTasksController());
 
   app.use("/api/v2", router);
 }
