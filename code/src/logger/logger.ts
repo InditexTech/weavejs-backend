@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { pino, Logger } from "pino";
+import pino, { Logger } from "pino";
 import { AzureLogger, AzureLogLevel, setLogLevel } from "@azure/logger";
 
 let logger: Logger | null = null;
