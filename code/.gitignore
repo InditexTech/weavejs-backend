@@ -36,3 +36,5 @@ assets
 
 server.crt
 server.key
+
+data/*
