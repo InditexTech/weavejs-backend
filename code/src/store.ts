@@ -3,12 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { WeaveAzureWebPubsubServer } from "@inditextech/weave-store-azure-web-pubsub/server";
-import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
-import { DefaultAzureCredential } from "@azure/identity";
 import { streamToBuffer } from "./utils.js";
 import { getServiceConfig } from "./config/config.js";
 import * as Y from "yjs";
+import { getLogger } from "./logger/logger.js";
+import {
+  getBlobServiceClient,
+  getContainerClient,
+  isStorageInitialized,
+  setupStorage,
+} from "./storage/storage.js";
 
+let logger = null as unknown as ReturnType<typeof getLogger>;
 const endpoint = process.env.AZURE_WEB_PUBSUB_ENDPOINT;
 const hubName = process.env.AZURE_WEB_PUBSUB_HUB_NAME;
 
@@ -17,9 +23,6 @@ if (!endpoint || !hubName) {
 }
 
 let azureWebPubsubServer: WeaveAzureWebPubsubServer | null = null;
-let storageInitialized: boolean = false;
-let blobServiceClient: BlobServiceClient | null = null;
-let containerClient: ContainerClient | null = null;
 
 export const getAzureWebPubsubServer = () => {
   if (!azureWebPubsubServer) {
@@ -40,46 +43,11 @@ function extractImageIdFromNode(images: string[], node: any) {
   }
 }
 
-export const isStorageInitialized = () => storageInitialized;
-
-export const isStorageConnected = async () => {
-  if (!storageInitialized) {
-    await setupStorage();
-  }
-
-  if (!containerClient || !blobServiceClient) {
-    return null;
-  }
-
-  const exists = await containerClient.exists();
-
-  return exists;
-};
-
-export async function setupStorage() {
-  const config = getServiceConfig();
-
-  const {
-    storage: {
-      accountName,
-      rooms: { containerName },
-    },
-  } = config;
-
-  const credentials = new DefaultAzureCredential();
-  const storageAccountUrl = `https://${accountName}.blob.core.windows.net`;
-  blobServiceClient = new BlobServiceClient(storageAccountUrl, credentials);
-
-  containerClient = blobServiceClient.getContainerClient(containerName);
-  if (!(await containerClient.exists())) {
-    containerClient = (await blobServiceClient.createContainer(containerName))
-      .containerClient;
-  }
-
-  storageInitialized = true;
-}
-
 export const setupStore = () => {
+  logger = getLogger().child({ module: "store" });
+
+  logger.info("Setting up store module");
+
   const config = getServiceConfig();
 
   const {
@@ -96,9 +64,12 @@ export const setupStore = () => {
       allowedEndpoints: [endpoint],
     },
     fetchRoom: async (docName: string) => {
-      if (!storageInitialized) {
+      if (!isStorageInitialized()) {
         await setupStorage();
       }
+
+      const containerClient = getContainerClient();
+      const blobServiceClient = getBlobServiceClient();
 
       if (!containerClient || !blobServiceClient) {
         return null;
@@ -122,9 +93,12 @@ export const setupStore = () => {
       docName: string,
       actualState: Uint8Array<ArrayBufferLike>
     ) => {
-      if (!storageInitialized) {
+      if (!isStorageInitialized()) {
         await setupStorage();
       }
+
+      const containerClient = getContainerClient();
+      const blobServiceClient = getBlobServiceClient();
 
       if (!containerClient || !blobServiceClient) {
         return;
@@ -146,6 +120,8 @@ export const setupStore = () => {
       await blockBlobClient.upload(actualState, actualState.length);
     },
   });
+
+  logger.info("Store module ready");
 };
 
 function getStateAsJson(actualState: Uint8Array<ArrayBufferLike>) {

@@ -9,8 +9,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { getLogger, setupLogger } from "./logger/logger.js";
 import { setupApp } from "./app.js";
-import { setupStorage, setupStore } from "./store.js";
+import { setupStore } from "./store.js";
 import { validateServiceConfig } from "./validate.js";
+import { setupWorkloads } from "./workloads/workloads.js";
+import { setupEvents } from "./events/events.js";
+import { getDatabaseInstance, setupDatabase } from "./database/database.js";
+import { setupStorage } from "./storage/storage.js";
 
 // __dirname equivalent in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -27,10 +31,20 @@ if (!config) {
   process.exit(1);
 }
 
-// Setup the Azure Web Pubsub store
+// Setup database
+await setupDatabase();
+
+// Setup events
+await setupEvents();
+
+// Setup the workloads
+await setupWorkloads(getDatabaseInstance());
+
+// Setup the Azure Storage
 await setupStorage();
+
 // Setup the Azure Web Pubsub store
-setupStore();
+await setupStore();
 
 // Init application
 const app = setupApp();

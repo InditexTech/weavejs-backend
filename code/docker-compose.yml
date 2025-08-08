@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: weave_db
+    restart: always
+    environment:
+      POSTGRES_USER: weave_dbuser
+      POSTGRES_PASSWORD: weave_password
+      POSTGRES_DB: weavejs
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    depends_on:
+      - db

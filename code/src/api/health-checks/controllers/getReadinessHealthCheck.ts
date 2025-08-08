@@ -3,10 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Request, Response } from "express";
-import {
-  getAzureWebPubsubServer,
-  isStorageInitialized,
-} from "../../../store.js";
+import { getAzureWebPubsubServer } from "../../../store.js";
+import { isStorageInitialized } from "../../../storage/storage.js";
 
 export const getReadinessHealthCheckController =
   () =>

@@ -7,6 +7,9 @@ import { getServiceConfig } from "../../config/config.js";
 import { getCorsMiddleware } from "../../middlewares/cors.js";
 import { postGenerateImageController } from "./controllers/postGenerateImage.js";
 import { postEditImageController } from "./controllers/postEditImage.js";
+import { postRemoveBackgroundController } from "./controllers/postRemoveBackground.js";
+import { getServerSideEvents } from "./controllers/getServerSideEvents.js";
+import { getTasksController } from "./controllers/getTasks.js";
 
 const router: Router = Router();
 
@@ -26,6 +29,9 @@ export function setupApiV2Router(app: Express) {
   // Setup cors
   const cors = getCorsMiddleware();
 
+  // Server-side events API
+  router.get(`/${hubName}/rooms/:roomId/events`, cors, getServerSideEvents());
+
   router.post(
     `/${hubName}/rooms/:roomId/images/generate`,
     cors,
@@ -36,6 +42,14 @@ export function setupApiV2Router(app: Express) {
     cors,
     postEditImageController()
   );
+  router.post(
+    `/${hubName}/rooms/:roomId/images/:imageId/remove-background`,
+    cors,
+    postRemoveBackgroundController()
+  );
+
+  // Tasks API
+  router.get(`/${hubName}/rooms/:roomId/tasks`, cors, getTasksController());
 
   app.use("/api/v2", router);
 }
