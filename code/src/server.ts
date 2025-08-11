@@ -15,7 +15,7 @@ import { setupWorkloads } from "./workloads/workloads.js";
 import { setupEvents } from "./events/events.js";
 import { getDatabaseInstance, setupDatabase } from "./database/database.js";
 import { setupStorage } from "./storage/storage.js";
-import { IS_ASYNC_API_ACTIVE, isAsyncApiActive } from "./utils.js";
+import { IS_ASYNC_API_ACTIVE } from "./utils.js";
 
 // __dirname equivalent in ESM
 const __filename = fileURLToPath(import.meta.url);
