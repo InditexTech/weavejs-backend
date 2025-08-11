@@ -11,10 +11,11 @@ import { getLogger, setupLogger } from "./logger/logger.js";
 import { setupApp } from "./app.js";
 import { setupStore } from "./store.js";
 import { validateServiceConfig } from "./validate.js";
-// import { setupWorkloads } from "./workloads/workloads.js";
-// import { setupEvents } from "./events/events.js";
-// import { getDatabaseInstance, setupDatabase } from "./database/database.js";
+import { setupWorkloads } from "./workloads/workloads.js";
+import { setupEvents } from "./events/events.js";
+import { getDatabaseInstance, setupDatabase } from "./database/database.js";
 import { setupStorage } from "./storage/storage.js";
+import { IS_ASYNC_API_ACTIVE, isAsyncApiActive } from "./utils.js";
 
 // __dirname equivalent in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -31,14 +32,14 @@ if (!config) {
   process.exit(1);
 }
 
-// Setup database
-// await setupDatabase();
-
-// Setup events
-// await setupEvents();
-
-// Setup the workloads
-// await setupWorkloads(getDatabaseInstance());
+if (IS_ASYNC_API_ACTIVE) {
+  // Setup database
+  await setupDatabase();
+  // Setup events
+  await setupEvents();
+  // Setup the workloads
+  await setupWorkloads(getDatabaseInstance());
+}
 
 // Setup the Azure Storage
 await setupStorage();

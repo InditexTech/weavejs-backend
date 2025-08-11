@@ -9,7 +9,8 @@ import { postGenerateImageController } from "./controllers/postGenerateImage.js"
 import { postEditImageController } from "./controllers/postEditImage.js";
 import { postRemoveBackgroundController } from "./controllers/postRemoveBackground.js";
 import { getServerSideEvents } from "./controllers/getServerSideEvents.js";
-// import { getTasksController } from "./controllers/getTasks.js";
+import { getTasksController } from "./controllers/getTasks.js";
+import { IS_ASYNC_API_ACTIVE } from "../../utils.js";
 
 const router: Router = Router();
 
@@ -48,8 +49,10 @@ export function setupApiV2Router(app: Express) {
     postRemoveBackgroundController()
   );
 
-  // Tasks API
-  // router.get(`/${hubName}/rooms/:roomId/tasks`, cors, getTasksController());
+  if (IS_ASYNC_API_ACTIVE) {
+    // Tasks API
+    router.get(`/${hubName}/rooms/:roomId/tasks`, cors, getTasksController());
+  }
 
   app.use("/api/v2", router);
 }

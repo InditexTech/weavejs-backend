@@ -33,3 +33,5 @@ export const saveBase64ToFile = async (
   await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
   await fs.promises.writeFile(filePath, buffer);
 };
+
+export const IS_ASYNC_API_ACTIVE = process.env.ASYNC_API_ACTIVE === "true";
