@@ -9,13 +9,14 @@ import { RemoveImageBackgroundJob } from "../../../workloads/jobs/remove-image-b
 
 export const postRemoveBackgroundController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const userId = req.query.userId as string;
-    const clientId = req.query.clientId as string;
     const roomId = req.params.roomId;
     const imageId = req.params.imageId;
     const {
       image: { dataBase64, contentType },
     } = req.body;
+
+    const userId: string = req.headers["x-weave-user-id"] ?? "";
+    const clientId: string = req.headers["x-weave-client-id"] ?? "";
 
     if (
       !clientId ||
