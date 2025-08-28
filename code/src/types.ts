@@ -29,6 +29,31 @@ export type ServiceConfig = {
     apiKey: string;
     timeoutSecs: number;
   };
+  features: {
+    workloads: boolean;
+    threads: boolean;
+  };
+  database:
+    | {
+        kind: "connection_string";
+        connection: {
+          connectionString: string;
+        };
+        forceSync: boolean;
+      }
+    | {
+        kind: "properties";
+        connection: {
+          host: string;
+          port: number;
+          db: string;
+          username: string;
+          password: string;
+          ssl: boolean;
+          cloudCredentials: boolean;
+        };
+        forceSync: boolean;
+      };
 };
 
 export type RoomsEventHandlerOptions = {

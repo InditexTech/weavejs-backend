@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
 
 const clients: Map<string, Response> = new Map();
+const roomClients: Map<string, Map<string, Response>> = new Map();
 
 export const getServerSideEvents = () => {
   return async (req: Request, res: Response): Promise<void> => {
+    const roomId: string = (req.query.roomId as string) || "default";
     const clientId: string = (req.query.clientId as string) || "default";
 
     // Set headers for SSE
@@ -14,10 +16,13 @@ export const getServerSideEvents = () => {
     });
     res.flushHeaders();
 
-    console.log("NEW CLIENT SSE:", clientId);
-
     // Save client stream
     clients.set(clientId, res);
+    if (!roomClients.get(roomId)) {
+      roomClients.set(roomId, new Map());
+    }
+    roomClients.get(roomId)?.set(clientId, res);
+
     res.write(":\n\n");
 
     // Optional: ping to keep connection alive
@@ -28,17 +33,28 @@ export const getServerSideEvents = () => {
     // Clean up on disconnect
     req.on("close", () => {
       clearInterval(ping);
+      roomClients.get(roomId)?.delete(clientId);
       clients.delete(clientId);
       res.end();
     });
   };
 };
 
+export function notifyRoomClients<P>(roomId: string, payload: P) {
+  const clients = roomClients.get(roomId);
+
+  if (clients) {
+    for (const client of clients.values()) {
+      client.write(`event: weaveWorkloads\n`);
+      client.write(`data: ${JSON.stringify(payload)}\n\n`);
+    }
+  }
+}
+
 export function notifyClient<P>(clientId: string, payload: P) {
   const client = clients.get(clientId);
 
   if (client) {
-    console.log("NOTIFY CLIENT SSE:", clientId, payload);
     client.write(`event: weaveWorkloads\n`);
     client.write(`data: ${JSON.stringify(payload)}\n\n`);
   }

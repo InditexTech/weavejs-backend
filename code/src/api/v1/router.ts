@@ -14,6 +14,16 @@ import { postRemoveBackgroundController } from "./controllers/postRemoveBackgrou
 import { getAzureWebPubsubServer } from "../../store.js";
 import { getCorsMiddleware } from "../../middlewares/cors.js";
 import { postValidateAIPassword } from "./controllers/postValidateIAPassword.js";
+import { getThreadsController } from "./controllers/getThreads.js";
+import { getThreadController } from "./controllers/getThread.js";
+import { postThreadController } from "./controllers/postThread.js";
+import { putThreadController } from "./controllers/putThread.js";
+import { delThreadController } from "./controllers/delThread.js";
+import { getThreadAnswersController } from "./controllers/getThreadAnswers.js";
+import { getThreadAnswerController } from "./controllers/getThreadAnswer.js";
+import { delThreadAnswerController } from "./controllers/delThreadAnswer.js";
+import { postThreadAnswerController } from "./controllers/postThreadAnswer.js";
+import { putThreadAnswerController } from "./controllers/putThreadAnswer.js";
 
 const router: Router = Router();
 
@@ -68,6 +78,63 @@ export function setupApiV1Router(app: Express) {
     cors,
     delImageController()
   );
+
+  if (config.features.threads) {
+    // Threads API
+    router.get(
+      `/${hubName}/rooms/:roomId/threads`,
+      cors,
+      getThreadsController()
+    );
+    router.get(
+      `/${hubName}/rooms/:roomId/threads/:threadId`,
+      cors,
+      getThreadController()
+    );
+    router.post(
+      `/${hubName}/rooms/:roomId/threads`,
+      cors,
+      postThreadController()
+    );
+    router.put(
+      `/${hubName}/rooms/:roomId/threads/:threadId`,
+      cors,
+      putThreadController()
+    );
+    router.delete(
+      `/${hubName}/rooms/:roomId/threads/:threadId`,
+      cors,
+      delThreadController()
+    );
+
+    // Threads Answers API
+
+    router.get(
+      `/${hubName}/rooms/:roomId/threads/:threadId/answers`,
+      cors,
+      getThreadAnswersController()
+    );
+    router.get(
+      `/${hubName}/rooms/:roomId/threads/:threadId/answers/:answerId`,
+      cors,
+      getThreadAnswerController()
+    );
+    router.post(
+      `/${hubName}/rooms/:roomId/threads/:threadId/answers`,
+      cors,
+      postThreadAnswerController()
+    );
+    router.put(
+      `/${hubName}/rooms/:roomId/threads/:threadId/answers/:answerId`,
+      cors,
+      putThreadAnswerController()
+    );
+    router.delete(
+      `/${hubName}/rooms/:roomId/threads/:threadId/answers/:answerId`,
+      cors,
+      delThreadAnswerController()
+    );
+  }
 
   app.use("/api/v1", router);
 }

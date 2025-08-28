@@ -13,6 +13,8 @@ import { setupApiV2Router } from "./api/v2/router.js";
 import { setupHealthChecksRouter } from "./api/health-checks/router.js";
 import { setLogLevel } from "@azure/logger";
 import { getLogger } from "./logger/logger.js";
+import { setupApiV3Router } from "./api/v3/router.js";
+import { getServiceConfig } from "./config/config.js";
 
 setLogLevel("verbose");
 
@@ -33,6 +35,8 @@ export function setupApp() {
   // Setup the service
   app = express();
 
+  const config = getServiceConfig();
+
   // Setup Middlewares
   setupHttpLoggerMiddleware(app);
   setupHttpResponseHeadersMiddleware(app);
@@ -44,6 +48,9 @@ export function setupApp() {
   // Setup Routers
   setupApiV1Router(app);
   setupApiV2Router(app);
+  if (config.features.workloads) {
+    setupApiV3Router(app);
+  }
 
   // Serve static files
   const staticFilesPath = path.join(__dirname, "..", "assets");

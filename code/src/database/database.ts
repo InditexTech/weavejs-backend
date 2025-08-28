@@ -5,6 +5,11 @@
 import { Sequelize } from "sequelize";
 import { getLogger } from "../logger/logger.js";
 import { defineTaskModel } from "./models/task.js";
+import { defineImageModel } from "./models/image.js";
+import { getServiceConfig } from "../config/config.js";
+import { defineThreadModel } from "./models/thread.js";
+import { defineThreadAnswerModel } from "./models/thread-answer.js";
+import { getDatabaseCloudCredentialsToken } from "../utils.js";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 let sequelize: Sequelize | null = null;
@@ -14,10 +19,53 @@ export const setupDatabase = async () => {
 
   logger.info("Setting up database module");
 
-  sequelize = new Sequelize(process.env.DATABASE_URL as string, {
-    dialect: "postgres",
-    logging: (msg) => logger.debug(msg),
-  });
+  const config = getServiceConfig();
+
+  if (config.database.kind === "connection_string") {
+    const {
+      database: {
+        connection: { connectionString },
+      },
+    } = config;
+
+    sequelize = new Sequelize(connectionString, {
+      dialect: "postgres",
+      logging: (msg: string) => logger.debug(msg),
+    });
+  }
+
+  if (config.database.kind === "properties") {
+    const {
+      database: {
+        connection: { host, port, db, username, password, ssl },
+      },
+    } = config;
+
+    let finalPassword = password;
+
+    if (config.database.connection.cloudCredentials) {
+      finalPassword = await getDatabaseCloudCredentialsToken();
+    }
+
+    sequelize = new Sequelize(db, username, finalPassword, {
+      host,
+      port,
+      dialect: "postgres",
+      ...(ssl && {
+        dialectOptions: {
+          ssl: {
+            require: true,
+            rejectUnauthorized: true,
+          },
+        },
+      }),
+      logging: (msg: string) => logger.debug(msg),
+    });
+  }
+
+  if (!sequelize) {
+    throw new Error("Database settings not defined on database module");
+  }
 
   try {
     await sequelize.authenticate();
@@ -29,6 +77,13 @@ export const setupDatabase = async () => {
 
   // Define models
   await defineTaskModel(sequelize);
+  await defineImageModel(sequelize);
+  await defineThreadModel(sequelize);
+  await defineThreadAnswerModel(sequelize);
+
+  logger.info(`Database forcing sync: ${config.database.forceSync === true}`);
+
+  await sequelize.sync({ force: config.database.forceSync });
 
   logger.info("Database module ready");
 

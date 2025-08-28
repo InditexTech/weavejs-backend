@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { v4 as uuidv4 } from "uuid";
 import fs from "node:fs";
 import path from "node:path";
-import mimeTypes from "mime-types";
+import { imageSize } from "image-size";
 import pgBoss from "pg-boss";
 import Emittery from "emittery";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
@@ -17,23 +18,28 @@ import { JOB_REMOVE_IMAGE_BACKGROUND_QUEUE_NAME } from "./constants.js";
 import { getLogger } from "../../../logger/logger.js";
 import { saveBase64ToFile } from "../../../utils.js";
 import { removeBackground } from "@imgly/background-removal-node";
-import { notifyClient } from "../../../api/v2/controllers/getServerSideEvents.js";
-import { Sequelize } from "sequelize";
+import { notifyRoomClients } from "../../../api/v2/controllers/getServerSideEvents.js";
+import { createTask, updateTask } from "../../../database/controllers/task.js";
+import {
+  createImage,
+  updateImage,
+} from "../../../database/controllers/image.js";
 
 export class RemoveImageBackgroundJob {
   private logger: ReturnType<typeof getLogger>;
-  private sequelize: Sequelize;
   private boss: pgBoss;
   private eventEmitter: Emittery<RemoveImageBackgroundEvents>;
   private persistenceHandler: ImagesPersistenceHandler;
 
   static async create(
-    databaseInstance: Sequelize,
     tasksManagerInstance: pgBoss
   ): Promise<RemoveImageBackgroundJob> {
     this.createJobQueue(tasksManagerInstance);
+    await tasksManagerInstance.purgeQueue(
+      JOB_REMOVE_IMAGE_BACKGROUND_QUEUE_NAME
+    );
 
-    return new RemoveImageBackgroundJob(databaseInstance, tasksManagerInstance);
+    return new RemoveImageBackgroundJob(tasksManagerInstance);
   }
 
   private static async createJobQueue(instance: pgBoss) {
@@ -43,10 +49,9 @@ export class RemoveImageBackgroundJob {
     });
   }
 
-  constructor(databaseInstance: Sequelize, tasksManagerInstance: pgBoss) {
+  constructor(tasksManagerInstance: pgBoss) {
     this.logger = getLogger().child({ module: "remove-background-job" });
 
-    this.sequelize = databaseInstance;
     this.boss = tasksManagerInstance;
 
     this.eventEmitter = new Emittery<RemoveImageBackgroundEvents>();
@@ -69,7 +74,7 @@ export class RemoveImageBackgroundJob {
           clientId,
           roomId,
           userId,
-          payload: { imageId, image },
+          payload: { imageId, newImageId, image },
         } = data;
 
         this.eventEmitter.emit("job:removeImageBackground:processing", {
@@ -77,6 +82,10 @@ export class RemoveImageBackgroundJob {
           clientId,
           roomId,
           userId,
+          payload: {
+            imageId,
+            newImageId,
+          },
         });
 
         await this.removeImageBackgroundJob({
@@ -85,6 +94,7 @@ export class RemoveImageBackgroundJob {
           roomId,
           userId,
           payload: {
+            newImageId,
             imageId,
             image,
           },
@@ -104,29 +114,27 @@ export class RemoveImageBackgroundJob {
     clientId,
     roomId,
     userId,
-    payload: { imageId, image },
+    payload: { imageId, image, newImageId },
   }: RemoveImageBackgroundJobWorkData) {
-    this.logger.info(`Received job ${jobId}`);
+    this.logger.info(`Received remove image background job: ${jobId}`);
 
-    const { dataBase64, contentType } = image;
+    const { dataBase64 } = image;
 
-    const extension = mimeTypes.extension(contentType) || "png";
-    const fileName = `${roomId}/${imageId}.${extension}`;
+    const fileName = `${roomId}/${newImageId}`;
     const filePath = path.join(process.cwd(), "temp", fileName);
 
     await saveBase64ToFile(dataBase64, filePath);
 
     try {
       const blob: Blob = await removeBackground(filePath, {
-        publicPath: `file://${path.join(process.cwd(), "public")}/`,
+        // publicPath: `file://${path.join(process.cwd(), "public")}/`,
         output: { format: "image/png", quality: 1 },
       });
 
       // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
       const data = await this.myBlobToUIntDemo(blob);
-      const fileNameRemoved = `${fileName}-removed`;
       await this.persistenceHandler?.persist(
-        fileNameRemoved,
+        fileName,
         { size: data.length, mimeType: "image/png" },
         data
       );
@@ -135,7 +143,7 @@ export class RemoveImageBackgroundJob {
       this.boss.complete(JOB_REMOVE_IMAGE_BACKGROUND_QUEUE_NAME, jobId, {
         status: "OK",
         clientId,
-        fileName: fileNameRemoved,
+        fileName,
         mimeType: "image/png",
       });
 
@@ -146,11 +154,8 @@ export class RemoveImageBackgroundJob {
         userId,
         payload: {
           imageId,
+          newImageId,
           image,
-          newImage: {
-            fileName: fileNameRemoved,
-            mimeType: "image/png",
-          },
         },
       });
     } catch (ex) {
@@ -167,6 +172,10 @@ export class RemoveImageBackgroundJob {
         clientId,
         roomId,
         userId,
+        payload: {
+          imageId,
+          newImageId,
+        },
         error: ex instanceof Error ? ex.message : String(ex),
       });
     }
@@ -177,14 +186,17 @@ export class RemoveImageBackgroundJob {
     roomId: string,
     userId: string,
     imageId: string,
-    image: { dataBase64: string; contentType: string }
+    image: { replaceImage?: string; dataBase64: string; contentType: string }
   ): Promise<string> {
+    const newImageId = uuidv4();
+
     const jobData: RemoveImageBackgroundJobData = {
       clientId,
       roomId,
       userId,
       payload: {
         imageId,
+        newImageId,
         image,
       },
     };
@@ -204,6 +216,7 @@ export class RemoveImageBackgroundJob {
       roomId,
       userId,
       payload: {
+        newImageId,
         imageId,
         image,
       },
@@ -213,71 +226,186 @@ export class RemoveImageBackgroundJob {
   }
 
   private onNew() {
-    this.eventEmitter.on("job:removeImageBackground:new", (data) => {
-      const { jobId, clientId } = data;
+    this.eventEmitter.on("job:removeImageBackground:new", async (data) => {
+      const {
+        jobId,
+        clientId,
+        userId,
+        roomId,
+        payload: { imageId, newImageId, image },
+      } = data;
 
-      notifyClient(clientId, {
+      await createTask({
+        jobId,
+        roomId,
+        userId,
+        type: "removeImageBackground",
+        status: "created",
+        opened: false,
+        metadata: {
+          imageId,
+          newImageId,
+        },
+      });
+
+      const imageBuffer = Buffer.from(image.dataBase64, "base64");
+
+      if (imageBuffer) {
+        const dimensions = imageSize(imageBuffer);
+
+        const fileName = `${roomId}/${newImageId}`;
+
+        await createImage({
+          roomId,
+          imageId: newImageId,
+          operation: "background-removal",
+          status: "pending",
+          mimeType: image.contentType,
+          fileName,
+          width: dimensions.width,
+          height: dimensions.height,
+          aspectRatio: dimensions.width / dimensions.height,
+          jobId,
+          removalJobId: null,
+          removalStatus: null,
+        });
+      }
+
+      notifyRoomClients(roomId, {
         jobId,
         type: "removeImageBackground",
-        status: "new",
+        status: "created",
       });
 
       this.logger.info(
-        `Remove image background / registered new job / ${jobId} / ${clientId}`
+        `Remove image background / created new job / ${jobId} / ${clientId}`
       );
     });
   }
 
   private onProcessing() {
-    this.eventEmitter.on("job:removeImageBackground:processing", (data) => {
-      const { jobId, clientId } = data;
+    this.eventEmitter.on(
+      "job:removeImageBackground:processing",
+      async (data) => {
+        const {
+          jobId,
+          roomId,
+          userId,
+          clientId,
+          payload: { newImageId },
+        } = data;
 
-      notifyClient(clientId, {
-        jobId,
-        type: "removeImageBackground",
-        status: "processing",
-      });
+        await updateImage(
+          {
+            roomId,
+            imageId: newImageId,
+          },
+          {
+            status: "working",
+          }
+        );
 
-      this.logger.info(
-        `Remove image background / job stated processing / ${jobId} / ${clientId}`
-      );
-    });
+        await updateTask(
+          {
+            jobId,
+          },
+          {
+            roomId,
+            userId,
+            status: "active",
+          }
+        );
+
+        notifyRoomClients(roomId, {
+          jobId,
+          type: "removeImageBackground",
+          status: "active",
+        });
+
+        this.logger.info(
+          `Remove image background / job stated active / ${jobId} / ${clientId}`
+        );
+      }
+    );
   }
 
   private onComplete() {
-    this.eventEmitter.on("job:removeImageBackground:completed", (data) => {
-      const {
-        jobId,
-        clientId,
-        payload: {
-          imageId,
-          image,
-          newImage: { fileName, mimeType },
-        },
-      } = data;
+    this.eventEmitter.on(
+      "job:removeImageBackground:completed",
+      async (data) => {
+        const {
+          jobId,
+          roomId,
+          clientId,
+          payload: { imageId, newImageId, image },
+        } = data;
 
-      notifyClient(clientId, {
-        jobId,
-        type: "removeImageBackground",
-        status: "completed",
-        data: {
-          imageId,
-          image,
-          newImage: { fileName, mimeType },
-        },
-      });
+        await updateImage(
+          {
+            roomId,
+            imageId: newImageId,
+          },
+          {
+            status: "completed",
+          }
+        );
 
-      this.logger.info(
-        `Remove image background / job completed / ${jobId} / ${clientId} / ${fileName} (${mimeType})`
-      );
-    });
+        await updateTask(
+          {
+            jobId,
+          },
+          {
+            status: "completed",
+          }
+        );
+
+        notifyRoomClients(roomId, {
+          jobId,
+          type: "removeImageBackground",
+          status: "completed",
+          data: {
+            imageId,
+            image,
+          },
+        });
+
+        this.logger.info(
+          `Remove image background / job completed / ${jobId} / ${clientId} / ${imageId})`
+        );
+      }
+    );
   }
 
   private onFailed() {
-    this.eventEmitter.on("job:removeImageBackground:failed", (data) => {
-      const { jobId, clientId, error } = data;
+    this.eventEmitter.on("job:removeImageBackground:failed", async (data) => {
+      const {
+        jobId,
+        roomId,
+        clientId,
+        error,
+        payload: { newImageId },
+      } = data;
 
-      notifyClient(clientId, {
+      await updateImage(
+        {
+          roomId,
+          imageId: newImageId,
+        },
+        {
+          status: "failed",
+        }
+      );
+
+      await updateTask(
+        {
+          jobId,
+        },
+        {
+          status: "failed",
+        }
+      );
+
+      notifyRoomClients(roomId, {
         jobId,
         type: "removeImageBackground",
         status: "failed",

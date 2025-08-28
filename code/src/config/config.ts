@@ -6,6 +6,28 @@ import { z } from "zod";
 import { ServiceConfig } from "../types.js";
 import { DEFAULT_PORT } from "../constants.js";
 
+const databaseWithConnectionStringSchema = z.object({
+  kind: z.literal("connection_string"),
+  connection: z.object({
+    connectionString: z.string().trim(),
+  }),
+  forceSync: z.boolean().default(false),
+});
+
+const databaseDetailedConnectionSchema = z.object({
+  kind: z.literal("properties"),
+  connection: z.object({
+    host: z.string().trim(),
+    port: z.number().min(1),
+    db: z.string().trim(),
+    username: z.string().trim(),
+    password: z.string().trim(),
+    ssl: z.boolean().default(false),
+    cloudCredentials: z.boolean().default(false),
+  }),
+  forceSync: z.boolean().default(false),
+});
+
 const serviceConfigSchema = z.object({
   service: z.object({
     hostname: z
@@ -97,6 +119,14 @@ const serviceConfigSchema = z.object({
       })
       .int({ message: "The timeout must be an integer" }),
   }),
+  features: z.object({
+    workloads: z.boolean().default(false),
+    threads: z.boolean().default(false),
+  }),
+  database: z.discriminatedUnion("kind", [
+    databaseWithConnectionStringSchema,
+    databaseDetailedConnectionSchema,
+  ]),
 });
 
 export function getServiceConfig(): ServiceConfig {
@@ -156,12 +186,95 @@ export function getServiceConfig(): ServiceConfig {
     password: aiPassword,
   };
 
+  const databaseConnectionString = process.env.DATABASE_URL;
+  const databaseHost = process.env.DATABASE_HOST;
+  const databasePort = parseInt(process.env.DATABASE_PORT || "5434");
+  const databaseName = process.env.DATABASE_NAME;
+  const databaseUsername = process.env.DATABASE_USERNAME;
+  let databasePassword = process.env.DATABASE_PASSWORD;
+  const databaseSsl = process.env.DATABASE_SSL === "true";
+  const databaseCloudCredentials =
+    process.env.DATABASE_CLOUD_CREDENTIALS === "true";
+
+  const databaseForceSync = process.env.DATABASE_FORCE_SYNC === "true";
+
+  if (databaseCloudCredentials) {
+    databasePassword = "cloud";
+  }
+
+  if (databaseHost && databaseConnectionString) {
+    throw new Error(
+      "cannot setup DATABASE_URL and DATABASE_HOST, please check"
+    );
+  }
+
+  if (!databaseHost && !databaseConnectionString) {
+    throw new Error(
+      "must define a connection to the database, via connection string using DATABASE_URL env var or via detailed configuration using DATABASE_HOST, DATABASE_PORT, DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_SSL and DATABASE_CLOUD_CREDENTIALS env vars"
+    );
+  }
+
+  let databaseConfig = null;
+  if (databaseHost) {
+    if (!databaseName) {
+      throw new Error(
+        "must define the database name via DATABASE_NAME env var"
+      );
+    }
+
+    if (!databaseUsername) {
+      throw new Error(
+        "must define the database username via DATABASE_USERNAME env var"
+      );
+    }
+
+    if (!databasePassword && !databaseCloudCredentials) {
+      throw new Error(
+        "must define the database password via DATABASE_PASSWORD env var"
+      );
+    }
+
+    databaseConfig = {
+      kind: "properties",
+      connection: {
+        host: databaseHost,
+        port: databasePort,
+        db: databaseName,
+        username: databaseUsername,
+        password: databasePassword,
+        ssl: databaseSsl,
+        cloudCredentials: databaseCloudCredentials,
+      },
+      forceSync: databaseForceSync,
+    };
+  }
+
+  if (databaseConnectionString) {
+    databaseConfig = {
+      kind: "connection_string",
+      connection: {
+        connectionString: databaseConnectionString,
+      },
+      forceSync: databaseForceSync,
+    };
+  }
+
+  const database = databaseConfig;
+
+  const featureWorkloads = process.env.FEATURE_WORKLOADS === "true";
+  const featureThreads = process.env.FEATURE_THREADS === "true";
+
   const serviceConfig = {
     service,
     pubsub,
     storage,
     ai,
     azureCsClient,
+    features: {
+      workloads: featureWorkloads,
+      threads: featureThreads,
+    },
+    database,
   };
 
   return serviceConfigSchema.parse(serviceConfig);

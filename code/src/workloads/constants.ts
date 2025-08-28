@@ -4,4 +4,7 @@
 
 export const JOB_HANDLERS = {
   REMOVE_IMAGE_BACKGROUND: "removeImageBackground",
+  GENERATE_IMAGES: "generateImages",
+  EDIT_IMAGE: "editImage",
+  DELETE_IMAGE: "deleteImage",
 } as const;

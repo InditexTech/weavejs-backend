@@ -9,6 +9,7 @@ export type RemoveImageBackgroundJobNew = {
   userId: string;
   payload: {
     imageId: string;
+    newImageId: string;
     image: {
       dataBase64: string;
       contentType: string;
@@ -21,6 +22,10 @@ export type RemoveImageBackgroundJobProcessing = {
   clientId: string;
   roomId: string;
   userId: string;
+  payload: {
+    imageId: string;
+    newImageId: string;
+  };
 };
 
 export type RemoveImageBackgroundJobComplete = {
@@ -30,13 +35,10 @@ export type RemoveImageBackgroundJobComplete = {
   userId: string;
   payload: {
     imageId: string;
+    newImageId: string;
     image: {
       dataBase64: string;
       contentType: string;
-    };
-    newImage: {
-      fileName: string;
-      mimeType: string;
     };
   };
 };
@@ -46,6 +48,10 @@ export type RemoveImageBackgroundJobFailed = {
   clientId: string;
   roomId: string;
   userId: string;
+  payload: {
+    imageId: string;
+    newImageId: string;
+  };
   error: string;
 };
 
@@ -62,6 +68,7 @@ export type RemoveImageBackgroundJobData = {
   userId: string;
   payload: {
     imageId: string;
+    newImageId: string;
     image: {
       dataBase64: string;
       contentType: string;
@@ -76,6 +83,7 @@ export type RemoveImageBackgroundJobWorkData = {
   userId: string;
   payload: {
     imageId: string;
+    newImageId: string;
     image: {
       dataBase64: string;
       contentType: string;

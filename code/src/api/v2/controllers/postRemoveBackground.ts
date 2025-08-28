@@ -12,7 +12,7 @@ export const postRemoveBackgroundController = () => {
     const roomId = req.params.roomId;
     const imageId = req.params.imageId;
     const {
-      image: { dataBase64, contentType },
+      image: { replaceImage, dataBase64, contentType },
     } = req.body;
 
     const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
@@ -45,6 +45,7 @@ export const postRemoveBackgroundController = () => {
       userId,
       imageId,
       {
+        replaceImage,
         dataBase64,
         contentType,
       }

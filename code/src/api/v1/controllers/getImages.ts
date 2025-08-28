@@ -12,14 +12,14 @@ export const getImagesController = () => {
     const roomId = req.params.roomId;
 
     const pageSize = parseInt(
-      (req.query.pageSize as string | undefined) ?? "20",
+      (req.query.pageSize as string | undefined) ?? "20"
     );
     const continuationToken = req.query.continuationToken as string | undefined;
 
     const images = await persistenceHandler.list(
       roomId,
       pageSize,
-      continuationToken,
+      continuationToken
     );
 
     res.status(200).json(images);

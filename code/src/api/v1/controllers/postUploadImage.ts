@@ -27,8 +27,9 @@ export const postUploadImageController = () => {
         await persistenceHandler.persist(
           fileName,
           { size: file.size, mimeType },
-          data,
+          data
         );
+
         res
           .status(201)
           .json({ status: "Image created OK", fileName, mimeType });

@@ -13,6 +13,7 @@ import {
   isStorageInitialized,
   setupStorage,
 } from "./storage/storage.js";
+import { customInitialState } from "./store.initial-state.js";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 const endpoint = process.env.AZURE_WEB_PUBSUB_ENDPOINT;
@@ -63,6 +64,7 @@ export const setupStore = () => {
       path: `/api/v1/api/webpubsub/hubs/${hubName}`,
       allowedEndpoints: [endpoint],
     },
+    initialState: customInitialState,
     fetchRoom: async (docName: string) => {
       if (!isStorageInitialized()) {
         await setupStorage();
