@@ -41,6 +41,7 @@ jobs:
       AZURE_STORAGE_ROOMS_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_ROOMS_CONTAINER_NAME }}
       AZURE_STORAGE_IMAGES_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_IMAGES_CONTAINER_NAME }}
       AZURE_STORAGE_CLEANUP_DRY_RUN: ${{ vars.AZURE_STORAGE_CLEANUP_DRY_RUN }}
+      DO_CLEANUP: ${{ vars.DO_CLEANUP }}
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}
     steps:
       - name: Get input parameters
@@ -64,6 +65,7 @@ jobs:
           echo AZURE_STORAGE_ACCOUNT_NAME="${{ env.AZURE_STORAGE_ACCOUNT_NAME }}" >> .env
           echo AZURE_STORAGE_ROOMS_CONTAINER_NAME=${{ env.AZURE_STORAGE_ROOMS_CONTAINER_NAME }} >> .env
           echo AZURE_STORAGE_IMAGES_CONTAINER_NAME=${{ env.AZURE_STORAGE_IMAGES_CONTAINER_NAME }} >> .env
+          echo DO_CLEANUP=${{ env.DO_CLEANUP }} >> .env
           echo DRY_RUN=${{ env.AZURE_STORAGE_CLEANUP_DRY_RUN }} >> .env
           echo LOG_LEVEL=${{ env.LOG_LEVEL }} >> .env
 

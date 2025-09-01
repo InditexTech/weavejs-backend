@@ -13,6 +13,11 @@ import {
 import whitelist from "./whitelist.json" with { type: "json" };
 
 (async () => {
+  if (process.env.DO_CLEANUP !== "true") {
+    console.log(`Cleanup disabled`);
+    return;
+  }
+
   const config = getActionConfig();
   console.log(`configuration:`);
   console.log(`- storage:`);
