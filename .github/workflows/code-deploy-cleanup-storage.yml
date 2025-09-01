@@ -16,7 +16,7 @@ on:
           - azure-development
           - azure-pro
           - azure-production
-        default: "azure-pro"
+        default: "azure-develop"
 
 permissions:
   id-token: write
