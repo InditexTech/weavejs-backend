@@ -5,6 +5,7 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { createThread } from "../../../database/controllers/thread.js";
+import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 
 export const postThreadController = () => {
   return async (req: Request, res: Response): Promise<void> => {
@@ -44,7 +45,7 @@ export const postThreadController = () => {
       replies: 0,
     });
 
-    notifyRoomClients(roomId, {
+    broadcastToRoom(roomId, {
       type: "commentCreated",
       status: "created",
     });

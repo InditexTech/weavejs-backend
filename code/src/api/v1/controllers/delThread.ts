@@ -7,6 +7,7 @@ import {
   deleteThread,
   getThread,
 } from "../../../database/controllers/thread.js";
+import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 
 export const delThreadController = () => {
   return async (req: Request, res: Response): Promise<void> => {
@@ -52,7 +53,7 @@ export const delThreadController = () => {
     });
 
     if (deleted === 1) {
-      notifyRoomClients(roomId, {
+      broadcastToRoom(roomId, {
         type: "commentDeleted",
         status: "deleted",
       });
