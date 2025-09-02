@@ -30,7 +30,8 @@ export const setupDatabase = async () => {
 
     sequelize = new Sequelize(connectionString, {
       dialect: "postgres",
-      logging: (msg: string) => logger.debug(msg),
+      logging: false,
+      // logging: (msg: string) => logger.debug(msg),
     });
   }
 
@@ -59,7 +60,8 @@ export const setupDatabase = async () => {
           },
         },
       }),
-      logging: (msg: string) => logger.debug(msg),
+      logging: false,
+      // logging: (msg: string) => logger.debug(msg),
     });
   }
 

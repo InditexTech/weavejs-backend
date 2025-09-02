@@ -3,10 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import pgBoss from "pg-boss";
-import Emittery from "emittery";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import { getLogger } from "../../../logger/logger.js";
-import { notifyRoomClients } from "../../../api/v2/controllers/getServerSideEvents.js";
 import { createTask, updateTask } from "../../../database/controllers/task.js";
 import {
   deleteImage,
@@ -14,16 +12,18 @@ import {
   updateImage,
 } from "../../../database/controllers/image.js";
 import {
+  DeleteImageJobComplete,
   DeleteImageJobData,
-  DeleteImageJobEvents,
+  DeleteImageJobFailed,
+  DeleteImageJobNew,
   DeleteImageJobWorkData,
 } from "./types.js";
 import { JOB_DELETE_IMAGE_QUEUE_NAME } from "./constants.js";
+import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 
 export class DeleteImageJob {
   private logger: ReturnType<typeof getLogger>;
   private boss: pgBoss;
-  private eventEmitter: Emittery<DeleteImageJobEvents>;
   private persistenceHandler: ImagesPersistenceHandler;
 
   static async create(tasksManagerInstance: pgBoss): Promise<DeleteImageJob> {
@@ -45,18 +45,12 @@ export class DeleteImageJob {
 
     this.boss = tasksManagerInstance;
 
-    this.eventEmitter = new Emittery<DeleteImageJobEvents>();
     this.persistenceHandler = new ImagesPersistenceHandler();
 
     this.logger.info("Delete image / job created");
   }
 
   async start() {
-    this.onNew();
-    this.onProcessing();
-    this.onComplete();
-    this.onFailed();
-
     await this.boss.work<DeleteImageJobWorkData>(
       JOB_DELETE_IMAGE_QUEUE_NAME,
       async ([job]) => {
@@ -67,16 +61,6 @@ export class DeleteImageJob {
           userId,
           payload: { imageId, dataImageBase64, mimeType },
         } = data;
-
-        this.eventEmitter.emit("job:deleteImage:processing", {
-          jobId: id,
-          clientId,
-          userId,
-          roomId,
-          payload: {
-            imageId,
-          },
-        });
 
         await this.deleteImageJob({
           jobId: id,
@@ -98,42 +82,36 @@ export class DeleteImageJob {
     userId,
     clientId,
     roomId,
-    payload: { imageId },
+    payload: { imageId, dataImageBase64, mimeType },
   }: DeleteImageJobWorkData) {
     this.logger.info(`Received delete image job: ${jobId}`);
 
+    await this.onProcessing({
+      jobId,
+      clientId,
+      userId,
+      roomId,
+      payload: {
+        imageId,
+        dataImageBase64,
+        mimeType,
+      },
+    });
+
     this.logger.info(`Delete image: ${imageId}, of room: ${roomId}`);
 
-    const deleted = await deleteImage({
+    const imageObj = await getImage({
       roomId,
       imageId,
     });
 
-    if (deleted === 1) {
-      const fileName = `${roomId}/${imageId}`;
-      await this.persistenceHandler.delete(fileName);
-
-      this.boss.complete(JOB_DELETE_IMAGE_QUEUE_NAME, jobId, {
-        status: "OK",
-        clientId,
-      });
-
-      this.eventEmitter.emit("job:deleteImage:completed", {
-        jobId,
-        clientId,
-        userId,
-        roomId,
-        payload: {
-          imageId,
-        },
-      });
-    } else {
-      this.boss.fail(JOB_DELETE_IMAGE_QUEUE_NAME, jobId, {
+    if (!imageObj) {
+      await this.boss.fail(JOB_DELETE_IMAGE_QUEUE_NAME, jobId, {
         status: "KO",
         error: "Image not found",
       });
 
-      this.eventEmitter.emit("job:deleteImage:failed", {
+      await this.onFailed({
         jobId,
         userId,
         clientId,
@@ -143,7 +121,36 @@ export class DeleteImageJob {
         },
         error: "Image not found",
       });
+
+      return;
     }
+
+    await deleteImage({
+      roomId,
+      imageId,
+    });
+
+    try {
+      const fileName = `${roomId}/${imageId}`;
+      await this.persistenceHandler.delete(fileName);
+    } catch (ex) {
+      this.logger.error((ex as Error).message);
+    }
+
+    await this.boss.complete(JOB_DELETE_IMAGE_QUEUE_NAME, jobId, {
+      status: "OK",
+      clientId,
+    });
+
+    await this.onComplete({
+      jobId,
+      clientId,
+      userId,
+      roomId,
+      payload: {
+        imageId,
+      },
+    });
   }
 
   async startDeleteImageJob(
@@ -161,13 +168,18 @@ export class DeleteImageJob {
       },
     };
 
-    const jobId = await this.boss.send(JOB_DELETE_IMAGE_QUEUE_NAME, jobData);
+    const jobId = await this.boss.sendAfter(
+      JOB_DELETE_IMAGE_QUEUE_NAME,
+      jobData,
+      {},
+      1
+    );
 
     if (!jobId) {
       throw new Error("Error creating delete image job");
     }
 
-    this.eventEmitter.emit("job:deleteImage:new", {
+    await this.onNew({
       jobId,
       userId,
       clientId,
@@ -180,216 +192,153 @@ export class DeleteImageJob {
     return jobId;
   }
 
-  private async getImageData({
-    roomId,
-    imageId,
-  }: {
-    roomId: string;
-    imageId: string;
-  }): Promise<string | null> {
-    let dataBase64Image = null;
-
-    const image = await getImage({
+  private async onNew(data: DeleteImageJobNew) {
+    const {
+      jobId,
+      clientId,
+      userId,
       roomId,
-      imageId,
+      payload: { imageId },
+    } = data;
+
+    await createTask({
+      jobId,
+      roomId,
+      userId,
+      type: "deleteImage",
+      status: "created",
+      opened: false,
+      metadata: {
+        imageId,
+        dataBase64Image: null,
+      },
     });
-    if (image) {
-      const fileName = `${roomId}/${imageId}`;
 
-      if (await this.persistenceHandler.exists(fileName)) {
-        const { response } = await this.persistenceHandler.fetch(fileName);
-
-        if (response && response.readableStreamBody) {
-          const chunks: Buffer[] = [];
-          for await (const chunk of response.readableStreamBody) {
-            chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-          }
-
-          const buffer = Buffer.concat(chunks);
-          dataBase64Image = `data:${image.mimeType};base64,${buffer.toString("base64")}`;
-        }
+    await updateImage(
+      {
+        roomId,
+        imageId,
+      },
+      {
+        removalJobId: jobId,
+        removalStatus: "pending",
       }
-    }
+    );
 
-    return dataBase64Image;
-  }
-
-  private onNew() {
-    this.eventEmitter.on("job:deleteImage:new", async (data) => {
-      const {
-        jobId,
-        clientId,
-        userId,
-        roomId,
-        payload: { imageId },
-      } = data;
-
-      await createTask({
-        jobId,
-        roomId,
-        userId,
-        type: "deleteImage",
-        status: "created",
-        opened: false,
-        metadata: {
-          imageId,
-          dataBase64Image: null,
-        },
-      });
-
-      await updateImage(
-        {
-          roomId,
-          imageId,
-        },
-        {
-          removalJobId: jobId,
-          removalStatus: "pending",
-        }
-      );
-
-      notifyRoomClients(roomId, {
-        jobId,
-        type: "deleteImage",
-        status: "created",
-      });
-
-      const dataBase64Image = await this.getImageData({ roomId, imageId });
-      await updateTask(
-        {
-          jobId,
-        },
-        {
-          metadata: {
-            imageId,
-            dataBase64Image,
-          },
-        }
-      );
-
-      notifyRoomClients(roomId, {
-        jobId,
-        type: "deleteImage",
-        status: "created",
-      });
-
-      this.logger.info(
-        `Delete image / created new job / ${jobId} / ${clientId}`
-      );
+    broadcastToRoom(roomId, {
+      jobId,
+      type: "deleteImage",
+      status: "created",
     });
+
+    this.logger.info(`Delete image / created new job / ${jobId} / ${clientId}`);
   }
 
-  private onProcessing() {
-    this.eventEmitter.on("job:deleteImage:processing", async (data) => {
-      const {
+  private async onProcessing(data: DeleteImageJobWorkData) {
+    const {
+      jobId,
+      roomId,
+      userId,
+      clientId,
+      payload: { imageId },
+    } = data;
+
+    await updateImage(
+      {
+        roomId,
+        imageId,
+      },
+      {
+        removalStatus: "working",
+      }
+    );
+
+    await updateTask(
+      {
         jobId,
+      },
+      {
         roomId,
         userId,
-        clientId,
-        payload: { imageId },
-      } = data;
-
-      await updateImage(
-        {
-          roomId,
-          imageId,
-        },
-        {
-          removalStatus: "working",
-        }
-      );
-
-      await updateTask(
-        {
-          jobId,
-        },
-        {
-          roomId,
-          userId,
-          status: "active",
-        }
-      );
-
-      notifyRoomClients(roomId, {
-        jobId,
-        type: "deleteImage",
         status: "active",
-      });
+      }
+    );
 
-      this.logger.info(
-        `Delete image / job stated active / ${jobId} / ${clientId}`
-      );
+    broadcastToRoom(roomId, {
+      jobId,
+      type: "deleteImage",
+      status: "active",
     });
+
+    this.logger.info(
+      `Delete image / job stated active / ${jobId} / ${clientId}`
+    );
   }
 
-  private onComplete() {
-    this.eventEmitter.on("job:deleteImage:completed", async (data) => {
-      const {
-        jobId,
-        roomId,
-        clientId,
-        payload: { imageId },
-      } = data;
+  private async onComplete(data: DeleteImageJobComplete) {
+    const {
+      jobId,
+      roomId,
+      clientId,
+      payload: { imageId },
+    } = data;
 
-      await updateTask(
-        {
-          jobId,
-        },
-        {
-          status: "completed",
-        }
-      );
-
-      notifyRoomClients(roomId, {
+    await updateTask(
+      {
         jobId,
-        type: "deleteImage",
+      },
+      {
         status: "completed",
-      });
+      }
+    );
 
-      this.logger.info(
-        `Delete image / job completed / ${jobId} / ${clientId} / ${imageId})`
-      );
+    broadcastToRoom(roomId, {
+      jobId,
+      type: "deleteImage",
+      status: "completed",
     });
+
+    this.logger.info(
+      `Delete image / job completed / ${jobId} / ${clientId} / ${imageId})`
+    );
   }
 
-  private onFailed() {
-    this.eventEmitter.on("job:deleteImage:failed", async (data) => {
-      const {
-        jobId,
-        clientId,
+  private async onFailed(data: DeleteImageJobFailed) {
+    const {
+      jobId,
+      clientId,
+      roomId,
+      error,
+      payload: { imageId },
+    } = data;
+
+    await updateImage(
+      {
         roomId,
-        error,
-        payload: { imageId },
-      } = data;
+        imageId,
+      },
+      {
+        removalStatus: "failed",
+      }
+    );
 
-      await updateImage(
-        {
-          roomId,
-          imageId,
-        },
-        {
-          removalStatus: "failed",
-        }
-      );
-
-      await updateTask(
-        {
-          jobId,
-        },
-        {
-          status: "failed",
-        }
-      );
-
-      notifyRoomClients(roomId, {
+    await updateTask(
+      {
         jobId,
-        type: "deleteImage",
+      },
+      {
         status: "failed",
-      });
+      }
+    );
 
-      this.logger.error(
-        `Delete image / job failed: / ${jobId} / ${clientId} / ${error}`
-      );
+    broadcastToRoom(roomId, {
+      jobId,
+      type: "deleteImage",
+      status: "failed",
     });
+
+    this.logger.error(
+      `Delete image / job failed: / ${jobId} / ${clientId} / ${error}`
+    );
   }
 }

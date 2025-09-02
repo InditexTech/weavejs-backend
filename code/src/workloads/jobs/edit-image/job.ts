@@ -4,28 +4,29 @@
 
 import { v4 as uuidv4 } from "uuid";
 import pgBoss from "pg-boss";
-import Emittery from "emittery";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import {
-  EditImageEvents,
+  EditImageJobComplete,
   EditImageJobData,
+  EditImageJobFailed,
+  EditImageJobNew,
+  EditImageJobProcessing,
   EditImageJobWorkData,
   EditImageParameters,
 } from "./types.js";
 import { JOB_EDIT_IMAGE_QUEUE_NAME } from "./constants.js";
 import { getLogger } from "../../../logger/logger.js";
-import { notifyRoomClients } from "../../../api/v2/controllers/getServerSideEvents.js";
 import { createTask, updateTask } from "../../../database/controllers/task.js";
 import {
   createImage,
   updateImage,
 } from "../../../database/controllers/image.js";
 import { getServiceConfig } from "../../../config/config.js";
+import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 
 export class EditImageJob {
   private logger: ReturnType<typeof getLogger>;
   private boss: pgBoss;
-  private eventEmitter: Emittery<EditImageEvents>;
   private persistenceHandler: ImagesPersistenceHandler;
 
   static async create(tasksManagerInstance: pgBoss): Promise<EditImageJob> {
@@ -47,34 +48,17 @@ export class EditImageJob {
 
     this.boss = tasksManagerInstance;
 
-    this.eventEmitter = new Emittery<EditImageEvents>();
     this.persistenceHandler = new ImagesPersistenceHandler();
 
     this.logger.info("Edit image / job created");
   }
 
   async start() {
-    this.onNew();
-    this.onProcessing();
-    this.onComplete();
-    this.onFailed();
-
     await this.boss.work<EditImageJobWorkData>(
       JOB_EDIT_IMAGE_QUEUE_NAME,
       async ([job]) => {
         const { id, data } = job;
         const { clientId, roomId, userId, payload, imagesIds } = data;
-
-        const { editKind } = payload;
-
-        this.eventEmitter.emit("job:editImage:processing", {
-          jobId: id,
-          clientId,
-          roomId,
-          userId,
-          editKind,
-          imagesIds,
-        });
 
         await this.editImageJob({
           jobId: id,
@@ -107,6 +91,15 @@ export class EditImageJob {
 
     const { prompt, sampleCount, size, quality, moderation, editKind, image } =
       payload;
+
+    await this.onProcessing({
+      jobId,
+      clientId,
+      roomId,
+      userId,
+      editKind,
+      imagesIds,
+    });
 
     const formData = new FormData();
 
@@ -150,12 +143,12 @@ export class EditImageJob {
       formData.append("output_format", "png");
     } catch (ex) {
       console.error(ex);
-      this.boss.fail(JOB_EDIT_IMAGE_QUEUE_NAME, jobId, {
+      await this.boss.fail(JOB_EDIT_IMAGE_QUEUE_NAME, jobId, {
         status: "KO",
         error: "Error generating the editing the image payload",
       });
 
-      this.eventEmitter.emit("job:editImage:failed", {
+      await this.onFailed({
         jobId,
         clientId,
         roomId,
@@ -190,20 +183,7 @@ export class EditImageJob {
       clearTimeout(timeout);
 
       if (!response.ok) {
-        this.boss.fail(JOB_EDIT_IMAGE_QUEUE_NAME, jobId, {
-          status: "KO",
-          error: "Error editing the image",
-        });
-
-        this.eventEmitter.emit("job:editImage:failed", {
-          jobId,
-          clientId,
-          roomId,
-          userId,
-          imagesIds,
-          editKind,
-          error: "Error generating the images",
-        });
+        throw new Error("Error generating the images");
       }
 
       const jsonData = await response.json();
@@ -220,13 +200,13 @@ export class EditImageJob {
         );
       }
 
-      this.boss.complete(JOB_EDIT_IMAGE_QUEUE_NAME, jobId, {
+      await this.boss.complete(JOB_EDIT_IMAGE_QUEUE_NAME, jobId, {
         status: "OK",
         clientId,
         imagesIds,
       });
 
-      this.eventEmitter.emit("job:editImage:completed", {
+      await this.onComplete({
         jobId,
         clientId,
         roomId,
@@ -238,18 +218,18 @@ export class EditImageJob {
       console.error(ex);
       this.logger.error((ex as Error).message);
 
-      this.boss.fail(JOB_EDIT_IMAGE_QUEUE_NAME, jobId, {
+      await this.boss.fail(JOB_EDIT_IMAGE_QUEUE_NAME, jobId, {
         status: "KO",
         error: "Error editing the image",
       });
 
-      this.eventEmitter.emit("job:editImage:failed", {
+      await this.onFailed({
         jobId,
+        userId,
         clientId,
         roomId,
-        userId,
-        imagesIds,
         editKind,
+        imagesIds,
         error: "Error editing the image",
       });
     }
@@ -277,13 +257,18 @@ export class EditImageJob {
       imagesIds,
     };
 
-    const jobId = await this.boss.send(JOB_EDIT_IMAGE_QUEUE_NAME, jobData);
+    const jobId = await this.boss.sendAfter(
+      JOB_EDIT_IMAGE_QUEUE_NAME,
+      jobData,
+      {},
+      1
+    );
 
     if (!jobId) {
       throw new Error("Error creating edit image job");
     }
 
-    this.eventEmitter.emit("job:editImage:new", {
+    await this.onNew({
       jobId,
       clientId,
       roomId,
@@ -295,166 +280,156 @@ export class EditImageJob {
     return jobId;
   }
 
-  private onNew() {
-    this.eventEmitter.on("job:editImage:new", async (data) => {
-      const { jobId, clientId, userId, roomId, payload, imagesIds } = data;
+  private async onNew(data: EditImageJobNew) {
+    const { jobId, clientId, userId, roomId, payload, imagesIds } = data;
 
-      const { size, editKind } = payload;
+    const { size, editKind } = payload;
 
-      await createTask({
-        jobId,
+    await createTask({
+      jobId,
+      roomId,
+      userId,
+      type: editKind,
+      status: "created",
+      opened: false,
+      metadata: {
+        payload,
+      },
+    });
+
+    const sizeTokens = size.split("x");
+    const width = parseInt(sizeTokens[0]);
+    const height = parseInt(sizeTokens[1]);
+
+    for (const imageId of imagesIds) {
+      const fileName = `${roomId}/${imageId}`;
+
+      await createImage({
         roomId,
-        userId,
-        type: editKind,
-        status: "created",
-        opened: false,
-        metadata: {
-          payload,
-        },
+        imageId,
+        operation: "image-edition",
+        status: "pending",
+        mimeType: "image/png",
+        fileName,
+        width,
+        height,
+        aspectRatio: width / height,
+        jobId,
+        removalJobId: null,
+        removalStatus: null,
       });
+    }
 
-      const sizeTokens = size.split("x");
-      const width = parseInt(sizeTokens[0]);
-      const height = parseInt(sizeTokens[1]);
+    broadcastToRoom(roomId, {
+      jobId,
+      type: editKind,
+      status: "created",
+    });
 
-      for (const imageId of imagesIds) {
-        const fileName = `${roomId}/${imageId}`;
+    this.logger.info(`Edit image / created new job / ${jobId} / ${clientId}`);
+  }
 
-        await createImage({
+  private async onProcessing(data: EditImageJobProcessing) {
+    const { jobId, roomId, userId, clientId, editKind, imagesIds } = data;
+
+    for (const imageId of imagesIds) {
+      await updateImage(
+        {
           roomId,
           imageId,
-          operation: "image-edition",
-          status: "pending",
-          mimeType: "image/png",
-          fileName,
-          width,
-          height,
-          aspectRatio: width / height,
-          jobId,
-          removalJobId: null,
-          removalStatus: null,
-        });
-      }
-
-      notifyRoomClients(roomId, {
-        jobId,
-        type: editKind,
-        status: "created",
-      });
-
-      this.logger.info(`Edit image / created new job / ${jobId} / ${clientId}`);
-    });
-  }
-
-  private onProcessing() {
-    this.eventEmitter.on("job:editImage:processing", async (data) => {
-      const { jobId, roomId, userId, clientId, editKind, imagesIds } = data;
-
-      for (const imageId of imagesIds) {
-        await updateImage(
-          {
-            roomId,
-            imageId,
-          },
-          {
-            status: "working",
-          }
-        );
-      }
-
-      await updateTask(
-        {
-          jobId,
         },
         {
-          roomId,
-          userId,
-          status: "active",
+          status: "working",
         }
       );
+    }
 
-      notifyRoomClients(roomId, {
+    await updateTask(
+      {
         jobId,
-        type: editKind,
+      },
+      {
+        roomId,
+        userId,
         status: "active",
-      });
+      }
+    );
 
-      this.logger.info(
-        `Edit image / job stated active / ${jobId} / ${clientId}`
-      );
+    broadcastToRoom(roomId, {
+      jobId,
+      type: editKind,
+      status: "active",
     });
+
+    this.logger.info(`Edit image / job stated active / ${jobId} / ${clientId}`);
   }
 
-  private onComplete() {
-    this.eventEmitter.on("job:editImage:completed", async (data) => {
-      const { jobId, roomId, clientId, editKind, imagesIds } = data;
+  private async onComplete(data: EditImageJobComplete) {
+    const { jobId, roomId, clientId, editKind, imagesIds } = data;
 
-      for (const imageId of imagesIds) {
-        await updateImage(
-          {
-            roomId,
-            imageId,
-          },
-          {
-            status: "completed",
-          }
-        );
-      }
-
-      await updateTask(
+    for (const imageId of imagesIds) {
+      await updateImage(
         {
-          jobId,
+          roomId,
+          imageId,
         },
         {
           status: "completed",
         }
       );
+    }
 
-      notifyRoomClients(roomId, {
+    await updateTask(
+      {
         jobId,
-        type: editKind,
+      },
+      {
         status: "completed",
-      });
+      }
+    );
 
-      this.logger.info(`Edit image / job completed / ${jobId} / ${clientId})`);
+    broadcastToRoom(roomId, {
+      jobId,
+      type: editKind,
+      status: "completed",
     });
+
+    this.logger.info(`Edit image / job completed / ${jobId} / ${clientId})`);
   }
 
-  private onFailed() {
-    this.eventEmitter.on("job:editImage:failed", async (data) => {
-      const { jobId, roomId, clientId, error, editKind, imagesIds } = data;
+  private async onFailed(data: EditImageJobFailed) {
+    const { jobId, roomId, clientId, error, editKind, imagesIds } = data;
 
-      for (const imageId of imagesIds) {
-        await updateImage(
-          {
-            roomId,
-            imageId,
-          },
-          {
-            status: "failed",
-          }
-        );
-      }
-
-      await updateTask(
+    for (const imageId of imagesIds) {
+      await updateImage(
         {
-          jobId,
+          roomId,
+          imageId,
         },
         {
           status: "failed",
         }
       );
+    }
 
-      notifyRoomClients(roomId, {
+    await updateTask(
+      {
         jobId,
-        type: editKind,
+      },
+      {
         status: "failed",
-      });
+      }
+    );
 
-      this.logger.error(
-        `Edit image / job failed: / ${jobId} / ${clientId} / ${error}`
-      );
+    broadcastToRoom(roomId, {
+      jobId,
+      type: editKind,
+      status: "failed",
     });
+
+    this.logger.error(
+      `Edit image / job failed: / ${jobId} / ${clientId} / ${error}`
+    );
   }
 }
 

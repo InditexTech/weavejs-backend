@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { getThread } from "../../../database/controllers/thread.js";
 import { createThreadAnswer } from "../../../database/controllers/thread-answer.js";
-import { notifyRoomClients } from "../../v2/controllers/getServerSideEvents.js";
+import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 
 export const postThreadAnswerController = () => {
   return async (req: Request, res: Response): Promise<void> => {
@@ -57,7 +57,7 @@ export const postThreadAnswerController = () => {
       content,
     });
 
-    notifyRoomClients(roomId, {
+    broadcastToRoom(roomId, {
       type: "commentAnswerCreated",
       status: "created",
     });

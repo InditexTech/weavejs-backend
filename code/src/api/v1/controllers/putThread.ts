@@ -7,7 +7,6 @@ import {
   getThread,
   updateThread,
 } from "../../../database/controllers/thread.js";
-import { notifyRoomClients } from "../../v2/controllers/getServerSideEvents.js";
 
 export const putThreadController = () => {
   return async (req: Request, res: Response): Promise<void> => {

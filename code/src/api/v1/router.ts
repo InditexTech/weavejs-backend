@@ -24,6 +24,8 @@ import { getThreadAnswerController } from "./controllers/getThreadAnswer.js";
 import { delThreadAnswerController } from "./controllers/delThreadAnswer.js";
 import { postThreadAnswerController } from "./controllers/postThreadAnswer.js";
 import { putThreadAnswerController } from "./controllers/putThreadAnswer.js";
+import { getRoomBusNegotiateController } from "./controllers/getRoomBusNegotiate.js";
+import { postRoomBusJoinController } from "./controllers/postRoomBusJoin.js";
 
 const router: Router = Router();
 
@@ -133,6 +135,18 @@ export function setupApiV1Router(app: Express) {
       `/${hubName}/rooms/:roomId/threads/:threadId/answers/:answerId`,
       cors,
       delThreadAnswerController()
+    );
+
+    // Bus API
+    router.get(
+      `/${hubName}/rooms/:roomId/bus/:userId`,
+      cors,
+      getRoomBusNegotiateController()
+    );
+    router.post(
+      `/${hubName}/rooms/:roomId/bus/:userId`,
+      cors,
+      postRoomBusJoinController()
     );
   }
 

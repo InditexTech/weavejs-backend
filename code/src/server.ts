@@ -15,6 +15,7 @@ import { setupEvents } from "./events/events.js";
 import { setupDatabase } from "./database/database.js";
 import { setupStorage } from "./storage/storage.js";
 import { getServiceConfig } from "./config/config.js";
+import { setupCommBus } from "./comm-bus/comm-bus.js";
 
 const start = async () => {
   try {
@@ -39,6 +40,8 @@ const start = async () => {
       // Setup the workloads
       await setupWorkloads();
     }
+
+    await setupCommBus();
 
     // Setup the Azure Storage
     await setupStorage();

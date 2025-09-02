@@ -5,7 +5,6 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { createThread } from "../../../database/controllers/thread.js";
-import { notifyRoomClients } from "../../v2/controllers/getServerSideEvents.js";
 
 export const postThreadController = () => {
   return async (req: Request, res: Response): Promise<void> => {

@@ -18,12 +18,12 @@ import { JOB_REMOVE_IMAGE_BACKGROUND_QUEUE_NAME } from "./constants.js";
 import { getLogger } from "../../../logger/logger.js";
 import { saveBase64ToFile } from "../../../utils.js";
 import { removeBackground } from "@imgly/background-removal-node";
-import { notifyRoomClients } from "../../../api/v2/controllers/getServerSideEvents.js";
 import { createTask, updateTask } from "../../../database/controllers/task.js";
 import {
   createImage,
   updateImage,
 } from "../../../database/controllers/image.js";
+import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 
 export class RemoveImageBackgroundJob {
   private logger: ReturnType<typeof getLogger>;
@@ -271,7 +271,7 @@ export class RemoveImageBackgroundJob {
         });
       }
 
-      notifyRoomClients(roomId, {
+      broadcastToRoom(roomId, {
         jobId,
         type: "removeImageBackground",
         status: "created",
@@ -316,7 +316,7 @@ export class RemoveImageBackgroundJob {
           }
         );
 
-        notifyRoomClients(roomId, {
+        broadcastToRoom(roomId, {
           jobId,
           type: "removeImageBackground",
           status: "active",
@@ -359,7 +359,7 @@ export class RemoveImageBackgroundJob {
           }
         );
 
-        notifyRoomClients(roomId, {
+        broadcastToRoom(roomId, {
           jobId,
           type: "removeImageBackground",
           status: "completed",
@@ -405,7 +405,7 @@ export class RemoveImageBackgroundJob {
         }
       );
 
-      notifyRoomClients(roomId, {
+      broadcastToRoom(roomId, {
         jobId,
         type: "removeImageBackground",
         status: "failed",

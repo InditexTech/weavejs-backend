@@ -8,7 +8,7 @@ import {
   getThreadAnswer,
   updateThreadAnswer,
 } from "../../../database/controllers/thread-answer.js";
-import { notifyRoomClients } from "../../v2/controllers/getServerSideEvents.js";
+import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 
 export const putThreadAnswerController = () => {
   return async (req: Request, res: Response): Promise<void> => {
@@ -73,7 +73,7 @@ export const putThreadAnswerController = () => {
         answerId,
       });
 
-      notifyRoomClients(roomId, {
+      broadcastToRoom(roomId, {
         type: "commentAnswerUpdated",
         status: "created",
       });

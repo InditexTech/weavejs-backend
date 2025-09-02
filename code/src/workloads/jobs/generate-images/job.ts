@@ -4,28 +4,29 @@
 
 import { v4 as uuidv4 } from "uuid";
 import pgBoss from "pg-boss";
-import Emittery from "emittery";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import {
-  GenerateImagesEvents,
+  GenerateImagesJobComplete,
   GenerateImagesJobData,
+  GenerateImagesJobFailed,
+  GenerateImagesJobNew,
+  GenerateImagesJobProcessing,
   GenerateImagesJobWorkData,
   GenerateImagesParameters,
 } from "./types.js";
 import { JOB_GENERATE_IMAGES_QUEUE_NAME } from "./constants.js";
 import { getLogger } from "../../../logger/logger.js";
-import { notifyRoomClients } from "../../../api/v2/controllers/getServerSideEvents.js";
 import { createTask, updateTask } from "../../../database/controllers/task.js";
 import {
   createImage,
   updateImage,
 } from "../../../database/controllers/image.js";
 import { getServiceConfig } from "../../../config/config.js";
+import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 
 export class GenerateImagesJob {
   private logger: ReturnType<typeof getLogger>;
   private boss: pgBoss;
-  private eventEmitter: Emittery<GenerateImagesEvents>;
   private persistenceHandler: ImagesPersistenceHandler;
 
   static async create(
@@ -49,31 +50,17 @@ export class GenerateImagesJob {
 
     this.boss = tasksManagerInstance;
 
-    this.eventEmitter = new Emittery<GenerateImagesEvents>();
     this.persistenceHandler = new ImagesPersistenceHandler();
 
     this.logger.info("Generate images / job created");
   }
 
   async start() {
-    this.onNew();
-    this.onProcessing();
-    this.onComplete();
-    this.onFailed();
-
     await this.boss.work<GenerateImagesJobWorkData>(
       JOB_GENERATE_IMAGES_QUEUE_NAME,
       async ([job]) => {
         const { id, data } = job;
         const { clientId, roomId, userId, payload, imagesIds } = data;
-
-        this.eventEmitter.emit("job:generateImages:processing", {
-          jobId: id,
-          clientId,
-          roomId,
-          userId,
-          imagesIds,
-        });
 
         await this.generateImagesJob({
           jobId: id,
@@ -116,6 +103,14 @@ export class GenerateImagesJob {
       output_format: "png",
     };
 
+    await this.onProcessing({
+      jobId,
+      clientId,
+      roomId,
+      userId,
+      imagesIds,
+    });
+
     try {
       const controller = new AbortController();
       const timeout = setTimeout(
@@ -139,19 +134,7 @@ export class GenerateImagesJob {
       clearTimeout(timeout);
 
       if (!response.ok) {
-        this.boss.fail(JOB_GENERATE_IMAGES_QUEUE_NAME, jobId, {
-          status: "KO",
-          error: "Error generating the images",
-        });
-
-        this.eventEmitter.emit("job:generateImages:failed", {
-          jobId,
-          clientId,
-          roomId,
-          userId,
-          imagesIds,
-          error: "Error generating the images",
-        });
+        throw new Error("Error generating the images");
       }
 
       const jsonData = await response.json();
@@ -168,13 +151,13 @@ export class GenerateImagesJob {
         );
       }
 
-      this.boss.complete(JOB_GENERATE_IMAGES_QUEUE_NAME, jobId, {
+      await this.boss.complete(JOB_GENERATE_IMAGES_QUEUE_NAME, jobId, {
         status: "OK",
         clientId,
         imagesIds,
       });
 
-      this.eventEmitter.emit("job:generateImages:completed", {
+      await this.onComplete({
         jobId,
         clientId,
         roomId,
@@ -182,14 +165,15 @@ export class GenerateImagesJob {
         imagesIds,
       });
     } catch (ex) {
+      console.error(ex);
       this.logger.error((ex as Error).message);
 
-      this.boss.fail(JOB_GENERATE_IMAGES_QUEUE_NAME, jobId, {
+      await this.boss.fail(JOB_GENERATE_IMAGES_QUEUE_NAME, jobId, {
         status: "KO",
         error: "Error generating the images",
       });
 
-      this.eventEmitter.emit("job:generateImages:failed", {
+      this.onFailed({
         jobId,
         clientId,
         roomId,
@@ -222,13 +206,18 @@ export class GenerateImagesJob {
       imagesIds,
     };
 
-    const jobId = await this.boss.send(JOB_GENERATE_IMAGES_QUEUE_NAME, jobData);
+    const jobId = await this.boss.sendAfter(
+      JOB_GENERATE_IMAGES_QUEUE_NAME,
+      jobData,
+      {},
+      1
+    );
 
     if (!jobId) {
       throw new Error("Error creating images generation job");
     }
 
-    this.eventEmitter.emit("job:generateImages:new", {
+    await this.onNew({
       jobId,
       clientId,
       roomId,
@@ -240,169 +229,161 @@ export class GenerateImagesJob {
     return jobId;
   }
 
-  private onNew() {
-    this.eventEmitter.on("job:generateImages:new", async (data) => {
-      const { jobId, clientId, userId, roomId, payload, imagesIds } = data;
+  private async onNew(data: GenerateImagesJobNew) {
+    const { jobId, clientId, userId, roomId, payload, imagesIds } = data;
 
-      const { size } = payload;
+    const { size } = payload;
 
-      await createTask({
-        jobId,
+    await createTask({
+      jobId,
+      roomId,
+      userId,
+      type: "generateImages",
+      status: "created",
+      opened: false,
+      metadata: {
+        payload,
+      },
+    });
+
+    const sizeTokens = size.split("x");
+    const width = parseInt(sizeTokens[0]);
+    const height = parseInt(sizeTokens[1]);
+
+    for (const imageId of imagesIds) {
+      const fileName = `${roomId}/${imageId}`;
+
+      await createImage({
         roomId,
-        userId,
-        type: "generateImages",
-        status: "created",
-        opened: false,
-        metadata: {
-          payload,
-        },
+        imageId,
+        operation: "image-generation",
+        status: "pending",
+        mimeType: "image/png",
+        fileName,
+        width,
+        height,
+        aspectRatio: width / height,
+        jobId,
+        removalJobId: null,
+        removalStatus: null,
       });
+    }
 
-      const sizeTokens = size.split("x");
-      const width = parseInt(sizeTokens[0]);
-      const height = parseInt(sizeTokens[1]);
+    broadcastToRoom(roomId, {
+      jobId,
+      type: "generateImages",
+      status: "created",
+    });
 
-      for (const imageId of imagesIds) {
-        const fileName = `${roomId}/${imageId}`;
+    this.logger.info(
+      `Generate images / created new job / ${jobId} / ${clientId}`
+    );
+  }
 
-        await createImage({
+  private async onProcessing(data: GenerateImagesJobProcessing) {
+    const { jobId, roomId, userId, clientId, imagesIds } = data;
+
+    for (const imageId of imagesIds) {
+      await updateImage(
+        {
           roomId,
           imageId,
-          operation: "image-generation",
-          status: "pending",
-          mimeType: "image/png",
-          fileName,
-          width,
-          height,
-          aspectRatio: width / height,
-          jobId,
-          removalJobId: null,
-          removalStatus: null,
-        });
-      }
-
-      notifyRoomClients(roomId, {
-        jobId,
-        type: "generateImages",
-        status: "created",
-      });
-
-      this.logger.info(
-        `Generate images / created new job / ${jobId} / ${clientId}`
-      );
-    });
-  }
-
-  private onProcessing() {
-    this.eventEmitter.on("job:generateImages:processing", async (data) => {
-      const { jobId, roomId, userId, clientId, imagesIds } = data;
-
-      for (const imageId of imagesIds) {
-        await updateImage(
-          {
-            roomId,
-            imageId,
-          },
-          {
-            status: "working",
-          }
-        );
-      }
-
-      await updateTask(
-        {
-          jobId,
         },
         {
-          roomId,
-          userId,
-          status: "active",
+          status: "working",
         }
       );
+    }
 
-      notifyRoomClients(roomId, {
+    await updateTask(
+      {
         jobId,
-        type: "generateImages",
+      },
+      {
+        roomId,
+        userId,
         status: "active",
-      });
+      }
+    );
 
-      this.logger.info(
-        `Generate images / job stated active / ${jobId} / ${clientId}`
-      );
+    broadcastToRoom(roomId, {
+      jobId,
+      type: "generateImages",
+      status: "active",
     });
+
+    this.logger.info(
+      `Generate images / job stated active / ${jobId} / ${clientId}`
+    );
   }
 
-  private onComplete() {
-    this.eventEmitter.on("job:generateImages:completed", async (data) => {
-      const { jobId, roomId, clientId, imagesIds } = data;
+  private async onComplete(data: GenerateImagesJobComplete) {
+    const { jobId, roomId, clientId, imagesIds } = data;
 
-      for (const imageId of imagesIds) {
-        await updateImage(
-          {
-            roomId,
-            imageId,
-          },
-          {
-            status: "completed",
-          }
-        );
-      }
-
-      await updateTask(
+    for (const imageId of imagesIds) {
+      await updateImage(
         {
-          jobId,
+          roomId,
+          imageId,
         },
         {
           status: "completed",
         }
       );
+    }
 
-      notifyRoomClients(roomId, {
+    await updateTask(
+      {
         jobId,
-        type: "generateImages",
+      },
+      {
         status: "completed",
-      });
+      }
+    );
 
-      this.logger.info(
-        `Generate images / job completed / ${jobId} / ${clientId})`
-      );
+    broadcastToRoom(roomId, {
+      jobId,
+      type: "generateImages",
+      status: "completed",
     });
+
+    this.logger.info(
+      `Generate images / job completed / ${jobId} / ${clientId})`
+    );
   }
 
-  private onFailed() {
-    this.eventEmitter.on("job:generateImages:failed", async (data) => {
-      const { jobId, roomId, clientId, error, imagesIds } = data;
+  private async onFailed(data: GenerateImagesJobFailed) {
+    const { jobId, roomId, clientId, error, imagesIds } = data;
 
-      for (const imageId of imagesIds) {
-        await updateImage(
-          {
-            roomId,
-            imageId,
-          },
-          {
-            status: "failed",
-          }
-        );
-      }
-
-      await updateTask(
+    for (const imageId of imagesIds) {
+      await updateImage(
         {
-          jobId,
+          roomId,
+          imageId,
         },
         {
           status: "failed",
         }
       );
+    }
 
-      notifyRoomClients(roomId, {
+    await updateTask(
+      {
         jobId,
-        type: "generateImages",
+      },
+      {
         status: "failed",
-      });
+      }
+    );
 
-      this.logger.error(
-        `Generate images / job failed: / ${jobId} / ${clientId} / ${error}`
-      );
+    broadcastToRoom(roomId, {
+      jobId,
+      type: "generateImages",
+      status: "failed",
     });
+
+    this.logger.error(
+      `Generate images / job failed: / ${jobId} / ${clientId} / ${error}`
+    );
   }
 }

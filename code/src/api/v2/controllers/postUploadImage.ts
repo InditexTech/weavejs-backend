@@ -8,7 +8,7 @@ import { imageSize } from "image-size";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import { createImage } from "../../../database/controllers/image.js";
 import { ImageModel } from "../../../database/models/image.js";
-import { notifyRoomClients } from "./getServerSideEvents.js";
+import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 
 export const postUploadImageController = () => {
   const persistenceHandler = new ImagesPersistenceHandler();
@@ -52,7 +52,7 @@ export const postUploadImageController = () => {
           removalStatus: null,
         });
 
-        notifyRoomClients(roomId, {
+        broadcastToRoom(roomId, {
           jobId: null,
           type: "addImage",
           status: "failed",

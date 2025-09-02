@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { Op } from "sequelize";
 import {
   ImageAttributes,
   ImageIdentifier,
@@ -11,8 +12,10 @@ import {
 export const getRoomImages = async (
   {
     roomId,
+    since,
   }: {
     roomId: string;
+    since?: Date;
   },
   {
     limit = 20,
@@ -25,8 +28,9 @@ export const getRoomImages = async (
   return ImageModel.findAll({
     where: {
       roomId,
+      ...(since && { updatedAt: { [Op.gte]: since } }),
     },
-    order: [["createdAt", "DESC"]],
+    order: [["updatedAt", "DESC"]],
     attributes: [
       "roomId",
       "imageId",
@@ -51,12 +55,15 @@ export const getRoomImages = async (
 
 export const getTotalRoomImages = async ({
   roomId,
+  since,
 }: {
   roomId: string;
+  since?: Date;
 }): Promise<number> => {
   return ImageModel.count({
     where: {
       roomId,
+      ...(since && { updatedAt: { [Op.gte]: since } }),
     },
   });
 };

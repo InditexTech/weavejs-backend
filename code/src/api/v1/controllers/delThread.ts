@@ -7,7 +7,6 @@ import {
   deleteThread,
   getThread,
 } from "../../../database/controllers/thread.js";
-import { notifyRoomClients } from "../../v2/controllers/getServerSideEvents.js";
 
 export const delThreadController = () => {
   return async (req: Request, res: Response): Promise<void> => {
