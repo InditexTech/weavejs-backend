@@ -40,18 +40,6 @@ export const postExportToImageController = () => {
       parsedBody.data.roomData
     );
 
-    // const dataURL = await instance.exportNodesAsDataURL(
-    //   parsedBody.data.nodes,
-    //   (nodes) => nodes,
-    //   {
-    //     format: parsedBody.data.options.format as WeaveExportFormats,
-    //     padding: parsedBody.data.options.padding,
-    //     pixelRatio: parsedBody.data.options.pixelRatio,
-    //     backgroundColor: parsedBody.data.options.backgroundColor,
-    //     quality: parsedBody.data.options.quality, // Only used for image/jpeg
-    //   }
-    // );
-
     const { composites, width, height } = await instance.exportNodesAsBuffer(
       parsedBody.data.nodes,
       (nodes) => nodes,
