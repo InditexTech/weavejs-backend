@@ -20,6 +20,7 @@ path = [
     "cleanup-storage/src/whitelist.json",
     "code/.husky/**",
     "code/.prettierrc",
+    "code/justfile",
     "code/.tool-versions",
     "code/tsconfig.base.json",
 ]

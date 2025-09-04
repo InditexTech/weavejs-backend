@@ -26,6 +26,7 @@ import { postThreadAnswerController } from "./controllers/postThreadAnswer.js";
 import { putThreadAnswerController } from "./controllers/putThreadAnswer.js";
 import { getRoomBusNegotiateController } from "./controllers/getRoomBusNegotiate.js";
 import { postRoomBusJoinController } from "./controllers/postRoomBusJoin.js";
+import { postExportToImageController } from "./controllers/postExportToImage.js";
 
 const router: Router = Router();
 
@@ -148,6 +149,9 @@ export function setupApiV1Router(app: Express) {
       cors,
       postRoomBusJoinController()
     );
+
+    // Render Canvas API
+    router.post(`/${hubName}/export`, cors, postExportToImageController());
   }
 
   app.use("/api/v1", router);
