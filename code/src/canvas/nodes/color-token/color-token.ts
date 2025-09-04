@@ -7,7 +7,6 @@ import {
   WeaveElementAttributes,
   WeaveElementInstance,
 } from "@inditextech/weave-types";
-import Konva from "konva";
 // import { Inter } from "next/font/google";
 
 export const COLOR_TOKEN_NODE_TYPE = "color-token";
