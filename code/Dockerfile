@@ -22,7 +22,6 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/public ./public
-COPY --from=deps /app/fonts ./fonts
 COPY . .
 RUN npm run build
 
@@ -37,7 +36,7 @@ ENV NODE_ENV production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 service
 COPY --from=deps --chown=service:nodejs /app/node_modules ./node_modules
-COPY --from=deps --chown=service:nodejs /app/fonts ./fonts
+COPY --from=builder --chown=service:nodejs /app/fonts ./fonts
 COPY --from=builder --chown=service:nodejs /app/dist ./
 COPY --chown=service:nodejs .env ./
 COPY --chown=service:nodejs package.json ./
