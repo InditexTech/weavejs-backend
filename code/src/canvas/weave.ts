@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // polyfills for Konva in Node
+import path from "node:path";
 import { createCanvas, Image, registerFont } from "canvas";
 import { StoreStandalone } from "./store-standalone/store-standalone.js";
 import {
@@ -66,32 +67,32 @@ export const renderWeaveRoom = (roomData: string): Promise<RenderWeaveRoom> => {
       }
     );
 
-    registerFont("./fonts/inter-regular.ttf", {
+    registerFont(path.resolve(process.cwd(), "fonts/inter-regular.ttf"), {
       family: "Inter",
       weight: "400",
       style: "normal",
     });
-    registerFont("./fonts/inter-bold.ttf", {
+    registerFont(path.resolve(process.cwd(), "fonts/inter-bold.ttf"), {
       family: "Inter",
       weight: "700",
       style: "normal",
     });
-    registerFont("./fonts/inter-italic.ttf", {
+    registerFont(path.resolve(process.cwd(), "fonts/inter-italic.ttf"), {
       family: "Inter",
       weight: "400",
       style: "italic",
     });
-    registerFont("./fonts/inter-italic-bold.ttf", {
+    registerFont(path.resolve(process.cwd(), "fonts/inter-italic-bold.ttf"), {
       family: "Inter",
       weight: "700",
       style: "italic",
     });
-    registerFont("./fonts/sansita-regular.ttf", {
+    registerFont(path.resolve(process.cwd(), "fonts/sansita-regular.ttf"), {
       family: "Sansita",
       weight: "400",
       style: "normal",
     });
-    registerFont("./fonts/sansita-bold.ttf", {
+    registerFont(path.resolve(process.cwd(), "fonts/sansita-bold.ttf"), {
       family: "Sansita",
       weight: "700",
       style: "normal",
