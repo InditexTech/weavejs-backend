@@ -66,40 +66,47 @@ export const postExportToImageController = () => {
 
     destroy();
 
-    const finalImage = sharp({
-      create: {
-        width,
-        height,
-        channels: 4,
-        background: { r: 0, g: 0, b: 0, alpha: 0 },
-      },
-    }).composite(composites);
+    try {
+      const finalImage = sharp({
+        create: {
+          width,
+          height,
+          channels: 4,
+          background: { r: 0, g: 0, b: 0, alpha: 0 },
+        },
+      }).composite(composites);
 
-    const finalBuffer = await finalImage.png().toBuffer();
+      const finalBuffer = await finalImage.png().toBuffer();
 
-    const fileExtension =
-      parsedBody.data.options.format.split("/")[1] === "png" ? ".png" : ".jpg";
+      const fileExtension =
+        parsedBody.data.options.format.split("/")[1] === "png"
+          ? ".png"
+          : ".jpg";
 
-    if (parsedBody.data.responseType === "zip") {
-      res.setHeader("Content-Type", "application/zip");
-      res.setHeader("Content-Disposition", "attachment; filename=export.zip");
+      if (parsedBody.data.responseType === "zip") {
+        res.setHeader("Content-Type", "application/zip");
+        res.setHeader("Content-Disposition", "attachment; filename=export.zip");
 
-      const archive = archiver("zip", { zlib: { level: 9 } });
-      archive.pipe(res);
+        const archive = archiver("zip", { zlib: { level: 9 } });
+        archive.pipe(res);
 
-      archive.append(finalBuffer, { name: `render${fileExtension}` });
+        archive.append(finalBuffer, { name: `render${fileExtension}` });
 
-      // Finalize ZIP
-      archive.finalize();
-      return;
+        // Finalize ZIP
+        archive.finalize();
+        return;
+      }
+
+      res.setHeader("Content-Type", "application/octet-stream");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="render${fileExtension}"`
+      );
+
+      res.status(200).send(finalBuffer);
+    } catch (error) {
+      console.error("Error processing image:", error);
+      res.status(500).json({ error: "Error processing image" });
     }
-
-    res.setHeader("Content-Type", "application/octet-stream");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="render${fileExtension}"`
-    );
-
-    res.status(200).send(finalBuffer);
   };
 };
