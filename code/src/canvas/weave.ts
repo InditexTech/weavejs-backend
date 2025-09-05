@@ -26,6 +26,7 @@ import {
 import { WEAVE_TRANSFORMER_ANCHORS } from "@inditextech/weave-types";
 import { ColorTokenNode } from "./nodes/color-token/color-token.js";
 import { getServiceConfig } from "../config/config.js";
+import { isAbsoluteUrl, stripOrigin } from "../utils.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -147,12 +148,6 @@ export const renderWeaveRoom = (roomData: string): Promise<RenderWeaveRoom> => {
   });
 };
 
-// const inter = Inter({
-//   preload: true,
-//   variable: "--inter",
-//   subsets: ["latin"],
-// });
-
 const getNodes = () => {
   const config = getServiceConfig();
 
@@ -168,8 +163,15 @@ const getNodes = () => {
     new WeaveImageNode({
       config: {
         urlTransformer: (url: string) => {
-          const transformedURL = url.replace("/weavebff", "");
-          return `http://localhost:${config.service.port}${transformedURL}`;
+          const isAbsolute = isAbsoluteUrl(url);
+
+          let relativeUrl = url;
+          if (isAbsolute) {
+            relativeUrl = stripOrigin(url);
+          }
+
+          const transformedUrl = relativeUrl.replace("/weavebff", "");
+          return `http://localhost:${config.service.port}${transformedUrl}`;
         },
         transform: {
           enabledAnchors: [
@@ -190,8 +192,7 @@ const getNodes = () => {
     new WeaveRegularPolygonNode(),
     new WeaveFrameNode({
       config: {
-        // fontFamily: inter.style.fontFamily,
-        fontFamily: "Arial",
+        fontFamily: "'Inter', sans-serif",
         fontStyle: "normal",
         fontSize: 14,
         borderColor: "#9E9994",

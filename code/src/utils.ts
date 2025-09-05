@@ -44,3 +44,12 @@ export async function getDatabaseCloudCredentialsToken(): Promise<string> {
   const token = await credential.getToken(scope);
   return token?.token || "";
 }
+
+export function isAbsoluteUrl(url: string): boolean {
+  return /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(url);
+}
+
+export function stripOrigin(url: string): string {
+  const parsedUrl = new URL(url);
+  return parsedUrl.pathname + parsedUrl.search + parsedUrl.hash;
+}
