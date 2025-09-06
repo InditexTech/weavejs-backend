@@ -5,7 +5,7 @@
 import cors from "cors";
 import { getLogger } from "../logger/logger.js";
 
-export function getCorsMiddleware() {
+export function getCorsMiddleware(path: string) {
   const logger = getLogger().child({ module: "middlewares.cors" });
 
   // Setup CORS configuration
@@ -13,7 +13,7 @@ export function getCorsMiddleware() {
     origin: true,
   };
 
-  logger.info({ corsOptions }, "Setting up CORS middleware");
+  logger.info({ corsOptions }, `CORS configured on path: ${path}`);
 
   return cors(corsOptions);
 }

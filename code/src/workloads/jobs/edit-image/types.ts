@@ -67,13 +67,6 @@ export type EditImageJobFailed = {
   imagesIds: string[];
 };
 
-export interface EditImageEvents {
-  "job:editImage:new": EditImageJobNew;
-  "job:editImage:processing": EditImageJobProcessing;
-  "job:editImage:completed": EditImageJobComplete;
-  "job:editImage:failed": EditImageJobFailed;
-}
-
 export type EditImageJobData = {
   clientId: string;
   roomId: string;

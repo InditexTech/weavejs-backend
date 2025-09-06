@@ -55,13 +55,6 @@ export type RemoveImageBackgroundJobFailed = {
   error: string;
 };
 
-export interface RemoveImageBackgroundEvents {
-  "job:removeImageBackground:new": RemoveImageBackgroundJobNew;
-  "job:removeImageBackground:processing": RemoveImageBackgroundJobProcessing;
-  "job:removeImageBackground:completed": RemoveImageBackgroundJobComplete;
-  "job:removeImageBackground:failed": RemoveImageBackgroundJobFailed;
-}
-
 export type RemoveImageBackgroundJobData = {
   clientId: string;
   roomId: string;

@@ -47,7 +47,7 @@ export class DeleteImageJob {
 
     this.persistenceHandler = new ImagesPersistenceHandler();
 
-    this.logger.info("Delete image / job created");
+    this.logger.info("Job created");
   }
 
   async start() {

@@ -13,7 +13,7 @@ let serviceClient: WebPubSubServiceClient | null = null;
 export const setupCommBus = () => {
   logger = getLogger().child({ module: "comm-bus" });
 
-  logger.info("Setting up communication bus module");
+  logger.info("Setting up");
 
   const credentials = new DefaultAzureCredential();
 
@@ -23,7 +23,7 @@ export const setupCommBus = () => {
   const hubName = config.pubsub.hubName;
   serviceClient = new WebPubSubServiceClient(endpoint, credentials, hubName);
 
-  logger.info("Communication bus module ready");
+  logger.info("Module ready");
 };
 
 export const getCommBus = () => {

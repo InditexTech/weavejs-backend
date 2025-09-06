@@ -44,13 +44,6 @@ export type GenerateImagesJobFailed = {
   imagesIds: string[];
 };
 
-export interface GenerateImagesEvents {
-  "job:generateImages:new": GenerateImagesJobNew;
-  "job:generateImages:processing": GenerateImagesJobProcessing;
-  "job:generateImages:completed": GenerateImagesJobComplete;
-  "job:generateImages:failed": GenerateImagesJobFailed;
-}
-
 export type GenerateImagesJobData = {
   clientId: string;
   roomId: string;

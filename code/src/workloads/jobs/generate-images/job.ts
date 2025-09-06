@@ -52,7 +52,7 @@ export class GenerateImagesJob {
 
     this.persistenceHandler = new ImagesPersistenceHandler();
 
-    this.logger.info("Generate images / job created");
+    this.logger.info("Job created");
   }
 
   async start() {

@@ -11,7 +11,6 @@ import { getLogger, setupLogger } from "./logger/logger.js";
 import { setupApp } from "./app.js";
 import { setupStore } from "./store.js";
 import { setupWorkloads } from "./workloads/workloads.js";
-import { setupEvents } from "./events/events.js";
 import { setupDatabase } from "./database/database.js";
 import { setupStorage } from "./storage/storage.js";
 import { getServiceConfig } from "./config/config.js";
@@ -35,8 +34,6 @@ const start = async () => {
     }
 
     if (config.features.workloads) {
-      // Setup events
-      await setupEvents();
       // Setup the workloads
       await setupWorkloads();
     }

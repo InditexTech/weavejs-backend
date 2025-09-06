@@ -27,6 +27,7 @@ import { putThreadAnswerController } from "./controllers/putThreadAnswer.js";
 import { getRoomBusNegotiateController } from "./controllers/getRoomBusNegotiate.js";
 import { postRoomBusJoinController } from "./controllers/postRoomBusJoin.js";
 import { postExportToImageController } from "./controllers/postExportToImage.js";
+import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
 
 const router: Router = Router();
 
@@ -42,15 +43,19 @@ export function setupApiV1Router(app: Express) {
   } = config;
 
   const router: Router = Router();
+  const routerBasePath = "/api/v1";
 
   // Setup multer to upload files
   const upload = multer();
 
   // Setup cors
-  const cors = getCorsMiddleware();
+  const cors = getCorsMiddleware(routerBasePath);
 
   // Room handling API
   router.use(getAzureWebPubsubServer().getExpressJsMiddleware());
+
+  setupBodyParserMiddleware(router, routerBasePath);
+
   router.get(
     `/${hubName}/rooms/:roomId/connect`,
     cors,
@@ -154,5 +159,5 @@ export function setupApiV1Router(app: Express) {
     router.post(`/${hubName}/export`, cors, postExportToImageController());
   }
 
-  app.use("/api/v1", router);
+  app.use(routerBasePath, router);
 }

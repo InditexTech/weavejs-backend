@@ -16,7 +16,7 @@ let containerClient: ContainerClient | null = null;
 export async function setupStorage() {
   logger = getLogger().child({ module: "storage" });
 
-  logger.info("Setting up Storage module");
+  logger.info("Setting up");
 
   const config = getServiceConfig();
 
@@ -39,7 +39,7 @@ export async function setupStorage() {
 
   storageInitialized = true;
 
-  logger.info("Storage module ready");
+  logger.info("Module ready");
 }
 
 export const isStorageInitialized = () => storageInitialized;

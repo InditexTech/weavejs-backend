@@ -11,7 +11,7 @@ export function setupHttpResponseHeadersMiddleware(app: Express) {
     module: "middlewares.http-response-headers",
   });
 
-  logger.info("Setting up HTTP response headers middleware");
+  logger.info("HTTP response headers configured");
 
   // Use Helmet for setting security-related HTTP headers
   app.use(

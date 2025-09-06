@@ -9,7 +9,7 @@ import { getLogger } from "../logger/logger.js";
 export function setupHttpLoggerMiddleware(app: Express) {
   const logger = getLogger().child({ module: "middlewares.http-logger" });
 
-  logger.info("Setting up HTTP logger middleware");
+  logger.info("HTTP logger configured");
 
   // Setup http logger
   const httpLogger = pinoHttp({ logger: getLogger(), useLevel: "info" });

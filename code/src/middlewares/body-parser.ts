@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import express, { Express } from "express";
+import express, { Router } from "express";
 import { getLogger } from "../logger/logger.js";
 
-export function setupBodyParserMiddleware(app: Express) {
+export function setupBodyParserMiddleware(router: Router, path: string) {
   const logger = getLogger().child({ module: "middlewares.body-parser" });
 
-  logger.info("Setting up HTTP request body parser middleware");
-
   // Setup HTTP body parser to JSON
-  app.use(express.json({ limit: "100mb" }));
+  router.use(express.json({ limit: "100mb" }));
+
+  logger.info(`Body parser configured on path: ${path}`);
 }

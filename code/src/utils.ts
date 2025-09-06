@@ -4,7 +4,7 @@
 
 import fs from "fs";
 import path from "path";
-import { DefaultAzureCredential } from "@azure/identity";
+import { AccessToken, DefaultAzureCredential } from "@azure/identity";
 
 export async function streamToBuffer(
   readableStream: NodeJS.ReadableStream
@@ -38,11 +38,11 @@ export const saveBase64ToFile = async (
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-export async function getDatabaseCloudCredentialsToken(): Promise<string> {
+export async function getDatabaseCloudCredentialsToken(): Promise<AccessToken> {
   const credential = new DefaultAzureCredential();
   const scope = "https://ossrdbms-aad.database.windows.net/.default";
   const token = await credential.getToken(scope);
-  return token?.token || "";
+  return token;
 }
 
 export function isAbsoluteUrl(url: string): boolean {

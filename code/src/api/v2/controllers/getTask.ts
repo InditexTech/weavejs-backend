@@ -35,7 +35,7 @@ export const getTaskController = () => {
       const taskJson = task.toJSON();
       const queue = TASK_TYPE_QUEUE_MAP[taskJson.type];
 
-      const realTask = await boss.getJobById(queue, jobId);
+      const realTask = await boss?.getJobById(queue, jobId);
 
       if (realTask) {
         res.status(200).json({ task: taskJson, internal: realTask });

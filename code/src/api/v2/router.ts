@@ -16,6 +16,7 @@ import { getImagesController } from "./controllers/getImages.js";
 import { getImageController } from "./controllers/getImage.js";
 import { postUploadImageController } from "./controllers/postUploadImage.js";
 import { delImageController } from "./controllers/delImage.js";
+import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
 
 const router: Router = Router();
 
@@ -31,12 +32,15 @@ export function setupApiV2Router(app: Express) {
   } = config;
 
   const router: Router = Router();
+  const routerBasePath = "/api/v2";
 
   // Setup multer to upload files
   const upload = multer();
 
   // Setup cors
-  const cors = getCorsMiddleware();
+  const cors = getCorsMiddleware(routerBasePath);
+
+  setupBodyParserMiddleware(router, routerBasePath);
 
   router.post(
     `/${hubName}/rooms/:roomId/images/generate`,
@@ -86,5 +90,5 @@ export function setupApiV2Router(app: Express) {
     );
   }
 
-  app.use("/api/v2", router);
+  app.use(routerBasePath, router);
 }

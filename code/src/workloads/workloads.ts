@@ -8,77 +8,151 @@ import { JobHandler } from "./types.js";
 import PgBoss from "pg-boss";
 import { getServiceConfig } from "../config/config.js";
 import { getDatabaseCloudCredentialsToken } from "../utils.js";
+import { AccessToken } from "@azure/identity";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
-let boss: pgBoss | null = null;
+let activeBoss: pgBoss | null = null;
+let standbyBoss: pgBoss | null = null;
+
+const RENEW_TOKEN_CHECK_INTERVAL = 60 * 1000; // 1 minute
+const RENEW_TOKEN_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+const CLOSE_STANDBY_BOSS_DELAY = 5 * 60 * 1000; // 5 minutes
 
 const jobs: Partial<Record<JobHandler, unknown>> = {};
 
 export const setupWorkloads = async () => {
   logger = getLogger().child({ module: "workloads" });
 
-  logger.info("Setting up workloads module");
+  logger.info("Setting up");
 
   const config = getServiceConfig();
 
-  if (config.database.kind === "connection_string") {
-    const {
-      database: {
-        connection: { connectionString },
-      },
-    } = config;
+  let currentAccessToken: AccessToken | undefined = undefined;
 
-    boss = new pgBoss({
-      connectionString,
-      migrate: true,
-      monitorStateIntervalSeconds: 3,
-    });
-  }
+  async function initPgBoss(
+    initialize: boolean = true
+  ): Promise<pgBoss | null> {
+    if (config.database.kind === "connection_string") {
+      const {
+        database: {
+          connection: { connectionString },
+        },
+      } = config;
 
-  if (config.database.kind === "properties") {
-    const {
-      database: {
-        connection: { host, port, db, username, password, ssl },
-      },
-    } = config;
+      const boss = new pgBoss({
+        connectionString,
+        migrate: true,
+        monitorStateIntervalSeconds: 3,
+      });
 
-    let finalPassword = password;
+      await boss.start();
 
-    if (config.database.connection.cloudCredentials) {
-      finalPassword = await getDatabaseCloudCredentialsToken();
+      if (initialize) {
+        await boss.clearStorage();
+
+        await initRemoveImageBackgroundQueue(boss);
+        await initGenerateImagesQueue(boss);
+        await initEditImageQueue(boss);
+        await initDeleteImageQueue(boss);
+
+        logger.info("Module ready");
+      } else {
+        logger.info("Module re-initialized");
+      }
+
+      return boss;
     }
 
-    boss = new pgBoss({
-      host,
-      port,
-      database: db,
-      user: username,
-      password: finalPassword,
-      ...(ssl && {
-        ssl: {
-          rejectUnauthorized: true,
+    if (config.database.kind === "properties") {
+      const {
+        database: {
+          connection: { host, port, db, username, password, ssl },
         },
-      }),
-      migrate: true,
-      monitorStateIntervalSeconds: 3,
-    });
+      } = config;
+
+      let finalPassword = password;
+
+      if (config.database.connection.cloudCredentials) {
+        currentAccessToken = await getDatabaseCloudCredentialsToken();
+        finalPassword = currentAccessToken.token;
+      }
+
+      const boss = new pgBoss({
+        host,
+        port,
+        database: db,
+        user: username,
+        password: finalPassword,
+        ...(ssl && {
+          ssl: {
+            rejectUnauthorized: true,
+          },
+        }),
+        migrate: true,
+        monitorStateIntervalSeconds: 3,
+      });
+
+      if (initialize) {
+        await boss.start();
+        await boss.clearStorage();
+
+        await initRemoveImageBackgroundQueue(boss);
+        await initGenerateImagesQueue(boss);
+        await initEditImageQueue(boss);
+        await initDeleteImageQueue(boss);
+
+        logger.info("Module ready");
+      } else {
+        logger.info("Module re-initialized");
+      }
+
+      return boss;
+    }
+
+    return null;
   }
 
-  if (!boss) {
+  function tokenRenewalInterval() {
+    setInterval(async () => {
+      if (!activeBoss) {
+        logger.info("Not active...");
+        return;
+      }
+
+      if (
+        Date.now() >
+        currentAccessToken!.expiresOnTimestamp! - RENEW_TOKEN_THRESHOLD
+      ) {
+        logger.info("Renewing access token");
+
+        standbyBoss = await initPgBoss(false);
+
+        if (!standbyBoss) {
+          throw new Error("Database settings not defined on workloads module");
+        }
+
+        const old = activeBoss;
+        activeBoss = standbyBoss;
+        standbyBoss = null;
+
+        setTimeout(() => {
+          old.stop().catch(console.error);
+        }, CLOSE_STANDBY_BOSS_DELAY);
+      }
+    }, RENEW_TOKEN_CHECK_INTERVAL);
+
+    logger.info("Token renewal interval started");
+  }
+
+  activeBoss = await initPgBoss();
+
+  if (!activeBoss) {
     throw new Error("Database settings not defined on workloads module");
   }
 
-  await boss.start();
-  await boss.clearStorage();
+  tokenRenewalInterval();
 
-  await initRemoveImageBackgroundQueue(boss);
-  await initGenerateImagesQueue(boss);
-  await initEditImageQueue(boss);
-  await initDeleteImageQueue(boss);
-
-  logger.info("Workloads module ready");
-
-  return boss;
+  return activeBoss;
 };
 
 const initRemoveImageBackgroundQueue = async (boss: PgBoss) => {
@@ -120,11 +194,11 @@ const initDeleteImageQueue = async (boss: PgBoss) => {
 };
 
 export const getWorkloadsInstance = () => {
-  if (!boss) {
+  if (!activeBoss && !standbyBoss) {
     throw new Error("Workloads module not initialized");
   }
 
-  return boss;
+  return standbyBoss ?? activeBoss;
 };
 
 export function getJobHandler<P>(jobName: JobHandler): P {

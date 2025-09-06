@@ -7,6 +7,7 @@ import { getServiceConfig } from "../../config/config.js";
 import { getCorsMiddleware } from "../../middlewares/cors.js";
 import { postGenerateImageControllerV2 } from "./controllers/postGenerateImage.js";
 import { postEditImageControllerV2 } from "./controllers/postEditImage.js";
+import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
 
 const router: Router = Router();
 
@@ -22,9 +23,12 @@ export function setupApiV3Router(app: Express) {
   } = config;
 
   const router: Router = Router();
+  const routerBasePath = "/api/v3";
 
   // Setup cors
-  const cors = getCorsMiddleware();
+  const cors = getCorsMiddleware(routerBasePath);
+
+  setupBodyParserMiddleware(router, routerBasePath);
 
   router.post(
     `/${hubName}/rooms/:roomId/images/generate`,
@@ -37,5 +41,5 @@ export function setupApiV3Router(app: Express) {
     postEditImageControllerV2()
   );
 
-  app.use("/api/v3", router);
+  app.use(routerBasePath, router);
 }

@@ -2,7 +2,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { WeaveAzureWebPubsubServer } from "@inditextech/weave-store-azure-web-pubsub/server";
+import {
+  WeaveAzureWebPubsubServer,
+  WeaveStoreAzureWebPubsubOnConnectedEvent,
+  WeaveStoreAzureWebPubsubOnConnectEvent,
+  WeaveStoreAzureWebPubsubOnDisconnectedEvent,
+} from "@inditextech/weave-store-azure-web-pubsub/server";
 import { streamToBuffer } from "./utils.js";
 import { getServiceConfig } from "./config/config.js";
 import * as Y from "yjs";
@@ -47,7 +52,7 @@ function extractImageIdFromNode(images: string[], node: any) {
 export const setupStore = () => {
   logger = getLogger().child({ module: "store" });
 
-  logger.info("Setting up store module");
+  logger.info("Setting up");
 
   const config = getServiceConfig();
 
@@ -123,7 +128,61 @@ export const setupStore = () => {
     },
   });
 
-  logger.info("Store module ready");
+  azureWebPubsubServer
+    .getSyncHandler()
+    .addEventListener(
+      "onConnect",
+      ({
+        roomId,
+        context,
+        connections,
+        roomsConnections,
+      }: WeaveStoreAzureWebPubsubOnConnectEvent) => {
+        logger.info(
+          `Client with connection ID <${context.connectionId}> trying to connect to room <${roomId}>`
+        );
+        logger.info(`Current connections: ${connections}`);
+        logger.info(`Room connections: ${roomsConnections}`);
+      }
+    );
+
+  azureWebPubsubServer
+    .getSyncHandler()
+    .addEventListener(
+      "onConnected",
+      ({
+        roomId,
+        context,
+        connections,
+        roomsConnections,
+      }: WeaveStoreAzureWebPubsubOnConnectedEvent) => {
+        logger.info(
+          `Client with connection ID <${context.connectionId}> connected to room <${roomId}>`
+        );
+        logger.info(`Current connections: ${connections}`);
+        logger.info(`Room connections: ${roomsConnections}`);
+      }
+    );
+
+  azureWebPubsubServer
+    .getSyncHandler()
+    .addEventListener(
+      "onDisconnected",
+      ({
+        roomId,
+        context,
+        connections,
+        roomsConnections,
+      }: WeaveStoreAzureWebPubsubOnDisconnectedEvent) => {
+        logger.info(
+          `Client with connection ID <${context.connectionId}> disconnected from room <${roomId}>`
+        );
+        logger.info(`Current connections: ${connections}`);
+        logger.info(`Room connections: ${roomsConnections}`);
+      }
+    );
+
+  logger.info("Module ready");
 };
 
 function getStateAsJson(actualState: Uint8Array<ArrayBufferLike>) {

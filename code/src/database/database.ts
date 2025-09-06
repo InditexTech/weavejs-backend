@@ -10,92 +10,175 @@ import { getServiceConfig } from "../config/config.js";
 import { defineThreadModel } from "./models/thread.js";
 import { defineThreadAnswerModel } from "./models/thread-answer.js";
 import { getDatabaseCloudCredentialsToken } from "../utils.js";
+import { AccessToken } from "@azure/identity";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
-let sequelize: Sequelize | null = null;
+let activeSequelize: Sequelize | null = null;
+let standbySequelize: Sequelize | null = null;
+
+const RENEW_TOKEN_CHECK_INTERVAL = 60 * 1000; // 1 minute
+const RENEW_TOKEN_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+const CLOSE_STANDBY_SEQUELIZE_DELAY = 5 * 60 * 1000; // 5 minutes
 
 export const setupDatabase = async () => {
   logger = getLogger().child({ module: "database" });
 
-  logger.info("Setting up database module");
+  logger.info("Setting up");
 
   const config = getServiceConfig();
 
-  if (config.database.kind === "connection_string") {
-    const {
-      database: {
-        connection: { connectionString },
-      },
-    } = config;
+  let currentAccessToken: AccessToken | undefined = undefined;
 
-    sequelize = new Sequelize(connectionString, {
-      dialect: "postgres",
-      logging: false,
-      // logging: (msg: string) => logger.debug(msg),
-    });
-  }
+  async function initSequelize(
+    initialize: boolean = true
+  ): Promise<Sequelize | null> {
+    if (config.database.kind === "connection_string") {
+      const {
+        database: {
+          connection: { connectionString },
+        },
+      } = config;
 
-  if (config.database.kind === "properties") {
-    const {
-      database: {
-        connection: { host, port, db, username, password, ssl },
-      },
-    } = config;
+      const sequelize = new Sequelize(connectionString, {
+        dialect: "postgres",
+        logging: false,
+        // logging: (msg: string) => logger.debug(msg),
+      });
 
-    let finalPassword = password;
+      try {
+        await sequelize.authenticate();
+      } catch (error) {
+        throw new Error(
+          `Unable to connect to the database: ${(error as Error).message}`
+        );
+      }
 
-    if (config.database.connection.cloudCredentials) {
-      finalPassword = await getDatabaseCloudCredentialsToken();
+      if (initialize) {
+        // Define models
+        await defineTaskModel(sequelize);
+        await defineImageModel(sequelize);
+        await defineThreadModel(sequelize);
+        await defineThreadAnswerModel(sequelize);
+
+        logger.info(`Forcing sync: ${config.database.forceSync === true}`);
+
+        await sequelize.sync({ force: config.database.forceSync });
+
+        logger.info("Module ready");
+      } else {
+        logger.info("Module re-initialized");
+      }
+
+      return sequelize;
     }
 
-    sequelize = new Sequelize(db, username, finalPassword, {
-      host,
-      port,
-      dialect: "postgres",
-      ...(ssl && {
-        dialectOptions: {
-          ssl: {
-            require: true,
-            rejectUnauthorized: true,
-          },
+    if (config.database.kind === "properties") {
+      const {
+        database: {
+          connection: { host, port, db, username, password, ssl },
         },
-      }),
-      logging: false,
-      // logging: (msg: string) => logger.debug(msg),
-    });
+      } = config;
+
+      let finalPassword = password;
+
+      if (config.database.connection.cloudCredentials) {
+        currentAccessToken = await getDatabaseCloudCredentialsToken();
+        finalPassword = currentAccessToken.token;
+      }
+
+      const sequelize = new Sequelize(db, username, finalPassword, {
+        host,
+        port,
+        dialect: "postgres",
+        ...(ssl && {
+          dialectOptions: {
+            ssl: {
+              require: true,
+              rejectUnauthorized: true,
+            },
+          },
+        }),
+        logging: false,
+        // logging: (msg: string) => logger.debug(msg),
+      });
+
+      try {
+        await sequelize.authenticate();
+      } catch (error) {
+        throw new Error(
+          `Unable to connect to the database: ${(error as Error).message}`
+        );
+      }
+
+      if (initialize) {
+        // Define models
+        await defineTaskModel(sequelize);
+        await defineImageModel(sequelize);
+        await defineThreadModel(sequelize);
+        await defineThreadAnswerModel(sequelize);
+
+        logger.info(`Forcing sync: ${config.database.forceSync === true}`);
+
+        await sequelize.sync({ force: config.database.forceSync });
+
+        logger.info("Module ready");
+      } else {
+        logger.info("Module re-initialized");
+      }
+
+      return sequelize;
+    }
+
+    return null;
   }
 
-  if (!sequelize) {
+  function tokenRenewalInterval() {
+    setInterval(async () => {
+      if (!activeSequelize) {
+        logger.info("Not active...");
+        return;
+      }
+
+      if (
+        Date.now() >
+        currentAccessToken!.expiresOnTimestamp! - RENEW_TOKEN_THRESHOLD
+      ) {
+        logger.info("Renewing access token");
+
+        standbySequelize = await initSequelize(false);
+
+        if (!standbySequelize) {
+          throw new Error("Database settings not defined on database module");
+        }
+
+        const old = activeSequelize;
+        activeSequelize = standbySequelize;
+        standbySequelize = null;
+
+        setTimeout(() => {
+          old.close().catch(console.error);
+        }, CLOSE_STANDBY_SEQUELIZE_DELAY);
+      }
+    }, RENEW_TOKEN_CHECK_INTERVAL);
+
+    logger.info("Token renewal interval started");
+  }
+
+  activeSequelize = await initSequelize();
+
+  if (!activeSequelize) {
     throw new Error("Database settings not defined on database module");
   }
 
-  try {
-    await sequelize.authenticate();
-  } catch (error) {
-    throw new Error(
-      `Unable to connect to the database: ${(error as Error).message}`
-    );
-  }
+  tokenRenewalInterval();
 
-  // Define models
-  await defineTaskModel(sequelize);
-  await defineImageModel(sequelize);
-  await defineThreadModel(sequelize);
-  await defineThreadAnswerModel(sequelize);
-
-  logger.info(`Database forcing sync: ${config.database.forceSync === true}`);
-
-  await sequelize.sync({ force: config.database.forceSync });
-
-  logger.info("Database module ready");
-
-  return sequelize;
+  return activeSequelize;
 };
 
 export const getDatabaseInstance = () => {
-  if (!sequelize) {
+  if (!activeSequelize && !standbySequelize) {
     throw new Error("Database module not initialized");
   }
 
-  return sequelize;
+  return standbySequelize ?? activeSequelize;
 };

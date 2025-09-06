@@ -50,7 +50,7 @@ export class EditImageJob {
 
     this.persistenceHandler = new ImagesPersistenceHandler();
 
-    this.logger.info("Edit image / job created");
+    this.logger.info("Job created");
   }
 
   async start() {

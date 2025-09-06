@@ -43,13 +43,6 @@ export type DeleteImageJobFailed = {
   error: string;
 };
 
-export interface DeleteImageJobEvents {
-  "job:deleteImage:new": DeleteImageJobNew;
-  "job:deleteImage:processing": DeleteImageJobProcessing;
-  "job:deleteImage:completed": DeleteImageJobComplete;
-  "job:deleteImage:failed": DeleteImageJobFailed;
-}
-
 export type DeleteImageJobData = {
   clientId: string;
   roomId: string;

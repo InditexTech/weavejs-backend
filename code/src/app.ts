@@ -7,7 +7,6 @@ import { fileURLToPath } from "node:url";
 import express, { type Express } from "express";
 import { setupHttpLoggerMiddleware } from "./middlewares/http-logger.js";
 import { setupHttpResponseHeadersMiddleware } from "./middlewares/http-response-headers.js";
-import { setupBodyParserMiddleware } from "./middlewares/body-parser.js";
 import { setupApiV1Router } from "./api/v1/router.js";
 import { setupApiV2Router } from "./api/v2/router.js";
 import { setupHealthChecksRouter } from "./api/health-checks/router.js";
@@ -38,9 +37,9 @@ export function setupApp() {
   const config = getServiceConfig();
 
   // Setup Middlewares
+
   setupHttpLoggerMiddleware(app);
   setupHttpResponseHeadersMiddleware(app);
-  setupBodyParserMiddleware(app);
 
   // Setup Health Checks Router
   setupHealthChecksRouter(app);
@@ -55,7 +54,7 @@ export function setupApp() {
   // Serve static files
   const staticFilesPath = path.join(__dirname, "..", "assets");
   const logger = getLogger().child({ module: "app" });
-  logger.info(`Setting up static files support from ${staticFilesPath}`);
+  logger.info(`Static files served from: ${staticFilesPath}`);
   app.use(
     "/assets",
     express.static(staticFilesPath, {
