@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
+  ConnectionContext,
   WeaveAzureWebPubsubServer,
   WeaveStoreAzureWebPubsubOnConnectedEvent,
   WeaveStoreAzureWebPubsubOnConnectEvent,
@@ -64,6 +65,16 @@ export const setupStore = () => {
     pubSubConfig: {
       endpoint,
       hubName,
+      connectionHandlers: {
+        getConnectionRoom: async (connectionId: string) => {
+          console.log("getConnectionRoom", connectionId);
+          return null;
+        },
+        getRoomConnections: async (roomId: string) => {
+          console.log("getRoomConnections", roomId);
+          return [];
+        },
+      },
     },
     eventsHandlerConfig: {
       path: `/api/v1/api/webpubsub/hubs/${hubName}`,
@@ -130,37 +141,21 @@ export const setupStore = () => {
 
   azureWebPubsubServer
     .getSyncHandler()
-    .addEventListener(
-      "onConnect",
-      ({
-        roomId,
-        context,
-        connections,
-        roomsConnections,
-      }: WeaveStoreAzureWebPubsubOnConnectEvent) => {
-        logger.info(
-          `Client with connection ID <${context.connectionId}> trying to connect to room <${roomId}>`
-        );
-        logger.info(`Current connections: ${connections}`);
-        logger.info(`Room connections: ${roomsConnections}`);
-      }
-    );
+    .addEventListener("onConnect", ({ context, queries }) => {
+      logger.info(
+        { queries },
+        `Client with connection ID <${context.connectionId}> trying to connect`
+      );
+    });
 
   azureWebPubsubServer
     .getSyncHandler()
     .addEventListener(
       "onConnected",
-      ({
-        roomId,
-        context,
-        connections,
-        roomsConnections,
-      }: WeaveStoreAzureWebPubsubOnConnectedEvent) => {
+      ({ context }: WeaveStoreAzureWebPubsubOnConnectedEvent) => {
         logger.info(
-          `Client with connection ID <${context.connectionId}> connected to room <${roomId}>`
+          `Client with connection ID <${context.connectionId}> connected to room`
         );
-        logger.info(`Current connections: ${connections}`);
-        logger.info(`Room connections: ${roomsConnections}`);
       }
     );
 
@@ -168,17 +163,10 @@ export const setupStore = () => {
     .getSyncHandler()
     .addEventListener(
       "onDisconnected",
-      ({
-        roomId,
-        context,
-        connections,
-        roomsConnections,
-      }: WeaveStoreAzureWebPubsubOnDisconnectedEvent) => {
+      ({ context }: WeaveStoreAzureWebPubsubOnDisconnectedEvent) => {
         logger.info(
-          `Client with connection ID <${context.connectionId}> disconnected from room <${roomId}>`
+          `Client with connection ID <${context.connectionId}> disconnected`
         );
-        logger.info(`Current connections: ${connections}`);
-        logger.info(`Room connections: ${roomsConnections}`);
       }
     );
 

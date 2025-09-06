@@ -37,7 +37,6 @@ export function setupApp() {
   const config = getServiceConfig();
 
   // Setup Middlewares
-
   setupHttpLoggerMiddleware(app);
   setupHttpResponseHeadersMiddleware(app);
 
