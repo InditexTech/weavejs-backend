@@ -180,6 +180,8 @@ export const setupStore = () => {
     },
   });
 
+  logger.info("Setting up event listeners");
+
   azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnConnectEvent>(
     "onConnect",
     ({ context, queries }) => {
