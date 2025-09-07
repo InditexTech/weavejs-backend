@@ -24,13 +24,16 @@ export function setupLogger() {
       target: "pino-pretty",
       options: {
         colorize: true,
-        singleLine: true,
+        colorizeObjects: false,
+        singleLine: false,
       },
     },
   });
 
+  logger.info(`Log level set to: ${process.env.LOG_LEVEL ?? "error"}`);
+
   AzureLogger.log = (...args) => {
     const azureLogger = getLogger().child({ module: "azure" });
-    azureLogger.info(null, ...args);
+    azureLogger.error(null, args.join(" "));
   };
 }

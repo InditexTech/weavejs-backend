@@ -7,6 +7,7 @@ import https from "node:https";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { AzureLogLevel, setLogLevel } from "@azure/logger";
 import { getLogger, setupLogger } from "./logger/logger.js";
 import { setupApp } from "./app.js";
 import { setupStore } from "./store.js";
@@ -25,6 +26,8 @@ const start = async () => {
     // Setup service logger
     setupLogger();
     const logger = getLogger().child({ module: "server" });
+
+    logger.info(`Log level set to: ${process.env.LOG_LEVEL ?? "error"}`);
 
     const config = getServiceConfig();
 

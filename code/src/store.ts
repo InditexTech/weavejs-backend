@@ -81,12 +81,8 @@ export const setupStore = () => {
 
           const actualConnection = await getConnection({ connectionId });
 
-          console.log({ actualConnection });
-
           if (!actualConnection) {
             const roomId = queries?.group?.[0] ?? null;
-
-            console.log({ roomId });
 
             await createConnection({
               connectionId,
