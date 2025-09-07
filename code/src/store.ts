@@ -20,6 +20,13 @@ import {
   setupStorage,
 } from "./storage/storage.js";
 import { customInitialState } from "./store.initial-state.js";
+import {
+  createConnection,
+  deleteConnection,
+  getConnection,
+  getRoomConnections,
+  updateConnection,
+} from "./database/controllers/connection.js";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 const endpoint = process.env.AZURE_WEB_PUBSUB_ENDPOINT;
@@ -67,11 +74,45 @@ export const setupStore = () => {
       hubName,
       connectionHandlers: {
         getConnectionRoom: async (connectionId: string) => {
-          console.log("getConnectionRoom", connectionId);
+          logger.info(`getConnectionRoom called with <${connectionId}>`);
+
+          try {
+            const connection = await getConnection({ connectionId });
+
+            if (connection) {
+              logger.info(
+                `Room of connectionId <${connection.connectionId}> is <${connection.roomId}>`
+              );
+            }
+
+            // this shouldn't be here
+            await deleteConnection({ connectionId });
+
+            return connection?.roomId ?? null;
+          } catch (ex) {
+            console.error(ex);
+            logger.error(
+              `Error getting connection room: <${(ex as Error)?.message}>`
+            );
+          }
+
           return null;
         },
         getRoomConnections: async (roomId: string) => {
-          console.log("getRoomConnections", roomId);
+          logger.info(`getRoomConnections called with <${roomId}>`);
+
+          try {
+            const connections = await getRoomConnections({ roomId });
+
+            logger.info(
+              `Room with roomId <${roomId}> has <${connections.length}> connections`
+            );
+
+            return connections.map((conn) => conn.connectionId);
+          } catch (ex) {
+            console.error("Error getting room connections:", ex);
+          }
+
           return [];
         },
       },
@@ -139,36 +180,48 @@ export const setupStore = () => {
     },
   });
 
-  azureWebPubsubServer
-    .getSyncHandler()
-    .addEventListener("onConnect", ({ context, queries }) => {
+  azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnConnectEvent>(
+    "onConnect",
+    ({ context, queries }) => {
       logger.info(
         { queries },
-        `Client with connection ID <${context.connectionId}> trying to connect`
+        `Client with connection Id <${context.connectionId}> trying to connect`
       );
-    });
 
-  azureWebPubsubServer
-    .getSyncHandler()
-    .addEventListener(
-      "onConnected",
-      ({ context }: WeaveStoreAzureWebPubsubOnConnectedEvent) => {
-        logger.info(
-          `Client with connection ID <${context.connectionId}> connected to room`
+      if (context.connectionId) {
+        createConnection({
+          connectionId: context.connectionId,
+          roomId: null,
+          status: "connect",
+        });
+      }
+    }
+  );
+
+  azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnConnectedEvent>(
+    "onConnected",
+    ({ context }) => {
+      logger.info(
+        `Client with connection Id <${context.connectionId}> connected to room`
+      );
+
+      if (context.connectionId) {
+        updateConnection(
+          { connectionId: context.connectionId },
+          { status: "connected" }
         );
       }
-    );
+    }
+  );
 
-  azureWebPubsubServer
-    .getSyncHandler()
-    .addEventListener(
-      "onDisconnected",
-      ({ context }: WeaveStoreAzureWebPubsubOnDisconnectedEvent) => {
-        logger.info(
-          `Client with connection ID <${context.connectionId}> disconnected`
-        );
-      }
-    );
+  azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnDisconnectedEvent>(
+    "onDisconnected",
+    ({ context }) => {
+      logger.info(
+        `Client with connection Id <${context.connectionId}> disconnected`
+      );
+    }
+  );
 
   logger.info("Module ready");
 };

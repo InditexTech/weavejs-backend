@@ -120,8 +120,9 @@ export const setupWorkloads = async () => {
       }
 
       if (
+        currentAccessToken?.expiresOnTimestamp &&
         Date.now() >
-        currentAccessToken!.expiresOnTimestamp! - RENEW_TOKEN_THRESHOLD
+          currentAccessToken?.expiresOnTimestamp - RENEW_TOKEN_THRESHOLD
       ) {
         logger.info("Renewing access token");
 

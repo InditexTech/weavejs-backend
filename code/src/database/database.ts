@@ -11,6 +11,7 @@ import { defineThreadModel } from "./models/thread.js";
 import { defineThreadAnswerModel } from "./models/thread-answer.js";
 import { getDatabaseCloudCredentialsToken } from "../utils.js";
 import { AccessToken } from "@azure/identity";
+import { defineConnectionModel } from "./models/connection.js";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 let activeSequelize: Sequelize | null = null;
@@ -112,6 +113,7 @@ export const setupDatabase = async () => {
 
       if (initialize) {
         // Define models
+        await defineConnectionModel(sequelize);
         await defineTaskModel(sequelize);
         await defineImageModel(sequelize);
         await defineThreadModel(sequelize);
@@ -140,8 +142,9 @@ export const setupDatabase = async () => {
       }
 
       if (
+        currentAccessToken?.expiresOnTimestamp &&
         Date.now() >
-        currentAccessToken!.expiresOnTimestamp! - RENEW_TOKEN_THRESHOLD
+          currentAccessToken.expiresOnTimestamp - RENEW_TOKEN_THRESHOLD
       ) {
         logger.info("Renewing access token");
 
