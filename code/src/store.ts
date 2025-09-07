@@ -73,6 +73,38 @@ export const setupStore = () => {
       endpoint,
       hubName,
       connectionHandlers: {
+        onConnect: async (
+          connectionId: string,
+          queries: Record<string, string[]> | undefined
+        ) => {
+          logger.info(`onConnect called with <${connectionId}>`);
+
+          const actualConnection = await getConnection({ connectionId });
+
+          console.log({ actualConnection });
+
+          if (!actualConnection) {
+            const roomId = queries?.group?.[0] ?? null;
+
+            console.log({ roomId });
+
+            await createConnection({
+              connectionId,
+              roomId,
+              status: "connect",
+            });
+          }
+        },
+        onConnected: async (connectionId: string) => {
+          logger.info(`onConnected called with <${connectionId}>`);
+
+          await updateConnection({ connectionId }, { status: "connected" });
+        },
+        removeConnection: async (connectionId: string) => {
+          logger.info(`removeConnection called with <${connectionId}>`);
+
+          await deleteConnection({ connectionId });
+        },
         getConnectionRoom: async (connectionId: string) => {
           logger.info(`getConnectionRoom called with <${connectionId}>`);
 
@@ -84,9 +116,6 @@ export const setupStore = () => {
                 `Room of connectionId <${connection.connectionId}> is <${connection.roomId}>`
               );
             }
-
-            // this shouldn't be here
-            await deleteConnection({ connectionId });
 
             return connection?.roomId ?? null;
           } catch (ex) {
@@ -187,16 +216,8 @@ export const setupStore = () => {
     ({ context, queries }) => {
       logger.info(
         { queries },
-        `Client with connection Id <${context.connectionId}> trying to connect`
+        `Client with connection Id <${context.connectionId}> connect`
       );
-
-      if (context.connectionId) {
-        createConnection({
-          connectionId: context.connectionId,
-          roomId: null,
-          status: "connect",
-        });
-      }
     }
   );
 
@@ -204,15 +225,8 @@ export const setupStore = () => {
     "onConnected",
     ({ context }) => {
       logger.info(
-        `Client with connection Id <${context.connectionId}> connected to room`
+        `Client with connection Id <${context.connectionId}> connected`
       );
-
-      if (context.connectionId) {
-        updateConnection(
-          { connectionId: context.connectionId },
-          { status: "connected" }
-        );
-      }
     }
   );
 

@@ -23,8 +23,8 @@ export class ConnectionModel
   extends Model<ConnectionAttributes, ConnectionCreationAttributes>
   implements ConnectionAttributes
 {
-  declare roomId: string | null;
   declare connectionId: string;
+  declare roomId: string | null;
   declare status: ConnectionStatus;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;

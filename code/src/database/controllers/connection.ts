@@ -16,6 +16,7 @@ export const getRoomConnections = async ({
   const connections = await ConnectionModel.findAll({
     where: {
       roomId,
+      status: "connected",
     },
   });
   return connections;
