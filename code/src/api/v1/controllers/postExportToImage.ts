@@ -2,12 +2,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import path from "node:path";
 import { z } from "zod";
 import { Request, Response } from "express";
-import sharp from "sharp";
 import archiver from "archiver";
-import { renderWeaveRoom } from "../../../canvas/weave.js";
 import { WeaveExportFormats } from "@inditextech/weave-types";
+import { getServiceConfig } from "../../../config/config.js";
+import { runWorker } from "../../../workers/workers.js";
+import { ExportToImageWorkerResult } from "./workers/exportToImage.js";
 
 const WeaveExportFormatsSchema: z.ZodType<WeaveExportFormats> = z.enum([
   "image/png",
@@ -28,6 +30,8 @@ const payloadSchema = z.object({
 });
 
 export const postExportToImageController = () => {
+  const config = getServiceConfig();
+
   return async (req: Request, res: Response): Promise<void> => {
     const parsedBody = payloadSchema.safeParse(req.body);
 
@@ -36,36 +40,20 @@ export const postExportToImageController = () => {
       return;
     }
 
-    const { instance, destroy } = await renderWeaveRoom(
-      parsedBody.data.roomData
-    );
-
-    const { composites, width, height } = await instance.exportNodesAsBuffer(
-      parsedBody.data.nodes,
-      (nodes) => nodes,
-      {
-        format: parsedBody.data.options.format as WeaveExportFormats,
-        padding: parsedBody.data.options.padding,
-        pixelRatio: parsedBody.data.options.pixelRatio,
-        backgroundColor: parsedBody.data.options.backgroundColor,
-        quality: parsedBody.data.options.quality, // Only used for image/jpeg
-      }
-    );
-
-    destroy();
-
     try {
-      const finalImage = sharp({
-        create: {
-          width,
-          height,
-          channels: 4,
-          background: { r: 0, g: 0, b: 0, alpha: 0 },
-        },
-      }).composite(composites);
+      const result = await runWorker<ExportToImageWorkerResult>(
+        path.join(__dirname, "./workers/exportToImage.js"),
+        {
+          ...parsedBody.data,
+          config,
+        }
+      );
 
-      const finalBuffer = await finalImage.png().toBuffer();
+      console.log("Result from worker:", result);
 
+      const finalBuffer = result as Buffer;
+
+      // success
       const fileExtension =
         parsedBody.data.options.format.split("/")[1] === "png"
           ? ".png"
@@ -78,7 +66,9 @@ export const postExportToImageController = () => {
         const archive = archiver("zip", { zlib: { level: 9 } });
         archive.pipe(res);
 
-        archive.append(finalBuffer, { name: `render${fileExtension}` });
+        archive.append(Buffer.from(finalBuffer), {
+          name: `render${fileExtension}`,
+        });
 
         // Finalize ZIP
         archive.finalize();
@@ -93,7 +83,7 @@ export const postExportToImageController = () => {
 
       res.status(200).send(finalBuffer);
     } catch (error) {
-      console.error("Error processing image:", error);
+      console.log(error);
       res.status(500).json({ error: "Error processing image" });
     }
   };

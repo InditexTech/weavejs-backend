@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // polyfills for Konva in Node
+import Konva from "konva";
 import path from "node:path";
 import { createCanvas, Image, registerFont } from "canvas";
 import { StoreStandalone } from "./store-standalone/store-standalone.js";
@@ -25,7 +26,6 @@ import {
 } from "@inditextech/weave-sdk";
 import { WEAVE_TRANSFORMER_ANCHORS } from "@inditextech/weave-types";
 import { ColorTokenNode } from "./nodes/color-token/color-token.js";
-import { getServiceConfig } from "../config/config.js";
 import { isAbsoluteUrl, stripOrigin } from "../utils.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -43,7 +43,11 @@ export type RenderWeaveRoom = {
   destroy: () => void;
 };
 
-export const renderWeaveRoom = (roomData: string): Promise<RenderWeaveRoom> => {
+export const renderWeaveRoom = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config: any,
+  roomData: string
+): Promise<RenderWeaveRoom> => {
   let weave: Weave | undefined = undefined;
 
   const destroyWeaveRoom = () => {
@@ -102,7 +106,7 @@ export const renderWeaveRoom = (roomData: string): Promise<RenderWeaveRoom> => {
     weave = new Weave(
       {
         store,
-        nodes: getNodes(),
+        nodes: getNodes(config),
         actions: getActions(),
         plugins: [],
         fonts: [],
@@ -112,7 +116,7 @@ export const renderWeaveRoom = (roomData: string): Promise<RenderWeaveRoom> => {
         serverSide: true,
       },
       {
-        container: null,
+        container: undefined,
         width: 800,
         height: 600,
       }
@@ -148,9 +152,8 @@ export const renderWeaveRoom = (roomData: string): Promise<RenderWeaveRoom> => {
   });
 };
 
-const getNodes = () => {
-  const config = getServiceConfig();
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getNodes = (config: any) => {
   return [
     new WeaveStageNode(),
     new WeaveLayerNode(),

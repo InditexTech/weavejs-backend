@@ -2,20 +2,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import Konva from "konva";
 import { WeaveNode } from "@inditextech/weave-sdk";
 import {
   WeaveElementAttributes,
   WeaveElementInstance,
 } from "@inditextech/weave-types";
-// import { Inter } from "next/font/google";
 
 export const COLOR_TOKEN_NODE_TYPE = "color-token";
-
-// const inter = Inter({
-//   preload: true,
-//   variable: "--inter",
-//   subsets: ["latin"],
-// });
 
 export class ColorTokenNode extends WeaveNode {
   protected nodeType = COLOR_TOKEN_NODE_TYPE;
@@ -93,7 +87,8 @@ export class ColorTokenNode extends WeaveNode {
 
     colorTokenNode.add(internalText);
 
-    colorTokenNode.getTransformerProperties = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (colorTokenNode as any).getTransformerProperties = () => {
       const baseConfig = this.defaultGetTransformerProperties({});
       return {
         ...baseConfig,
@@ -104,7 +99,8 @@ export class ColorTokenNode extends WeaveNode {
       };
     };
 
-    colorTokenNode.allowedAnchors = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (colorTokenNode as any).allowedAnchors = () => {
       return [];
     };
 

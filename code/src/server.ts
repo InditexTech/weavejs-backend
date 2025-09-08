@@ -6,8 +6,6 @@ import http from "node:http";
 import https from "node:https";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { AzureLogLevel, setLogLevel } from "@azure/logger";
 import { getLogger, setupLogger } from "./logger/logger.js";
 import { setupApp } from "./app.js";
 import { setupStore } from "./store.js";
@@ -16,13 +14,10 @@ import { setupDatabase } from "./database/database.js";
 import { setupStorage } from "./storage/storage.js";
 import { getServiceConfig } from "./config/config.js";
 import { setupCommBus } from "./comm-bus/comm-bus.js";
+import { setupWorkers } from "./workers/workers.js";
 
 const start = async () => {
   try {
-    // __dirname equivalent in ESM
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-
     // Setup service logger
     setupLogger();
     const logger = getLogger().child({ module: "server" });
@@ -30,6 +25,9 @@ const start = async () => {
     logger.info(`Log level set to: ${process.env.LOG_LEVEL ?? "error"}`);
 
     const config = getServiceConfig();
+
+    // Setup node.js workers
+    await setupWorkers();
 
     if (config.features.threads) {
       // Setup database
