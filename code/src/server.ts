@@ -22,6 +22,7 @@ const start = async () => {
     setupLogger();
     const logger = getLogger().child({ module: "server" });
 
+    logger.info("Starting service...");
     logger.info(`Log level set to: ${process.env.LOG_LEVEL ?? "error"}`);
 
     const config = getServiceConfig();
