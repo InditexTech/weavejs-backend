@@ -66,6 +66,13 @@ const serviceConfigSchema = z.object({
           "Define the room persistence frequency on the environment variable PERSIST_FREQUENCY_SEG",
       })
       .int({ message: "The persist frequency must be an integer" }),
+    cleanupRoomsIntervalSeg: z
+      .number({
+        required_error:
+          "Define the room cleanup interval on the environment variable CLEANUP_ROOMS_INTERVAL_SEG",
+      })
+      .int({ message: "The cleanup interval must be an integer" })
+      .default(300), // Default to 5 minutes
   }),
   storage: z.object({
     accountName: z
@@ -163,11 +170,15 @@ export function getServiceConfig(): ServiceConfig {
   const persistFrequencySeg = parseInt(
     process.env.PERSIST_FREQUENCY_SEG || "10"
   );
+  const cleanupRoomsIntervalSeg = parseInt(
+    process.env.CLEANUP_ROOMS_INTERVAL_SEG || "300"
+  );
 
   const pubsub = {
     endpoint,
     hubName,
     persistFrequencySeg,
+    cleanupRoomsIntervalSeg,
   };
 
   const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;

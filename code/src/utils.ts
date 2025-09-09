@@ -38,6 +38,13 @@ export const saveBase64ToFile = async (
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
+export async function getAzureWebPubSubCredentialsToken(): Promise<AccessToken> {
+  const credential = new DefaultAzureCredential();
+  const scope = "https://webpubsub.azure.com/.default";
+  const token = await credential.getToken(scope, {});
+  return token;
+}
+
 export async function getDatabaseCloudCredentialsToken(): Promise<AccessToken> {
   const credential = new DefaultAzureCredential();
   const scope = "https://ossrdbms-aad.database.windows.net/.default";

@@ -8,13 +8,14 @@ import fs from "node:fs";
 import path from "node:path";
 import { getLogger, setupLogger } from "./logger/logger.js";
 import { setupApp } from "./app.js";
-import { setupStore } from "./store.js";
+import { getStore, setupStore, setupStoreRoomsCleanup } from "./store.js";
 import { setupWorkloads } from "./workloads/workloads.js";
 import { setupDatabase } from "./database/database.js";
 import { setupStorage } from "./storage/storage.js";
 import { getServiceConfig } from "./config/config.js";
 import { setupCommBus } from "./comm-bus/comm-bus.js";
 import { setupWorkers } from "./workers/workers.js";
+import { listGroupConnections } from "./clients/azure-web-pubsub-api.js";
 
 const start = async () => {
   try {
@@ -47,6 +48,7 @@ const start = async () => {
 
     // Setup the Azure Web Pubsub store
     await setupStore();
+    setupStoreRoomsCleanup();
 
     // Init application
     const app = setupApp();

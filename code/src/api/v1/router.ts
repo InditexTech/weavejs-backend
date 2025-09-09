@@ -28,6 +28,7 @@ import { getRoomBusNegotiateController } from "./controllers/getRoomBusNegotiate
 import { postRoomBusJoinController } from "./controllers/postRoomBusJoin.js";
 import { postExportToImageController } from "./controllers/postExportToImage.js";
 import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
+import { getSimulateStoreWsErrorController } from "./controllers/getSimulateStoreWsError.js";
 
 const router: Router = Router();
 
@@ -158,6 +159,13 @@ export function setupApiV1Router(app: Express) {
     // Render Canvas API
     router.post(`/${hubName}/export`, cors, postExportToImageController());
   }
+
+  // Store testing API (only in dev mode)
+  router.get(
+    `/${hubName}/rooms/:roomId/simulate-store-ws-error`,
+    cors,
+    getSimulateStoreWsErrorController()
+  );
 
   app.use(routerBasePath, router);
 }

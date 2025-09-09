@@ -181,11 +181,16 @@ export class GenerateImagesJob {
 
       clearTimeout(timeout);
 
+      console.log(response.status);
+
       if (!response.ok) {
+        console.log(await response.text());
         throw new Error("Error generating the images");
       }
 
       const jsonData = await response.json();
+
+      console.log(jsonData.choices);
 
       for (let i = 0; i < jsonData.choices.length; i++) {
         const imageId = imagesIds[i];

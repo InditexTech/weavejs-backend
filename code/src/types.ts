@@ -11,6 +11,7 @@ export type ServiceConfig = {
     endpoint: string;
     hubName: string;
     persistFrequencySeg: number;
+    cleanupRoomsIntervalSeg: number;
   };
   storage: {
     accountName: string;

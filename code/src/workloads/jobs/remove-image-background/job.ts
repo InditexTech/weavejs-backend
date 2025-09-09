@@ -122,7 +122,7 @@ export class RemoveImageBackgroundJob {
 
     try {
       const blob: Blob = await removeBackground(filePath, {
-        // publicPath: `file://${path.join(process.cwd(), "public")}/`,
+        publicPath: `file://${path.join(process.cwd(), "public")}/`,
         output: { format: "image/png", quality: 1 },
       });
 

@@ -26,7 +26,7 @@ const payloadSchema = z.object({
     pixelRatio: z.number().min(1).optional().default(1),
     quality: z.number().min(0).max(1).optional().default(1),
   }),
-  responseType: z.enum(["blob", "zip"]).optional().default("blob"),
+  responseType: z.enum(["base64", "blob", "zip"]).optional().default("blob"),
 });
 
 export const postExportToImageController = () => {
@@ -73,13 +73,20 @@ export const postExportToImageController = () => {
         return;
       }
 
-      res.setHeader("Content-Type", "application/octet-stream");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="render${fileExtension}"`
-      );
+      if (parsedBody.data.responseType === "blob") {
+        res.setHeader("Content-Type", "application/octet-stream");
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename="render${fileExtension}"`
+        );
 
-      res.status(200).send(finalBuffer);
+        res.status(200).send(Buffer.from(finalBuffer));
+        return;
+      }
+
+      res.status(200).json({
+        url: `data:${parsedBody.data.options.format};base64,${Buffer.from(finalBuffer).toString("base64")}`,
+      });
     } catch (error) {
       console.log(error);
       res.status(500).json({ error: "Error processing image" });

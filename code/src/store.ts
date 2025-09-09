@@ -3,11 +3,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  ConnectionContext,
   WeaveAzureWebPubsubServer,
   WeaveStoreAzureWebPubsubOnConnectedEvent,
   WeaveStoreAzureWebPubsubOnConnectEvent,
   WeaveStoreAzureWebPubsubOnDisconnectedEvent,
+  WeaveStoreAzureWebPubsubOnWebsocketCloseEvent,
+  WeaveStoreAzureWebPubsubOnWebsocketErrorEvent,
+  WeaveStoreAzureWebPubsubOnWebsocketJoinGroupEvent,
+  WeaveStoreAzureWebPubsubOnWebsocketOpenEvent,
 } from "@inditextech/weave-store-azure-web-pubsub/server";
 import { streamToBuffer } from "./utils.js";
 import { getServiceConfig } from "./config/config.js";
@@ -27,6 +30,7 @@ import {
   getRoomConnections,
   updateConnection,
 } from "./database/controllers/connection.js";
+import { listGroupConnections } from "./clients/azure-web-pubsub-api.js";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 const endpoint = process.env.AZURE_WEB_PUBSUB_ENDPOINT;
@@ -37,6 +41,7 @@ if (!endpoint || !hubName) {
 }
 
 let azureWebPubsubServer: WeaveAzureWebPubsubServer | null = null;
+let cleanupRoomsInterval: NodeJS.Timeout | null = null;
 
 export const getAzureWebPubsubServer = () => {
   if (!azureWebPubsubServer) {
@@ -56,6 +61,14 @@ function extractImageIdFromNode(images: string[], node: any) {
     }
   }
 }
+
+export const getStore = () => {
+  if (!azureWebPubsubServer) {
+    throw new Error("Store not initialized");
+  }
+
+  return azureWebPubsubServer;
+};
 
 export const setupStore = () => {
   logger = getLogger().child({ module: "store" });
@@ -235,7 +248,86 @@ export const setupStore = () => {
     }
   );
 
+  azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketOpenEvent>(
+    "onWsOpen",
+    ({ group }) => {
+      logger.info(`WebSocket server connection opened for group <${group}>`);
+    }
+  );
+
+  azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketJoinGroupEvent>(
+    "onWsJoinGroup",
+    ({ group }) => {
+      logger.info(`WebSocket server connection joined group <${group}>`);
+    }
+  );
+
+  azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketCloseEvent>(
+    "onWsClose",
+    ({ event, group }) => {
+      logger.info(
+        `WebSocket server connection closed for group <${group}>, code <${event.code}>`
+      );
+    }
+  );
+
+  azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketErrorEvent>(
+    "onWsError",
+    ({ group, error }) => {
+      logger.info(`WebSocket server connection error for group <${group}>`);
+      console.error(error);
+    }
+  );
+
+  azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketErrorEvent>(
+    "onWsTokenRefresh",
+    ({ group }) => {
+      logger.info(`WebSocket server token refresh for group <${group}>`);
+    }
+  );
+
   logger.info("Module ready");
+};
+
+export const setupStoreRoomsCleanup = () => {
+  const config = getServiceConfig();
+
+  cleanupRoomsInterval = setInterval(async () => {
+    const store = getStore();
+    if (!store) {
+      return;
+    }
+
+    const storeSyncHandler = store.getSyncHandler();
+    const rooms = storeSyncHandler.getRoomsLoaded();
+
+    logger.info(`Cleanup rooms without active connections started`);
+    logger.info(`Rooms loaded in memory <${rooms.length}>`);
+
+    for (const roomId of rooms) {
+      const connections = await listGroupConnections(roomId);
+      if (connections.length === 0) {
+        logger.info(
+          `Performing cleanup of room <${roomId}>, has no active connections`
+        );
+        await storeSyncHandler.destroyRoomInstance(roomId);
+        logger.info(`Cleanup of room <${roomId}> successful`);
+      } else {
+        logger.info(
+          `Room <${roomId}> has active connections <${connections.length}>, skipping cleanup`
+        );
+      }
+    }
+
+    logger.info(`Cleanup rooms ended`);
+  }, config.pubsub.cleanupRoomsIntervalSeg * 1000);
+};
+
+export const stopStoreRoomsCleanup = () => {
+  if (cleanupRoomsInterval) {
+    clearInterval(cleanupRoomsInterval);
+    cleanupRoomsInterval = null;
+  }
 };
 
 function getStateAsJson(actualState: Uint8Array<ArrayBufferLike>) {
