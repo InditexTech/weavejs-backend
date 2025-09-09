@@ -151,8 +151,6 @@ export class GenerateImagesJob {
   }: GenerateImagesJobWorkData) {
     const config = getServiceConfig();
 
-    console.log("Using LiteLLM at:", config.liteLLM.endpoint);
-
     const { prompt, sampleCount } = payload;
 
     const requestBody = {

@@ -49,8 +49,6 @@ export const postExportToImageController = () => {
         }
       );
 
-      console.log("Result from worker:", result);
-
       const finalBuffer = result as Buffer;
 
       // success
