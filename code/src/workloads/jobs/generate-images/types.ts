@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export type GenerateImagesParameters = {
+  model: "openai/gpt-image-1" | "gemini/gemini-2.5-flash-image-preview";
   prompt: string;
   sampleCount: 1 | 2 | 3 | 4;
   size: "1024x1024" | "1024x1536" | "1536x1024";

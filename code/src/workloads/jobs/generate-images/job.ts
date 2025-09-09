@@ -23,6 +23,7 @@ import {
 } from "../../../database/controllers/image.js";
 import { getServiceConfig } from "../../../config/config.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
+import { parseDataURL } from "../../../utils.js";
 
 export class GenerateImagesJob {
   private logger: ReturnType<typeof getLogger>;
@@ -79,16 +80,11 @@ export class GenerateImagesJob {
     return new Uint8Array(Buffer.from(cleanBase64, "base64"));
   }
 
-  private async generateImagesJob({
-    jobId,
-    clientId,
+  private async generateWithGtpImageAPI({
     roomId,
-    userId,
     payload,
     imagesIds,
   }: GenerateImagesJobWorkData) {
-    this.logger.info(`Received generate image job: ${jobId}`);
-
     const config = getServiceConfig();
 
     const { prompt, sampleCount, size, quality, moderation } = payload;
@@ -102,14 +98,6 @@ export class GenerateImagesJob {
       moderation,
       output_format: "png",
     };
-
-    await this.onProcessing({
-      jobId,
-      clientId,
-      roomId,
-      userId,
-      imagesIds,
-    });
 
     try {
       const controller = new AbortController();
@@ -149,6 +137,117 @@ export class GenerateImagesJob {
           { size: data.length, mimeType: "image/png" },
           data
         );
+      }
+    } catch (ex) {
+      console.error(ex);
+      this.logger.error((ex as Error).message);
+    }
+  }
+
+  private async generateWithChatCompletionAPI({
+    roomId,
+    payload,
+    imagesIds,
+  }: GenerateImagesJobWorkData) {
+    const config = getServiceConfig();
+
+    console.log("Using LiteLLM at:", config.liteLLM.endpoint);
+
+    const { prompt, sampleCount } = payload;
+
+    const requestBody = {
+      model: "gemini/gemini-2.5-flash-image-preview",
+      messages: [{ role: "user", content: prompt }],
+      n: sampleCount,
+    };
+
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(
+        () => controller.abort(),
+        config.liteLLM.timeoutSecs * 1000
+      );
+
+      const response = await fetch(
+        `${config.liteLLM.endpoint}/litellm/v1/chat/completions`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${config.liteLLM.apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal,
+        }
+      );
+
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        throw new Error("Error generating the images");
+      }
+
+      const jsonData = await response.json();
+
+      for (let i = 0; i < jsonData.choices.length; i++) {
+        const imageId = imagesIds[i];
+        const fileName = `${roomId}/${imageId}`;
+
+        const dataURL = jsonData.choices[i].message.image.url;
+        const { mimeType, base64 } = parseDataURL(dataURL);
+        const data = this.base64ToUint8Array(base64);
+        await this.persistenceHandler?.persist(
+          fileName,
+          { size: data.length, mimeType },
+          data
+        );
+      }
+    } catch (ex) {
+      console.error(ex);
+      this.logger.error((ex as Error).message);
+    }
+  }
+
+  private async generateImagesJob({
+    jobId,
+    clientId,
+    roomId,
+    userId,
+    payload,
+    imagesIds,
+  }: GenerateImagesJobWorkData) {
+    this.logger.info(`Received generate image job: ${jobId}`);
+
+    try {
+      await this.onProcessing({
+        jobId,
+        clientId,
+        roomId,
+        userId,
+        imagesIds,
+      });
+
+      const { model } = payload;
+
+      if (model === "openai/gpt-image-1") {
+        await this.generateWithGtpImageAPI({
+          jobId,
+          clientId,
+          roomId,
+          userId,
+          payload,
+          imagesIds,
+        });
+      }
+      if (model === "gemini/gemini-2.5-flash-image-preview") {
+        await this.generateWithChatCompletionAPI({
+          jobId,
+          clientId,
+          roomId,
+          userId,
+          payload,
+          imagesIds,
+        });
       }
 
       await this.boss.complete(JOB_GENERATE_IMAGES_QUEUE_NAME, jobId, {

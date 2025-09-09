@@ -41,7 +41,7 @@ export const sleep = (ms: number) =>
 export async function getDatabaseCloudCredentialsToken(): Promise<AccessToken> {
   const credential = new DefaultAzureCredential();
   const scope = "https://ossrdbms-aad.database.windows.net/.default";
-  const token = await credential.getToken(scope);
+  const token = await credential.getToken(scope, {});
   return token;
 }
 
@@ -52,4 +52,17 @@ export function isAbsoluteUrl(url: string): boolean {
 export function stripOrigin(url: string): string {
   const parsedUrl = new URL(url);
   return parsedUrl.pathname + parsedUrl.search + parsedUrl.hash;
+}
+
+export function parseDataURL(dataUrl: string): {
+  mimeType: string;
+  base64: string;
+} {
+  const match = /^data:([^;]+);base64,(.*)$/.exec(dataUrl);
+  if (!match) {
+    throw new Error("Invalid Data URL");
+  }
+  const mimeType = match[1];
+  const base64 = match[2];
+  return { mimeType, base64 };
 }

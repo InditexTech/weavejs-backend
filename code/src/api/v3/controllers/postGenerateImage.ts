@@ -13,8 +13,10 @@ export const postGenerateImageControllerV2 = () => {
 
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId;
-    const { prompt, sample_count, size, quality, moderation } = req.body;
+    const { model, prompt, sample_count, size, quality, moderation } = req.body;
     const password = req.query.password;
+
+    const modelToUse = model ?? "openai/gpt-image-1";
 
     if (password !== config.ai.password) {
       res.status(401).json({ status: "KO", message: "Not enabled" });
@@ -33,6 +35,7 @@ export const postGenerateImageControllerV2 = () => {
       roomId,
       userId,
       {
+        model: modelToUse,
         prompt,
         sampleCount: sample_count,
         size,

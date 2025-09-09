@@ -56,6 +56,8 @@ jobs:
       AZURE_DATABASE_FORCE_SYNC: ${{ vars.AZURE_DATABASE_FORCE_SYNC }}
       FEATURE_WORKLOADS: ${{ vars.FEATURE_WORKLOADS }}
       FEATURE_THREADS: ${{ vars.FEATURE_THREADS }}
+      LITELLM_ENDPOINT: ${{ vars.LITELLM_ENDPOINT }}
+      LITELLM_API_KEY: ${{ secrets.LITELLM_API_KEY }}
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}
       AZURE_CS_API_KEY: ${{ secrets.AZURE_CS_API_KEY }}
       AI_PASSWORD: ${{ secrets.AI_PASSWORD }}
@@ -97,6 +99,8 @@ jobs:
           echo DATABASE_FORCE_SYNC=${{ env.AZURE_DATABASE_FORCE_SYNC }} >> .env
           echo FEATURE_WORKLOADS=${{ env.FEATURE_WORKLOADS }} >> .env
           echo FEATURE_THREADS=${{ env.FEATURE_THREADS }} >> .env
+          echo LITELLM_ENDPOINT=${{ env.LITELLM_ENDPOINT }} >> .env
+          echo LITELLM_API_KEY=${{ env.LITELLM_API_KEY }} >> .env
           echo LOG_LEVEL=${{ env.AZURE_LOG_LEVEL }} >> .env
 
       - name: Azure Login

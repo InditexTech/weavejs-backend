@@ -29,6 +29,11 @@ export type ServiceConfig = {
     apiKey: string;
     timeoutSecs: number;
   };
+  liteLLM: {
+    endpoint: string;
+    apiKey: string;
+    timeoutSecs: number;
+  };
   features: {
     workloads: boolean;
     threads: boolean;

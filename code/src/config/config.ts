@@ -99,6 +99,26 @@ const serviceConfigSchema = z.object({
       })
       .trim(),
   }),
+  liteLLM: z.object({
+    endpoint: z
+      .string({
+        required_error:
+          "Define the LiteLLM endpoint on the environment variable LITELLM_ENDPOINT",
+      })
+      .trim(),
+    apiKey: z
+      .string({
+        required_error:
+          "Define the LiteLLM API key on the environment variable LITELLM_API_KEY",
+      })
+      .trim(),
+    timeoutSecs: z
+      .number({
+        required_error:
+          "Define the LiteLLM API timeout on the environment variable LITELLM_TIMEOUT_SECS",
+      })
+      .int({ message: "The timeout must be an integer" }),
+  }),
   azureCsClient: z.object({
     endpoint: z
       .string({
@@ -264,11 +284,28 @@ export function getServiceConfig(): ServiceConfig {
   const featureWorkloads = process.env.FEATURE_WORKLOADS === "true";
   const featureThreads = process.env.FEATURE_THREADS === "true";
 
+  const liteLLMEndpoint = process.env.LITELLM_ENDPOINT;
+  const liteLLMApiKey = process.env.LITELLM_API_KEY;
+  let liteLLMTimeoutSecs = 60;
+  try {
+    liteLLMTimeoutSecs = parseInt(process.env.LITELLM_TIMEOUT_SECS ?? "60");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    throw new Error("LITELLM_TIMEOUT_SECS must be an integer");
+  }
+
+  const liteLLM = {
+    endpoint: liteLLMEndpoint,
+    apiKey: liteLLMApiKey,
+    timeoutSecs: liteLLMTimeoutSecs,
+  };
+
   const serviceConfig = {
     service,
     pubsub,
     storage,
     ai,
+    liteLLM,
     azureCsClient,
     features: {
       workloads: featureWorkloads,
