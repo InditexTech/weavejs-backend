@@ -9,7 +9,7 @@ import archiver from "archiver";
 import { WeaveExportFormats } from "@inditextech/weave-types";
 import { getServiceConfig } from "../../../config/config.js";
 import { runWorker } from "../../../workers/workers.js";
-import { ExportToImageWorkerResult } from "./workers/exportToImage.js";
+import { ExportToImageWorkerResult } from "./workers/types.js";
 
 const WeaveExportFormatsSchema: z.ZodType<WeaveExportFormats> = z.enum([
   "image/png",

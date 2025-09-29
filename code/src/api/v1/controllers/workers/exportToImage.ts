@@ -3,8 +3,6 @@ import sharp from "sharp";
 import { renderWeaveRoom } from "../../../../canvas/weave.js";
 import { WeaveExportFormats } from "@inditextech/weave-types";
 
-export type ExportToImageWorkerResult = Buffer;
-
 parentPort?.on("message", async ({ config, roomData, nodes, options }) => {
   const { instance, destroy } = await renderWeaveRoom(config, roomData);
 
