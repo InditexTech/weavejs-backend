@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 2025 INDUSTRIA DE DISEÑO TEXTIL S.A. (INDITEX S.A.)
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { parentPort } from "worker_threads";
 import sharp from "sharp";
 import { renderWeaveRoom } from "../../../../canvas/weave.js";
