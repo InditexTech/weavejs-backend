@@ -18,7 +18,7 @@ async function myBlobToUIntDemo(blob: Blob) {
 
 export const postRemoveBackgroundController = () => {
   const persistenceHandler = new ImagesPersistenceHandler();
-
+  const baseTempDir = path.join(process.cwd(), "temp");
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId;
     const imageId = req.params.imageId;
@@ -38,10 +38,14 @@ export const postRemoveBackgroundController = () => {
 
     const extension = mimeTypes.extension(contentType) || "png";
     const fileName = `${roomId}/${imageId}.${extension}`;
-    const filePath = path.join(process.cwd(), "temp", fileName);
+    const filePath = path.resolve(baseTempDir, fileName);
+    // Ensure that filePath is strictly inside baseTempDir
+    if (!filePath.startsWith(baseTempDir + path.sep)) {
+      res.status(400).json({ status: "KO", message: "Invalid path traversal attempt." });
+      return;
+    }
 
     await saveBase64ToFile(dataBase64, filePath);
-
     try {
       removeBackground(filePath, {
         publicPath: `file://${path.join(process.cwd(), "public")}/`,
