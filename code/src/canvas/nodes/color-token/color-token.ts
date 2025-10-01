@@ -42,9 +42,7 @@ export class ColorTokenNode extends WeaveNode {
       fill: "#FFFFFFFF",
       width: colorTokenParams.width,
       height: colorTokenParams.height,
-      strokeScaleEnabled: false,
-      stroke: "black",
-      strokeWidth: 2,
+      strokeEnabled: false,
     });
 
     colorTokenNode.add(internalRect);
@@ -56,6 +54,8 @@ export class ColorTokenNode extends WeaveNode {
       x: 0,
       y: 0,
       fill: colorTokenColor,
+      strokeWidth: 0,
+      strokeEnabled: false,
       width: colorTokenParams.width,
       height: (colorTokenParams.height ?? 0) - 60,
       listening: false,
@@ -71,8 +71,7 @@ export class ColorTokenNode extends WeaveNode {
       x: 20,
       y: 260,
       fontSize: 20,
-      // fontFamily: inter.style.fontFamily,
-      fontFamily: "Arial",
+      fontFamily: "Inter, sans-serif",
       fill: "#CCCCCCFF",
       strokeEnabled: false,
       stroke: "#000000FF",
@@ -86,6 +85,23 @@ export class ColorTokenNode extends WeaveNode {
     });
 
     colorTokenNode.add(internalText);
+
+    const border = new Konva.Rect({
+      groupId: id,
+      nodeId: id,
+      id: `${id}-colorToken-border`,
+      x: 0,
+      y: 0,
+      fill: "transparent",
+      width: colorTokenParams.width,
+      height: colorTokenParams.height,
+      strokeScaleEnabled: true,
+      stroke: "black",
+      strokeWidth: 1,
+    });
+
+    colorTokenNode.add(border);
+    border.moveToTop();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (colorTokenNode as any).getTransformerProperties = () => {
