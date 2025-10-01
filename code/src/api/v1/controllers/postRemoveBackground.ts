@@ -22,6 +22,16 @@ export const postRemoveBackgroundController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId;
     const imageId = req.params.imageId;
+    // Validate roomId and imageId to prevent path traversal and unsafe characters
+    if (
+      !roomId ||
+      !imageId ||
+      !/^[a-zA-Z0-9_-]+$/.test(roomId) ||
+      !/^[a-zA-Z0-9_-]+$/.test(imageId)
+    ) {
+      res.status(400).json({ status: "KO", message: "Invalid roomId or imageId." });
+      return;
+    }
     const {
       image: { dataBase64, contentType },
     } = req.body;
