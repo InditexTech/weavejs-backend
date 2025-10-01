@@ -32,9 +32,7 @@ export const saveBase64ToFile = async (
 ): Promise<void> => {
   // Define the safe root directory: <projectRoot>/temp
   const safeRoot = path.resolve(process.cwd(), "temp") + path.sep;
-  // Resolve the absolute file path
   const absFilePath = path.resolve(filePath);
-  // Ensure the target path is within the safe root
   if (!absFilePath.startsWith(safeRoot)) {
     throw new Error("Invalid or unsafe file path detected");
   }
