@@ -30,9 +30,15 @@ export const saveBase64ToFile = async (
   base64String: string,
   filePath: string
 ): Promise<void> => {
+  // Define the safe root directory: <projectRoot>/temp
+  const safeRoot = path.resolve(process.cwd(), "temp") + path.sep;
+  const absFilePath = path.resolve(filePath);
+  if (!absFilePath.startsWith(safeRoot)) {
+    throw new Error("Invalid or unsafe file path detected");
+  }
   const buffer = Buffer.from(base64String, "base64");
-  await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.promises.writeFile(filePath, buffer);
+  await fs.promises.mkdir(path.dirname(absFilePath), { recursive: true });
+  await fs.promises.writeFile(absFilePath, buffer);
 };
 
 export const sleep = (ms: number) =>

@@ -18,8 +18,10 @@ path = [
 
     # code/ directory licensing
     "cleanup-storage/src/whitelist.json",
+    "code/fonts/**",
     "code/.husky/**",
     "code/.prettierrc",
+    "code/nodemon.json",
     "code/justfile",
     "code/.tool-versions",
     "code/tsconfig.base.json",
