@@ -127,7 +127,6 @@ export const postUploadVideoController = () => {
       } else {
         res.status(500).json({ status: "KO", message: "Error creating video" });
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       console.error("Error uploading video:", error);
       res.status(500).json({ status: "KO", message: "Error creating video" });
