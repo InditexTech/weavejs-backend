@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { setCanvasPolyfill } from "./../polyfills/canvas.js";
-import Konva from "konva";
 import path from "node:path";
 import { registerFont } from "canvas";
 import { StoreStandalone } from "./store-standalone/store-standalone.js";
@@ -17,6 +16,7 @@ import {
   WeaveLineNode,
   WeaveTextNode,
   WeaveImageNode,
+  WeaveVideoNode,
   WeaveStarNode,
   WeaveArrowNode,
   WeaveRegularPolygonNode,
@@ -24,7 +24,6 @@ import {
   WeaveStrokeNode,
   WeaveImageToolAction,
 } from "@inditextech/weave-sdk";
-import { WEAVE_TRANSFORMER_ANCHORS } from "@inditextech/weave-types";
 import { ColorTokenNode } from "./nodes/color-token/color-token.js";
 import { isAbsoluteUrl, stripOrigin } from "../utils.js";
 
@@ -201,17 +200,20 @@ const getNodes = (config: any) => {
           const transformedUrl = relativeUrl.replace("/weavebff", "");
           return `http://localhost:${config.service.port}${transformedUrl}`;
         },
-        transform: {
-          enabledAnchors: [
-            WEAVE_TRANSFORMER_ANCHORS.TOP_LEFT,
-            WEAVE_TRANSFORMER_ANCHORS.TOP_RIGHT,
-            WEAVE_TRANSFORMER_ANCHORS.BOTTOM_LEFT,
-            WEAVE_TRANSFORMER_ANCHORS.BOTTOM_RIGHT,
-          ],
-          keepRatio: true,
-        },
-        onDblClick: (instance: WeaveImageNode, node: Konva.Group) => {
-          instance.triggerCrop(node);
+      },
+    }),
+    new WeaveVideoNode({
+      config: {
+        urlTransformer: (url: string) => {
+          const isAbsolute = isAbsoluteUrl(url);
+
+          let relativeUrl = url;
+          if (isAbsolute) {
+            relativeUrl = stripOrigin(url);
+          }
+
+          const transformedUrl = relativeUrl.replace("/weavebff", "");
+          return `http://localhost:${config.service.port}${transformedUrl}`;
         },
       },
     }),

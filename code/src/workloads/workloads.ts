@@ -54,6 +54,7 @@ export const setupWorkloads = async () => {
         await initGenerateImagesQueue(boss);
         await initEditImageQueue(boss);
         await initDeleteImageQueue(boss);
+        await initDeleteVideoQueue(boss);
 
         logger.info("Module ready");
       } else {
@@ -100,6 +101,7 @@ export const setupWorkloads = async () => {
         await initGenerateImagesQueue(boss);
         await initEditImageQueue(boss);
         await initDeleteImageQueue(boss);
+        await initDeleteVideoQueue(boss);
 
         logger.info("Module ready");
       } else {
@@ -192,6 +194,15 @@ const initDeleteImageQueue = async (boss: PgBoss) => {
   await deleteImageJob.start();
 
   jobs["deleteImage"] = deleteImageJob;
+};
+
+const initDeleteVideoQueue = async (boss: PgBoss) => {
+  const { DeleteVideoJob } = await import("./jobs/delete-video/job.js");
+
+  const deleteVideoJob = await DeleteVideoJob.create(boss);
+  await deleteVideoJob.start();
+
+  jobs["deleteVideo"] = deleteVideoJob;
 };
 
 export const getWorkloadsInstance = () => {

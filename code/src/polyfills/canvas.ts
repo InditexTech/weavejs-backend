@@ -2,10 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// polyfills for Canvas in Node
-
 import { createCanvas, Image } from "canvas";
 
+// polyfills for Canvas in Node
 export const setCanvasPolyfill = () => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore

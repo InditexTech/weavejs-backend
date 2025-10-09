@@ -6,6 +6,7 @@ import { Sequelize } from "sequelize";
 import { getLogger } from "../logger/logger.js";
 import { defineTaskModel } from "./models/task.js";
 import { defineImageModel } from "./models/image.js";
+import { defineVideoModel } from "./models/video.js";
 import { getServiceConfig } from "../config/config.js";
 import { defineThreadModel } from "./models/thread.js";
 import { defineThreadAnswerModel } from "./models/thread-answer.js";
@@ -58,6 +59,7 @@ export const setupDatabase = async () => {
         // Define models
         await defineTaskModel(sequelize);
         await defineImageModel(sequelize);
+        await defineVideoModel(sequelize);
         await defineThreadModel(sequelize);
         await defineThreadAnswerModel(sequelize);
 
@@ -116,6 +118,7 @@ export const setupDatabase = async () => {
         await defineConnectionModel(sequelize);
         await defineTaskModel(sequelize);
         await defineImageModel(sequelize);
+        await defineVideoModel(sequelize);
         await defineThreadModel(sequelize);
         await defineThreadAnswerModel(sequelize);
 

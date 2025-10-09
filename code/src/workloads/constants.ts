@@ -7,4 +7,5 @@ export const JOB_HANDLERS = {
   GENERATE_IMAGES: "generateImages",
   EDIT_IMAGE: "editImage",
   DELETE_IMAGE: "deleteImage",
+  DELETE_VIDEO: "deleteVideo",
 } as const;

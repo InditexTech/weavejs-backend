@@ -21,6 +21,9 @@ export type ServiceConfig = {
     images: {
       containerName: string;
     };
+    videos: {
+      containerName: string;
+    };
   };
   ai: {
     password: string;

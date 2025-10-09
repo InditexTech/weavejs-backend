@@ -97,6 +97,14 @@ const serviceConfigSchema = z.object({
         })
         .trim(),
     }),
+    videos: z.object({
+      containerName: z
+        .string({
+          required_error:
+            "Define the Azure Blob Storage container name for the videos data on the environment variable AZURE_STORAGE_VIDEOS_CONTAINER_NAME",
+        })
+        .trim(),
+    }),
   }),
   ai: z.object({
     password: z
@@ -184,6 +192,7 @@ export function getServiceConfig(): ServiceConfig {
   const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
   const roomsContainerName = process.env.AZURE_STORAGE_ROOMS_CONTAINER_NAME;
   const imagesContainerName = process.env.AZURE_STORAGE_IMAGES_CONTAINER_NAME;
+  const videosContainerName = process.env.AZURE_STORAGE_VIDEOS_CONTAINER_NAME;
 
   const storage = {
     accountName,
@@ -192,6 +201,9 @@ export function getServiceConfig(): ServiceConfig {
     },
     images: {
       containerName: imagesContainerName,
+    },
+    videos: {
+      containerName: videosContainerName,
     },
   };
 

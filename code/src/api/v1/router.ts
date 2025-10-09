@@ -29,6 +29,11 @@ import { postRoomBusJoinController } from "./controllers/postRoomBusJoin.js";
 import { postExportToImageController } from "./controllers/postExportToImage.js";
 import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
 import { getSimulateStoreWsErrorController } from "./controllers/getSimulateStoreWsError.js";
+import { getVideosController } from "./controllers/getVideos.js";
+import { getVideoController } from "./controllers/getVideo.js";
+import { postUploadVideoController } from "./controllers/postUploadVideo.js";
+import { delVideoController } from "./controllers/delVideo.js";
+import { getVideoPlaceholderController } from "./controllers/getVideoPlaceholder.js";
 
 const router: Router = Router();
 
@@ -86,6 +91,30 @@ export function setupApiV1Router(app: Express) {
     `/${hubName}/rooms/:roomId/images/:imageId`,
     cors,
     delImageController()
+  );
+
+  // Video handling API
+  router.get(`/${hubName}/rooms/:roomId/videos`, cors, getVideosController());
+  router.get(
+    `/${hubName}/rooms/:roomId/videos/:videoId`,
+    cors,
+    getVideoController()
+  );
+  router.get(
+    `/${hubName}/rooms/:roomId/videos/:videoId/placeholder`,
+    cors,
+    getVideoPlaceholderController()
+  );
+  router.post(
+    `/${hubName}/rooms/:roomId/videos`,
+    cors,
+    upload.single("file"),
+    postUploadVideoController()
+  );
+  router.delete(
+    `/${hubName}/rooms/:roomId/videos/:videoId`,
+    cors,
+    delVideoController()
   );
 
   if (config.features.threads) {
