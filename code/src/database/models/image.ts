@@ -9,6 +9,9 @@ export type ImageStatus = "pending" | "working" | "completed" | "failed";
 export type ImageOperation =
   | "uploaded"
   | "background-removal"
+  | "negate-image"
+  | "flip-image"
+  | "grayscale-image"
   | "image-generation"
   | "image-edition";
 

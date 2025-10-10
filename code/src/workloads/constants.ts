@@ -4,6 +4,9 @@
 
 export const JOB_HANDLERS = {
   REMOVE_IMAGE_BACKGROUND: "removeImageBackground",
+  NEGATE_IMAGE: "negateImage",
+  FLIP_IMAGE: "flipImage",
+  GRAYSCALE_IMAGE: "grayscaleImage",
   GENERATE_IMAGES: "generateImages",
   EDIT_IMAGE: "editImage",
   DELETE_IMAGE: "deleteImage",

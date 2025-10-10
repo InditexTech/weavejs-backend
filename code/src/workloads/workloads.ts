@@ -51,6 +51,9 @@ export const setupWorkloads = async () => {
         await boss.clearStorage();
 
         await initRemoveImageBackgroundQueue(boss);
+        await initNegateImageQueue(boss);
+        await initFlipImageQueue(boss);
+        await initGrayscaleImageQueue(boss);
         await initGenerateImagesQueue(boss);
         await initEditImageQueue(boss);
         await initDeleteImageQueue(boss);
@@ -98,6 +101,9 @@ export const setupWorkloads = async () => {
         await boss.clearStorage();
 
         await initRemoveImageBackgroundQueue(boss);
+        await initNegateImageQueue(boss);
+        await initFlipImageQueue(boss);
+        await initGrayscaleImageQueue(boss);
         await initGenerateImagesQueue(boss);
         await initEditImageQueue(boss);
         await initDeleteImageQueue(boss);
@@ -167,6 +173,33 @@ const initRemoveImageBackgroundQueue = async (boss: PgBoss) => {
   await removeBackgroundJob.start();
 
   jobs["removeImageBackground"] = removeBackgroundJob;
+};
+
+const initNegateImageQueue = async (boss: PgBoss) => {
+  const { NegateImageJob } = await import("./jobs/negate-image/job.js");
+
+  const negateImageJob = await NegateImageJob.create(boss);
+  await negateImageJob.start();
+
+  jobs["negateImage"] = negateImageJob;
+};
+
+const initFlipImageQueue = async (boss: PgBoss) => {
+  const { FlipImageJob } = await import("./jobs/flip-image/job.js");
+
+  const flipImageJob = await FlipImageJob.create(boss);
+  await flipImageJob.start();
+
+  jobs["flipImage"] = flipImageJob;
+};
+
+const initGrayscaleImageQueue = async (boss: PgBoss) => {
+  const { GrayscaleImageJob } = await import("./jobs/grayscale-image/job.js");
+
+  const grayscaleImageJob = await GrayscaleImageJob.create(boss);
+  await grayscaleImageJob.start();
+
+  jobs["grayscaleImage"] = grayscaleImageJob;
 };
 
 const initGenerateImagesQueue = async (boss: PgBoss) => {

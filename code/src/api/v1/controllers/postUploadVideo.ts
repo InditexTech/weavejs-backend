@@ -100,8 +100,6 @@ export const postUploadVideoController = () => {
           removalStatus: null,
         });
 
-        console.log("Video created with ID:", videoModel.videoId);
-
         const buffer = await fs.readFile(tempPlaceholderFilePath); // Buffer (extends Uint8Array)
         const placeholderContent = new Uint8Array(
           buffer.buffer,
@@ -143,7 +141,6 @@ async function createTemporaryVideoFile(
 ): Promise<void> {
   try {
     await fs.writeFile(tempFilePath, buffer);
-    console.log("Temporary video file created at:", tempFilePath);
   } catch (err) {
     console.error("Error creating temporary video file", err);
     throw new Error("Error creating temporary video file");

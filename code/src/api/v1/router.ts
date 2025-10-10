@@ -34,6 +34,9 @@ import { getVideoController } from "./controllers/getVideo.js";
 import { postUploadVideoController } from "./controllers/postUploadVideo.js";
 import { delVideoController } from "./controllers/delVideo.js";
 import { getVideoPlaceholderController } from "./controllers/getVideoPlaceholder.js";
+import { postNegateImageController } from "./controllers/postNegateImage.js";
+import { postFlipImageController } from "./controllers/postFlipImage.js";
+import { postGrayscaleImageController } from "./controllers/postGrayscaleImage.js";
 
 const router: Router = Router();
 
@@ -79,6 +82,21 @@ export function setupApiV1Router(app: Express) {
     `/${hubName}/rooms/:roomId/images/:imageId/remove-background`,
     cors,
     postRemoveBackgroundController()
+  );
+  router.post(
+    `/${hubName}/rooms/:roomId/images/:imageId/negate`,
+    cors,
+    postNegateImageController()
+  );
+  router.post(
+    `/${hubName}/rooms/:roomId/images/:imageId/flip/:orientation`,
+    cors,
+    postFlipImageController()
+  );
+  router.post(
+    `/${hubName}/rooms/:roomId/images/:imageId/grayscale`,
+    cors,
+    postGrayscaleImageController()
   );
   router.post(`/ai/password/validate`, cors, postValidateAIPassword());
   router.post(
