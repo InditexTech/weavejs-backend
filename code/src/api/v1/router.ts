@@ -61,7 +61,7 @@ export function setupApiV1Router(app: Express) {
   const cors = getCorsMiddleware(routerBasePath);
 
   // Room handling API
-  router.use(getAzureWebPubsubServer().getExpressJsMiddleware());
+  router.use([getAzureWebPubsubServer().getExpressJsMiddleware()]);
 
   setupBodyParserMiddleware(router, routerBasePath);
 
