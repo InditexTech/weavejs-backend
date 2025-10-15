@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { createCanvas, Image } from "canvas";
+import { Canvas, Image } from "skia-canvas";
 
 // polyfills for Canvas in Node
 export const setCanvasPolyfill = () => {
@@ -14,11 +14,11 @@ export const setCanvasPolyfill = () => {
   global.HTMLImageElement = Image;
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  global.HTMLCanvasElement = createCanvas(1, 1).constructor;
+  global.HTMLCanvasElement = new Canvas(1, 1);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (global as any).document = {
     createElement: (tag: string) => {
-      if (tag === "canvas") return createCanvas(1, 1);
+      if (tag === "canvas") return new Canvas(1, 1);
       if (tag === "img") return new Image();
       return {};
     },
