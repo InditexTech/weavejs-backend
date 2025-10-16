@@ -2,10 +2,75 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Canvas, Image } from "skia-canvas";
+import path from "node:path";
+import { registerFont, Canvas, Image } from "canvas";
+
+const registerCanvasCustomFonts = () => {
+  // Impact font
+  registerFont(path.resolve(process.cwd(), "fonts/Impact.ttf"), {
+    family: "Impact",
+    weight: "400",
+    style: "normal",
+  });
+  // Verdana font
+  registerFont(path.resolve(process.cwd(), "fonts/Verdana.ttf"), {
+    family: "Verdana",
+    weight: "400",
+    style: "normal",
+  });
+  registerFont(path.resolve(process.cwd(), "fonts/Verdana-Bold.ttf"), {
+    family: "Verdana",
+    weight: "700",
+    style: "normal",
+  });
+  registerFont(path.resolve(process.cwd(), "fonts/Verdana-Italic.ttf"), {
+    family: "Verdana",
+    weight: "400",
+    style: "italic",
+  });
+  registerFont(path.resolve(process.cwd(), "fonts/Verdana-BoldItalic.ttf"), {
+    family: "Verdana",
+    weight: "700",
+    style: "italic",
+  });
+  // Inter font family
+  registerFont(path.resolve(process.cwd(), "fonts/inter-regular.ttf"), {
+    family: "Inter",
+    weight: "400",
+    style: "normal",
+  });
+  registerFont(path.resolve(process.cwd(), "fonts/inter-bold.ttf"), {
+    family: "Inter",
+    weight: "700",
+    style: "normal",
+  });
+  registerFont(path.resolve(process.cwd(), "fonts/inter-italic.ttf"), {
+    family: "Inter",
+    weight: "400",
+    style: "italic",
+  });
+  registerFont(path.resolve(process.cwd(), "fonts/inter-italic-bold.ttf"), {
+    family: "Inter",
+    weight: "700",
+    style: "italic",
+  });
+  // Sansita font family
+  registerFont(path.resolve(process.cwd(), "fonts/sansita-regular.ttf"), {
+    family: "Sansita",
+    weight: "400",
+    style: "normal",
+  });
+  registerFont(path.resolve(process.cwd(), "fonts/sansita-bold.ttf"), {
+    family: "Sansita",
+    weight: "700",
+    style: "normal",
+  });
+};
 
 // polyfills for Canvas in Node
 export const setCanvasPolyfill = () => {
+  registerCanvasCustomFonts();
+
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   global.Image = Image;

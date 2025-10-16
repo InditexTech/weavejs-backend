@@ -2,12 +2,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { setCanvasPolyfill } from "../../../../polyfills/canvas.js";
 import { parentPort } from "worker_threads";
 import sharp from "sharp";
 import { renderWeaveRoom } from "../../../../canvas/weave.js";
 import { WeaveExportFormats } from "@inditextech/weave-types";
 
 parentPort?.on("message", async ({ config, roomData, nodes, options }) => {
+  setCanvasPolyfill();
+
   const { instance, destroy } = await renderWeaveRoom(config, roomData);
 
   const { composites, width, height } = await instance.exportNodesAsBuffer(
