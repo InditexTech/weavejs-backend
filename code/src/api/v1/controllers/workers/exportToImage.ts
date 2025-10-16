@@ -2,33 +2,30 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { setCanvasPolyfill } from "../../../../polyfills/canvas.js";
 import { parentPort } from "worker_threads";
 import sharp from "sharp";
 import { renderWeaveRoom } from "../../../../canvas/weave.js";
-import { WeaveExportFormats } from "@inditextech/weave-types";
+import { WEAVE_EXPORT_FORMATS } from "@inditextech/weave-types";
 
 parentPort?.on("message", async ({ config, roomData, nodes, options }) => {
-  setCanvasPolyfill();
-
   const { instance, destroy } = await renderWeaveRoom(config, roomData);
 
-  const { composites, width, height } = await instance.exportNodesAsBuffer(
+  const { composites, width, height } = await instance.exportNodesServerSide(
     nodes,
     (nodes) => nodes,
     {
-      format: options.format as WeaveExportFormats,
+      format: options.format,
       padding: options.padding,
       pixelRatio: options.pixelRatio,
       backgroundColor: options.backgroundColor,
-      quality: options.quality, // Only used for image/jpeg
+      quality: options.quality,
     }
   );
 
   destroy();
 
   try {
-    const finalImage = sharp({
+    const composedImage = sharp({
       create: {
         width,
         height,
@@ -37,8 +34,18 @@ parentPort?.on("message", async ({ config, roomData, nodes, options }) => {
       },
     }).composite(composites);
 
-    const finalBuffer = await finalImage.png().toBuffer();
-    parentPort?.postMessage(finalBuffer, [finalBuffer.buffer as ArrayBuffer]);
+    let imagePipeline = composedImage;
+    if (options.format === WEAVE_EXPORT_FORMATS.JPEG) {
+      imagePipeline = composedImage.jpeg({
+        quality: (options.quality ?? 0.8) * 100,
+      });
+    }
+    if (options.format === WEAVE_EXPORT_FORMATS.PNG) {
+      imagePipeline = composedImage.png();
+    }
+
+    const imageBuffer = await imagePipeline.toBuffer();
+    parentPort?.postMessage(imageBuffer, [imageBuffer.buffer as ArrayBuffer]);
   } catch (error) {
     parentPort?.postMessage((error as Error).message);
   }
