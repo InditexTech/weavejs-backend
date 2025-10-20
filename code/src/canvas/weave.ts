@@ -20,10 +20,9 @@ import {
   WeaveRegularPolygonNode,
   WeaveFrameNode,
   WeaveStrokeNode,
-  WeaveImageToolAction,
-  CanvasFonts,
-  registerCanvasFonts,
-} from "@inditextech/weave-sdk";
+  SkiaFonts,
+  registerSkiaFonts,
+} from "@inditextech/weave-sdk/server";
 import { ColorTokenNode } from "./nodes/color-token/color-token.js";
 import { isAbsoluteUrl, stripOrigin } from "../utils.js";
 import { ServiceConfig } from "../types.js";
@@ -38,16 +37,18 @@ export const renderWeaveRoom = (
   roomData: string
 ): Promise<RenderWeaveRoom> => {
   let weave: Weave | undefined = undefined;
+  // eslint-disable-next-line no-async-promise-executor
+  return new Promise(async (resolve) => {
+    await import("konva/skia-backend");
 
-  registerFonts();
+    registerFonts();
 
-  const destroyWeaveRoom = () => {
-    if (weave) {
-      weave.destroy();
-    }
-  };
+    const destroyWeaveRoom = () => {
+      if (weave) {
+        weave.destroy();
+      }
+    };
 
-  return new Promise((resolve) => {
     const store = new WeaveStoreStandalone(
       {
         roomData,
@@ -67,7 +68,7 @@ export const renderWeaveRoom = (
       {
         store,
         nodes: getNodes(config),
-        actions: getActions(),
+        actions: [],
         plugins: [],
         fonts: [],
         logger: {
@@ -84,16 +85,36 @@ export const renderWeaveRoom = (
 
     let roomLoaded = false;
 
+    const checkIfRoomLoaded = () => {
+      if (!weave) {
+        return false;
+      }
+
+      if (!weave.getStage()) {
+        return false;
+      }
+
+      if (roomLoaded && weave.asyncElementsLoaded()) {
+        return true;
+      }
+
+      return false;
+    };
+
     weave.addEventListener("onRoomLoaded", async (status: boolean) => {
       if (!weave) {
         return;
+      }
+
+      if (!weave.getStage()) {
+        return false;
       }
 
       if (status) {
         roomLoaded = true;
       }
 
-      if (roomLoaded && weave.asyncElementsLoaded()) {
+      if (checkIfRoomLoaded()) {
         resolve({ instance: weave, destroy: destroyWeaveRoom });
       }
     });
@@ -103,7 +124,11 @@ export const renderWeaveRoom = (
         return;
       }
 
-      if (roomLoaded && weave.asyncElementsLoaded()) {
+      if (!weave.getStage()) {
+        return false;
+      }
+
+      if (checkIfRoomLoaded()) {
         resolve({ instance: weave, destroy: destroyWeaveRoom });
       }
     });
@@ -174,103 +199,42 @@ const getNodes = (config: ServiceConfig) => {
   ];
 };
 
-const getActions = () => [new WeaveImageToolAction()];
-
 const registerFonts = () => {
-  const fonts: CanvasFonts = [
+  const fonts: SkiaFonts = [
+    // Impact font family
     {
-      // Impact font family
-      path: path.resolve(process.cwd(), "fonts/Impact.ttf"),
-      properties: {
-        family: "Impact",
-        weight: "400",
-        style: "normal",
-      },
+      family: "Impact",
+      paths: [path.resolve(process.cwd(), "fonts/Impact.ttf")],
     },
+    // Verdana font family
     {
-      // Verdana font family
-      path: path.resolve(process.cwd(), "fonts/Verdana.ttf"),
-      properties: {
-        family: "Verdana",
-        weight: "400",
-        style: "normal",
-      },
-    },
-    {
-      path: path.resolve(process.cwd(), "fonts/Verdana-Bold.ttf"),
-      properties: {
-        family: "Verdana",
-        weight: "700",
-        style: "normal",
-      },
-    },
-    {
-      path: path.resolve(process.cwd(), "fonts/Verdana-Italic.ttf"),
-      properties: {
-        family: "Verdana",
-        weight: "400",
-        style: "italic",
-      },
-    },
-    {
-      path: path.resolve(process.cwd(), "fonts/Verdana-BoldItalic.ttf"),
-      properties: {
-        family: "Verdana",
-        weight: "700",
-        style: "italic",
-      },
+      family: "Verdana",
+      paths: [
+        path.resolve(process.cwd(), "fonts/Verdana.ttf"),
+        path.resolve(process.cwd(), "fonts/Verdana-Bold.ttf"),
+        path.resolve(process.cwd(), "fonts/Verdana-Italic.ttf"),
+        path.resolve(process.cwd(), "fonts/Verdana-BoldItalic.ttf"),
+      ],
     },
     // Inter font family
     {
-      path: path.resolve(process.cwd(), "fonts/inter-regular.ttf"),
-      properties: {
-        family: "Inter",
-        weight: "400",
-        style: "normal",
-      },
-    },
-    {
-      path: path.resolve(process.cwd(), "fonts/inter-bold.ttf"),
-      properties: {
-        family: "Inter",
-        weight: "700",
-        style: "normal",
-      },
-    },
-    {
-      path: path.resolve(process.cwd(), "fonts/inter-italic.ttf"),
-      properties: {
-        family: "Inter",
-        weight: "400",
-        style: "italic",
-      },
-    },
-    {
-      path: path.resolve(process.cwd(), "fonts/inter-italic-bold.ttf"),
-      properties: {
-        family: "Inter",
-        weight: "700",
-        style: "italic",
-      },
+      family: "Inter",
+      paths: [
+        path.resolve(process.cwd(), "fonts/inter-regular.ttf"),
+        path.resolve(process.cwd(), "fonts/inter-bold.ttf"),
+        path.resolve(process.cwd(), "fonts/inter-italic.ttf"),
+        path.resolve(process.cwd(), "fonts/inter-italic-bold.ttf"),
+      ],
     },
     // Sansita font family
     {
-      path: path.resolve(process.cwd(), "fonts/sansita-regular.ttf"),
-      properties: {
-        family: "Sansita",
-        weight: "400",
-        style: "normal",
-      },
-    },
-    {
-      path: path.resolve(process.cwd(), "fonts/sansita-bold.ttf"),
-      properties: {
-        family: "Sansita",
-        weight: "700",
-        style: "normal",
-      },
+      family: "Sansita",
+      paths: [
+        path.resolve(process.cwd(), "fonts/sansita-regular.ttf"),
+        path.resolve(process.cwd(), "fonts/sansita-bold.ttf"),
+      ],
     },
   ];
 
-  registerCanvasFonts(fonts);
+  registerSkiaFonts(fonts);
 };

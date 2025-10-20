@@ -4,7 +4,7 @@
 
 import { Request, Response } from "express";
 import { JOB_HANDLERS } from "../../../workloads/constants.js";
-import { DeleteVideoJob } from "../../../workloads/jobs/delete-video/job";
+import { DeleteVideoJob } from "../../../workloads/jobs/delete-video/job.js";
 import { getJobHandler } from "../../../workloads/workloads.js";
 
 export const delVideoController = () => {

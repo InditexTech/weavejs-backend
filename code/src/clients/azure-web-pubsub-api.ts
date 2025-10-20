@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { getServiceConfig } from "../config/config";
-import { getAzureWebPubSubCredentialsToken } from "../utils";
+import { getServiceConfig } from "../config/config.js";
+import { getAzureWebPubSubCredentialsToken } from "../utils.js";
 
 const AZURE_WEB_PUBSUB_CLIENT_TIMEOUT = 30; // seconds
 

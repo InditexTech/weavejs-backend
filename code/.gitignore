@@ -38,3 +38,5 @@ server.crt
 server.key
 
 data/*
+
+env.sh

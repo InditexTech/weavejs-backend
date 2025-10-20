@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { Request, Response } from "express";
 import archiver from "archiver";
@@ -10,6 +11,9 @@ import { WeaveExportFormats } from "@inditextech/weave-types";
 import { getServiceConfig } from "../../../config/config.js";
 import { runWorker } from "../../../workers/workers.js";
 import { ExportToImageWorkerResult } from "./workers/types.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const WeaveExportFormatsSchema: z.ZodType<WeaveExportFormats> = z.enum([
   "image/png",

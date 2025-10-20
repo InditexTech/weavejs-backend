@@ -3,7 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import path from "node:path";
-import { CanvasFonts, registerCanvasFonts } from "@inditextech/weave-sdk";
+import {
+  CanvasFonts,
+  registerCanvasFonts,
+} from "@inditextech/weave-sdk/server";
 
 export const registerFonts = () => {
   const fonts: CanvasFonts = [

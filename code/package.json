@@ -7,6 +7,7 @@
   "author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>",
   "repository": "github:InditexTech/weavejs-frontend",
   "license": "Apache-2.0",
+  "type": "module",
   "scripts": {
     "build": "tsc && mkdir -p ./dist/public && mkdir -p ./dist/temp && cp -r ./public ./dist",
     "bump:snapshot": "npm version $npm_package_version.$(date \"+%s\")",
@@ -36,8 +37,9 @@
     "version:release": "npm ci && lerna version --no-git-tag-version --no-push --force-publish --exact --yes $RELEASE_VERSION && npm version $RELEASE_VERSION"
   },
   "overrides": {
-    "canvas": "3.1.0",
-    "konva": "9.3.20",
+    "canvas": "3.2.0",
+    "skia-canvas": "3.0.8",
+    "konva": "10.0.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "yjs": "13.6.27",
@@ -48,9 +50,9 @@
     "@azure/storage-blob": "^12.26.0",
     "@azure/web-pubsub": "^1.2.0",
     "@imgly/background-removal-node": "^1.4.5",
-    "@inditextech/weave-sdk": "0.77.0",
-    "@inditextech/weave-store-standalone": "0.77.0",
-    "@inditextech/weave-store-azure-web-pubsub": "0.77.0",
+    "@inditextech/weave-sdk": "1.0.4",
+    "@inditextech/weave-store-azure-web-pubsub": "1.0.4",
+    "@inditextech/weave-store-standalone": "1.0.4",
     "archiver": "^7.0.1",
     "axios": "^1.10.0",
     "cors": "^2.8.5",
@@ -66,6 +68,7 @@
     "image-size": "^2.0.2",
     "install": "^0.13.0",
     "jsdom": "^26.1.0",
+    "konva": "10.0.2",
     "mime-types": "^3.0.1",
     "module-alias": "^2.2.3",
     "morgan": "^1.10.0",
@@ -79,7 +82,9 @@
     "pino-pretty": "^13.0.0",
     "sequelize": "^6.37.7",
     "sharp": "^0.34.3",
+    "skia-canvas": "3.0.8",
     "uuid": "^11.1.0",
+    "yjs": "13.6.27",
     "zod": "3.25.76"
   },
   "devDependencies": {

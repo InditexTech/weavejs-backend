@@ -173,7 +173,7 @@ async function extractFirstFrame(
   outputPath: string
 ): Promise<string | undefined> {
   return new Promise((resolve, reject) => {
-    const ffmpegPath = ffmpegStatic as string;
+    const ffmpegPath = ffmpegStatic as unknown as string;
     if (!ffmpegPath) {
       return reject(
         new Error("ffmpeg binary not found (install ffmpeg-static).")

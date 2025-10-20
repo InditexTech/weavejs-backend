@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import Konva from "konva";
-import { WeaveNode } from "@inditextech/weave-sdk";
+import { WeaveNode } from "@inditextech/weave-sdk/server";
 import {
   WeaveElementAttributes,
   WeaveElementInstance,
