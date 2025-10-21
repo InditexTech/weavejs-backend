@@ -3,6 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import path from "node:path";
+// Setup skia backend
+import "konva/skia-backend";
+import { Image as SkiaImage } from "skia-canvas";
 import { WeaveStoreStandalone } from "@inditextech/weave-store-standalone/server";
 import {
   Weave,
@@ -32,16 +35,31 @@ export type RenderWeaveRoom = {
   destroy: () => void;
 };
 
+export const setupSkiaEnvironment = () => {
+  // Setup global Image for Weave SDK
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  global.HTMLImageElement = SkiaImage as any;
+  global.window = {
+    Image: SkiaImage,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  global.window.Image = SkiaImage as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  global.Image = SkiaImage as any;
+
+  // Register fonts
+  registerFonts();
+};
+
 export const renderWeaveRoom = (
   config: ServiceConfig,
   roomData: string
 ): Promise<RenderWeaveRoom> => {
   let weave: Weave | undefined = undefined;
-  // eslint-disable-next-line no-async-promise-executor
-  return new Promise(async (resolve) => {
-    await import("konva/skia-backend");
 
-    registerFonts();
+  return new Promise((resolve) => {
+    setupSkiaEnvironment();
 
     const destroyWeaveRoom = () => {
       if (weave) {
