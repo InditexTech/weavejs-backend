@@ -40,6 +40,9 @@ COPY --from=builder --chown=service:nodejs /app/fonts ./fonts
 COPY --from=builder --chown=service:nodejs /app/dist ./
 COPY --chown=service:nodejs .env ./
 COPY --chown=service:nodejs package.json ./
+RUN mkdir -p /usr/share/fonts /tmp/fontconfig && \
+    chmod -R 777 /usr/share/fonts /tmp/fontconfig
+ENV XDG_CACHE_HOME=/tmp/fontconfig
 USER service
 EXPOSE 8080
 ENV PORT 8080
