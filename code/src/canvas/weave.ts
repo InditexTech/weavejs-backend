@@ -2,10 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import path from "node:path";
-// Setup skia backend
-import "konva/skia-backend";
-import { Image as SkiaImage } from "skia-canvas";
 import { WeaveStoreStandalone } from "@inditextech/weave-store-standalone/server";
 import {
   Weave,
@@ -23,33 +19,20 @@ import {
   WeaveRegularPolygonNode,
   WeaveFrameNode,
   WeaveStrokeNode,
-  SkiaFonts,
-  registerSkiaFonts,
+  setupSkiaBackend,
+  // setupCanvasBackend,
 } from "@inditextech/weave-sdk/server";
 import { ColorTokenNode } from "./nodes/color-token/color-token.js";
 import { isAbsoluteUrl, stripOrigin } from "../utils.js";
 import { ServiceConfig } from "../types.js";
+import {
+  // registerCanvasFonts,
+  registerSkiaFonts,
+} from "./fonts.js";
 
 export type RenderWeaveRoom = {
   instance: Weave;
   destroy: () => void;
-};
-
-export const setupSkiaEnvironment = () => {
-  // Setup global Image for Weave SDK
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  global.HTMLImageElement = SkiaImage as any;
-  global.window = {
-    Image: SkiaImage,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  global.window.Image = SkiaImage as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  global.Image = SkiaImage as any;
-
-  // Register fonts
-  registerFonts();
 };
 
 export const renderWeaveRoom = (
@@ -58,9 +41,8 @@ export const renderWeaveRoom = (
 ): Promise<RenderWeaveRoom> => {
   let weave: Weave | undefined = undefined;
 
-  return new Promise((resolve) => {
-    setupSkiaEnvironment();
-
+  // eslint-disable-next-line no-async-promise-executor
+  return new Promise(async (resolve) => {
     const destroyWeaveRoom = () => {
       if (weave) {
         weave.destroy();
@@ -92,7 +74,6 @@ export const renderWeaveRoom = (
         logger: {
           level: "info",
         },
-        serverSide: true,
       },
       {
         container: undefined,
@@ -100,6 +81,14 @@ export const renderWeaveRoom = (
         height: 600,
       }
     );
+
+    // Setup Skia backend
+    registerSkiaFonts();
+    await setupSkiaBackend();
+
+    // Setup Canvas backend
+    // registerCanvasFonts();
+    // await setupCanvasBackend();
 
     let roomLoaded = false;
 
@@ -215,44 +204,4 @@ const getNodes = (config: ServiceConfig) => {
     }),
     new ColorTokenNode(),
   ];
-};
-
-const registerFonts = () => {
-  const fonts: SkiaFonts = [
-    // Impact font family
-    {
-      family: "Impact",
-      paths: [path.resolve(process.cwd(), "fonts/Impact.ttf")],
-    },
-    // Verdana font family
-    {
-      family: "Verdana",
-      paths: [
-        path.resolve(process.cwd(), "fonts/Verdana.ttf"),
-        path.resolve(process.cwd(), "fonts/Verdana-Bold.ttf"),
-        path.resolve(process.cwd(), "fonts/Verdana-Italic.ttf"),
-        path.resolve(process.cwd(), "fonts/Verdana-BoldItalic.ttf"),
-      ],
-    },
-    // Inter font family
-    {
-      family: "Inter",
-      paths: [
-        path.resolve(process.cwd(), "fonts/inter-regular.ttf"),
-        path.resolve(process.cwd(), "fonts/inter-bold.ttf"),
-        path.resolve(process.cwd(), "fonts/inter-italic.ttf"),
-        path.resolve(process.cwd(), "fonts/inter-italic-bold.ttf"),
-      ],
-    },
-    // Sansita font family
-    {
-      family: "Sansita",
-      paths: [
-        path.resolve(process.cwd(), "fonts/sansita-regular.ttf"),
-        path.resolve(process.cwd(), "fonts/sansita-bold.ttf"),
-      ],
-    },
-  ];
-
-  registerSkiaFonts(fonts);
 };

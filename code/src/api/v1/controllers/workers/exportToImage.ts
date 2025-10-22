@@ -4,11 +4,8 @@
 
 import { parentPort } from "worker_threads";
 import sharp from "sharp";
+import { WEAVE_EXPORT_FORMATS } from "@inditextech/weave-types";
 import { renderWeaveRoom } from "../../../../canvas/weave.js";
-import {
-  WEAVE_EXPORT_FORMATS,
-  WEAVE_KONVA_BACKEND,
-} from "@inditextech/weave-types";
 
 parentPort?.on("message", async ({ config, roomData, nodes, options }) => {
   const { instance, destroy } = await renderWeaveRoom(config, roomData);
@@ -22,7 +19,6 @@ parentPort?.on("message", async ({ config, roomData, nodes, options }) => {
       pixelRatio: options.pixelRatio,
       backgroundColor: options.backgroundColor,
       quality: options.quality,
-      backend: WEAVE_KONVA_BACKEND.SKIA,
     }
   );
 

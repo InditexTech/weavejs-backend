@@ -3,26 +3,67 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import path from "node:path";
-import {
-  CanvasFonts,
-  registerCanvasFonts,
-} from "@inditextech/weave-sdk/server";
+import { registerFont } from "canvas";
+import { FontLibrary } from "skia-canvas";
+import { CanvasFont, SkiaFont } from "./types.js";
 
-export const registerFonts = () => {
-  const fonts: CanvasFonts = [
+export const registerSkiaFonts = () => {
+  const fonts: SkiaFont[] = [
+    // Impact font family
     {
-      // Impact font family
+      family: "Impact",
+      paths: [path.resolve(process.cwd(), "fonts/Impact.ttf")],
+    },
+    // Verdana font family
+    {
+      family: "Verdana",
+      paths: [
+        path.resolve(process.cwd(), "fonts/Verdana.ttf"),
+        path.resolve(process.cwd(), "fonts/Verdana-Bold.ttf"),
+        path.resolve(process.cwd(), "fonts/Verdana-Italic.ttf"),
+        path.resolve(process.cwd(), "fonts/Verdana-BoldItalic.ttf"),
+      ],
+    },
+    // Inter font family
+    {
+      family: "Inter",
+      paths: [
+        path.resolve(process.cwd(), "fonts/inter-regular.ttf"),
+        path.resolve(process.cwd(), "fonts/inter-bold.ttf"),
+        path.resolve(process.cwd(), "fonts/inter-italic.ttf"),
+        path.resolve(process.cwd(), "fonts/inter-italic-bold.ttf"),
+      ],
+    },
+    // Sansita font family
+    {
+      family: "Sansita",
+      paths: [
+        path.resolve(process.cwd(), "fonts/sansita-regular.ttf"),
+        path.resolve(process.cwd(), "fonts/sansita-bold.ttf"),
+      ],
+    },
+  ];
+
+  for (const font of fonts) {
+    FontLibrary.use(font.family, font.paths);
+  }
+};
+
+export const registerCanvasFonts = () => {
+  const fonts: CanvasFont[] = [
+    // Impact font family
+    {
       path: path.resolve(process.cwd(), "fonts/Impact.ttf"),
-      properties: {
+      fontFace: {
         family: "Impact",
         weight: "400",
         style: "normal",
       },
     },
+    // Verdana font family
     {
-      // Verdana font family
       path: path.resolve(process.cwd(), "fonts/Verdana.ttf"),
-      properties: {
+      fontFace: {
         family: "Verdana",
         weight: "400",
         style: "normal",
@@ -30,7 +71,7 @@ export const registerFonts = () => {
     },
     {
       path: path.resolve(process.cwd(), "fonts/Verdana-Bold.ttf"),
-      properties: {
+      fontFace: {
         family: "Verdana",
         weight: "700",
         style: "normal",
@@ -38,7 +79,7 @@ export const registerFonts = () => {
     },
     {
       path: path.resolve(process.cwd(), "fonts/Verdana-Italic.ttf"),
-      properties: {
+      fontFace: {
         family: "Verdana",
         weight: "400",
         style: "italic",
@@ -46,7 +87,7 @@ export const registerFonts = () => {
     },
     {
       path: path.resolve(process.cwd(), "fonts/Verdana-BoldItalic.ttf"),
-      properties: {
+      fontFace: {
         family: "Verdana",
         weight: "700",
         style: "italic",
@@ -55,7 +96,7 @@ export const registerFonts = () => {
     // Inter font family
     {
       path: path.resolve(process.cwd(), "fonts/inter-regular.ttf"),
-      properties: {
+      fontFace: {
         family: "Inter",
         weight: "400",
         style: "normal",
@@ -63,7 +104,7 @@ export const registerFonts = () => {
     },
     {
       path: path.resolve(process.cwd(), "fonts/inter-bold.ttf"),
-      properties: {
+      fontFace: {
         family: "Inter",
         weight: "700",
         style: "normal",
@@ -71,7 +112,7 @@ export const registerFonts = () => {
     },
     {
       path: path.resolve(process.cwd(), "fonts/inter-italic.ttf"),
-      properties: {
+      fontFace: {
         family: "Inter",
         weight: "400",
         style: "italic",
@@ -79,7 +120,7 @@ export const registerFonts = () => {
     },
     {
       path: path.resolve(process.cwd(), "fonts/inter-italic-bold.ttf"),
-      properties: {
+      fontFace: {
         family: "Inter",
         weight: "700",
         style: "italic",
@@ -88,21 +129,15 @@ export const registerFonts = () => {
     // Sansita font family
     {
       path: path.resolve(process.cwd(), "fonts/sansita-regular.ttf"),
-      properties: {
+      fontFace: {
         family: "Sansita",
         weight: "400",
         style: "normal",
       },
     },
-    {
-      path: path.resolve(process.cwd(), "fonts/sansita-bold.ttf"),
-      properties: {
-        family: "Sansita",
-        weight: "700",
-        style: "normal",
-      },
-    },
   ];
 
-  registerCanvasFonts(fonts);
+  for (const font of fonts) {
+    registerFont(font.path, font.fontFace);
+  }
 };
