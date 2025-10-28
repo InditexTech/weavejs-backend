@@ -320,7 +320,7 @@ export class GrayscaleImageJob {
       jobId,
       roomId,
       clientId,
-      payload: { imageId, newImageId, image },
+      payload: { imageId, newImageId },
     } = data;
 
     await updateImage(
@@ -348,7 +348,6 @@ export class GrayscaleImageJob {
       status: "completed",
       data: {
         imageId,
-        image,
       },
     });
 

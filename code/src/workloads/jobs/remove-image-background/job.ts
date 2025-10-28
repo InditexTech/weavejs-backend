@@ -322,7 +322,7 @@ export class RemoveImageBackgroundJob {
       jobId,
       roomId,
       clientId,
-      payload: { imageId, newImageId, image },
+      payload: { imageId, newImageId },
     } = data;
 
     await updateImage(
@@ -350,7 +350,6 @@ export class RemoveImageBackgroundJob {
       status: "completed",
       data: {
         imageId,
-        image,
       },
     });
 

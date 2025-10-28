@@ -316,7 +316,7 @@ export class NegateImageJob {
       jobId,
       roomId,
       clientId,
-      payload: { imageId, newImageId, image },
+      payload: { imageId, newImageId },
     } = data;
 
     await updateImage(
@@ -344,7 +344,6 @@ export class NegateImageJob {
       status: "completed",
       data: {
         imageId,
-        image,
       },
     });
 
