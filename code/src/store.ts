@@ -12,9 +12,8 @@ import {
   WeaveStoreAzureWebPubsubOnWebsocketJoinGroupEvent,
   WeaveStoreAzureWebPubsubOnWebsocketOpenEvent,
 } from "@inditextech/weave-store-azure-web-pubsub/server";
-import { streamToBuffer } from "./utils.js";
+import { getStateAsJson, streamToBuffer } from "./utils.js";
 import { getServiceConfig } from "./config/config.js";
-import * as Y from "yjs";
 import { getLogger } from "./logger/logger.js";
 import {
   getBlobServiceClient,
@@ -22,7 +21,6 @@ import {
   isStorageInitialized,
   setupStorage,
 } from "./storage/storage.js";
-import { customInitialState } from "./store.initial-state.js";
 import {
   createConnection,
   deleteConnection,
@@ -159,7 +157,6 @@ export const setupStore = () => {
       path: `/api/v1/api/webpubsub/hubs/${hubName}`,
       allowedEndpoints: [endpoint],
     },
-    initialState: customInitialState,
     fetchRoom: async (docName: string) => {
       if (!isStorageInitialized()) {
         await setupStorage();
@@ -329,11 +326,3 @@ export const stopStoreRoomsCleanup = () => {
     cleanupRoomsInterval = null;
   }
 };
-
-function getStateAsJson(actualState: Uint8Array<ArrayBufferLike>) {
-  const document = new Y.Doc();
-  Y.applyUpdate(document, actualState);
-  const actualStateString = JSON.stringify(document.getMap("weave").toJSON());
-  const actualStateJson = JSON.parse(actualStateString);
-  return actualStateJson;
-}

@@ -15,12 +15,11 @@ export const getRoomConnectController =
       return;
     }
 
-    const url = await getAzureWebPubsubServer().clientConnect(roomId);
-
-    if (!url) {
+    try {
+      const url = await getAzureWebPubsubServer().clientConnect(roomId);
+      res.status(200).json({ url });
+    } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Error connecting to Azure Web PubSub" });
-      return;
     }
-
-    res.status(200).json({ url });
   };

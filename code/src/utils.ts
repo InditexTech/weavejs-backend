@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import * as Y from "yjs";
 import fs from "fs";
 import path from "path";
 import { AccessToken, DefaultAzureCredential } from "@azure/identity";
@@ -78,4 +79,12 @@ export function parseDataURL(dataUrl: string): {
   const mimeType = match[1];
   const base64 = match[2];
   return { mimeType, base64 };
+}
+
+export function getStateAsJson(actualState: Uint8Array<ArrayBufferLike>) {
+  const document = new Y.Doc();
+  Y.applyUpdate(document, actualState);
+  const actualStateString = JSON.stringify(document.getMap("weave").toJSON());
+  const actualStateJson = JSON.parse(actualStateString);
+  return actualStateJson;
 }

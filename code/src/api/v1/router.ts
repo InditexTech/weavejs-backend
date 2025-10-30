@@ -37,6 +37,9 @@ import { getVideoPlaceholderController } from "./controllers/getVideoPlaceholder
 import { postNegateImageController } from "./controllers/postNegateImage.js";
 import { postFlipImageController } from "./controllers/postFlipImage.js";
 import { postGrayscaleImageController } from "./controllers/postGrayscaleImage.js";
+import { postUploadRoomController } from "./controllers/postUploadRoom.js";
+import { getRoomToJsonController } from "./controllers/getRoomToJson.js";
+import { getRoomController } from "./controllers/getRoom.js";
 
 const router: Router = Router();
 
@@ -61,7 +64,7 @@ export function setupApiV1Router(app: Express) {
   const cors = getCorsMiddleware(routerBasePath);
 
   // Room handling API
-  router.use([getAzureWebPubsubServer().getExpressJsMiddleware()]);
+  router.use(getAzureWebPubsubServer().getExpressJsMiddleware());
 
   setupBodyParserMiddleware(router, routerBasePath);
 
@@ -69,6 +72,16 @@ export function setupApiV1Router(app: Express) {
     `/${hubName}/rooms/:roomId/connect`,
     cors,
     getRoomConnectController()
+  );
+
+  // Room tools
+  router.get(`/${hubName}/rooms/:roomId`, cors, getRoomController());
+  router.get(`/${hubName}/rooms/:roomId/json`, cors, getRoomToJsonController());
+  router.post(
+    `/${hubName}/rooms/:roomId/upload`,
+    cors,
+    upload.single("file"),
+    postUploadRoomController()
   );
 
   // Images handling API
