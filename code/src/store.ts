@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import PQueue from "p-queue";
 import {
   WeaveAzureWebPubsubServer,
   WeaveStoreAzureWebPubsubOnConnectedEvent,
@@ -68,6 +69,46 @@ export const getStore = () => {
   return azureWebPubsubServer;
 };
 
+export const performPersistRoom = async (
+  docName: string,
+  actualState: Uint8Array<ArrayBufferLike>
+) => {
+  if (!isStorageInitialized()) {
+    await setupStorage();
+  }
+
+  const containerClient = getContainerClient();
+  const blobServiceClient = getBlobServiceClient();
+
+  if (!containerClient || !blobServiceClient) {
+    return;
+  }
+
+  const actualStateJson = getStateAsJson(actualState);
+  const firstLevelNodes = actualStateJson.props.children.find(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (c: any) => c.key === "mainLayer"
+  ).props.children;
+  logger.info(
+    `Persisting room ${docName} state change. Amount of first-level nodes: ${
+      firstLevelNodes.length
+    }`
+  );
+
+  const mainLayer = actualStateJson.props.children?.find(
+    (child: any) => child.key === "mainLayer"
+  );
+
+  let images: string[] = [];
+  if (mainLayer) {
+    extractImageIdFromNode(images, mainLayer);
+    // Do something with the extracted images if needed
+  }
+
+  const blockBlobClient = containerClient.getBlockBlobClient(docName);
+  await blockBlobClient.upload(actualState, actualState.length);
+};
+
 export const setupStore = () => {
   logger = getLogger().child({ module: "store" });
 
@@ -79,10 +120,13 @@ export const setupStore = () => {
     pubsub: { endpoint, hubName },
   } = config;
 
+  const persistenceQueue = new PQueue({ concurrency: 1 });
+
   azureWebPubsubServer = new WeaveAzureWebPubsubServer({
     pubSubConfig: {
       endpoint,
       hubName,
+      // persistIntervalMs: 5000,
       connectionHandlers: {
         onConnect: async (
           connectionId: string,
@@ -187,31 +231,9 @@ export const setupStore = () => {
       docName: string,
       actualState: Uint8Array<ArrayBufferLike>
     ) => {
-      if (!isStorageInitialized()) {
-        await setupStorage();
-      }
-
-      const containerClient = getContainerClient();
-      const blobServiceClient = getBlobServiceClient();
-
-      if (!containerClient || !blobServiceClient) {
-        return;
-      }
-
-      const actualStateJson = getStateAsJson(actualState);
-
-      const mainLayer = actualStateJson.props.children?.find(
-        (child: any) => child.key === "mainLayer"
-      );
-
-      let images: string[] = [];
-      if (mainLayer) {
-        extractImageIdFromNode(images, mainLayer);
-        // Do something with the extracted images if needed
-      }
-
-      const blockBlobClient = containerClient.getBlockBlobClient(docName);
-      await blockBlobClient.upload(actualState, actualState.length);
+      await persistenceQueue.add(async () => {
+        await performPersistRoom(docName, actualState);
+      });
     },
   });
 
