@@ -9,6 +9,8 @@ export const getRoomConnectController =
   () =>
   async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId;
+    const expirationTimeInMinutes: string | undefined =
+      (req.query?.tetm as string) ?? undefined;
 
     if (!getAzureWebPubsubServer) {
       res.status(500).json({ error: "Azure Web PubSub server not found" });
@@ -16,7 +18,12 @@ export const getRoomConnectController =
     }
 
     try {
-      const url = await getAzureWebPubsubServer().clientConnect(roomId);
+      const url = await getAzureWebPubsubServer().clientConnect(roomId, {
+        expirationTimeInMinutes:
+          typeof expirationTimeInMinutes !== "undefined"
+            ? parseInt(expirationTimeInMinutes)
+            : 60,
+      });
       res.status(200).json({ url });
     } catch (error) {
       console.error(error);

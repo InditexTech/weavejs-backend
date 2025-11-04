@@ -37,7 +37,6 @@ export const postUploadRoomController = () => {
 
       const blockBlobClient = containerClient.getBlockBlobClient(docName);
       await blockBlobClient.upload(documentData, documentData.length);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
       res.status(201).json({ status: "Room created OK", docName });
     } catch (error) {

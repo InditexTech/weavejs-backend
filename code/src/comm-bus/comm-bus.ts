@@ -40,11 +40,15 @@ export const broadcastToRoom = async (roomId: string, message: any) => {
     throw new Error("Communication bus not initialized");
   }
 
-  const group = `${roomId}.commbus`;
+  try {
+    const group = `${roomId}.commbus`;
 
-  const existGroup = await serviceClient.groupExists(group);
+    const existGroup = await serviceClient.groupExists(group);
 
-  if (existGroup) {
-    await serviceClient.group(group).sendToAll(message);
+    if (existGroup) {
+      await serviceClient.group(group).sendToAll(message);
+    }
+  } catch (error) {
+    logger.error({ roomId, error }, "Error broadcasting to room");
   }
 };

@@ -222,7 +222,7 @@ export function setupApiV1Router(app: Express) {
 
   // Store testing API (only in dev mode)
   router.get(
-    `/${hubName}/rooms/:roomId/simulate-store-ws-error`,
+    `/${hubName}/rooms/:roomId/simulate-ws-error`,
     cors,
     getSimulateStoreWsErrorController()
   );
