@@ -7,8 +7,30 @@ import { registerFont } from "canvas";
 import { FontLibrary } from "skia-canvas";
 import { CanvasFont, SkiaFont } from "./types.js";
 
+let registered = false;
+
 export const registerSkiaFonts = () => {
+  if (registered) {
+    return;
+  }
+
+  FontLibrary.reset();
+
   const fonts: SkiaFont[] = [
+    // Arial font family
+    {
+      family: "Arial",
+      paths: [
+        path.resolve(process.cwd(), "fonts/ARIALI.ttf"),
+        path.resolve(process.cwd(), "fonts/ARIAL.ttf"),
+      ],
+    },
+    // NotoSansMono font family
+    {
+      family: "NotoSansMono",
+      // paths: [path.resolve(process.cwd(), "fonts/NotoSansMono-Italic.ttf")],
+      paths: [path.resolve(process.cwd(), "fonts/NotoSansMono-Regular.ttf")],
+    },
     // Impact font family
     {
       family: "Impact",
@@ -18,28 +40,28 @@ export const registerSkiaFonts = () => {
     {
       family: "Verdana",
       paths: [
-        path.resolve(process.cwd(), "fonts/Verdana.ttf"),
-        path.resolve(process.cwd(), "fonts/Verdana-Bold.ttf"),
         path.resolve(process.cwd(), "fonts/Verdana-Italic.ttf"),
+        path.resolve(process.cwd(), "fonts/Verdana-Bold.ttf"),
         path.resolve(process.cwd(), "fonts/Verdana-BoldItalic.ttf"),
+        path.resolve(process.cwd(), "fonts/Verdana.ttf"),
       ],
     },
     // Inter font family
     {
       family: "Inter",
       paths: [
-        path.resolve(process.cwd(), "fonts/inter-regular.ttf"),
         path.resolve(process.cwd(), "fonts/inter-bold.ttf"),
         path.resolve(process.cwd(), "fonts/inter-italic.ttf"),
         path.resolve(process.cwd(), "fonts/inter-italic-bold.ttf"),
+        path.resolve(process.cwd(), "fonts/inter-regular.ttf"),
       ],
     },
     // Sansita font family
     {
       family: "Sansita",
       paths: [
-        path.resolve(process.cwd(), "fonts/sansita-regular.ttf"),
         path.resolve(process.cwd(), "fonts/sansita-bold.ttf"),
+        path.resolve(process.cwd(), "fonts/sansita-regular.ttf"),
       ],
     },
   ];
@@ -47,6 +69,8 @@ export const registerSkiaFonts = () => {
   for (const font of fonts) {
     FontLibrary.use(font.family, font.paths);
   }
+
+  registered = true;
 };
 
 export const registerCanvasFonts = () => {

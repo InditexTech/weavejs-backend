@@ -19,15 +19,15 @@ import {
   WeaveRegularPolygonNode,
   WeaveFrameNode,
   WeaveStrokeNode,
-  setupSkiaBackend,
-  // setupCanvasBackend,
+  // setupSkiaBackend,
+  setupCanvasBackend,
 } from "@inditextech/weave-sdk/server";
 import { ColorTokenNode } from "./nodes/color-token/color-token.js";
 import { isAbsoluteUrl, stripOrigin } from "../utils.js";
 import { ServiceConfig } from "../types.js";
 import {
-  // registerCanvasFonts,
-  registerSkiaFonts,
+  // registerSkiaFonts,
+  registerCanvasFonts,
 } from "./fonts.js";
 
 export type RenderWeaveRoom = {
@@ -48,6 +48,14 @@ export const renderWeaveRoom = (
         weave.destroy();
       }
     };
+
+    // Setup Skia backend
+    // registerSkiaFonts();
+    // await setupSkiaBackend();
+
+    // Setup Canvas backend
+    registerCanvasFonts();
+    await setupCanvasBackend();
 
     const store = new WeaveStoreStandalone(
       {
@@ -81,14 +89,6 @@ export const renderWeaveRoom = (
         height: 600,
       }
     );
-
-    // Setup Skia backend
-    registerSkiaFonts();
-    await setupSkiaBackend();
-
-    // Setup Canvas backend
-    // registerCanvasFonts();
-    // await setupCanvasBackend();
 
     let roomLoaded = false;
 

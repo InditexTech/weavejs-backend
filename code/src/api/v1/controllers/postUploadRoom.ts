@@ -11,6 +11,12 @@ import {
 export const postUploadRoomController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const file = req.file;
+    const type = req.body.type;
+
+    if (!type || !["base64", "hex"].includes(type) || !file) {
+      res.status(400).json({ status: "KO", message: "Missing parameters" });
+      return;
+    }
 
     const roomId = req.params.roomId;
     const data = file?.buffer ?? new Uint8Array();
@@ -28,12 +34,21 @@ export const postUploadRoomController = () => {
         return;
       }
 
-      const hexString = data.toString();
-      const cleanHex = hexString.startsWith("0x")
-        ? hexString.slice(2)
-        : hexString;
-      const buffer = Buffer.from(cleanHex, "hex");
-      const documentData = Uint8Array.from(buffer);
+      let documentData: Uint8Array = new Uint8Array();
+
+      if (type === "base64") {
+        const dataBase64 = data.toString();
+        const buffer = Buffer.from(dataBase64, "base64");
+        documentData = Uint8Array.from(buffer);
+      }
+      if (type === "hex") {
+        const hexString = data.toString();
+        const cleanHex = hexString.startsWith("0x")
+          ? hexString.slice(2)
+          : hexString;
+        const buffer = Buffer.from(cleanHex, "hex");
+        documentData = Uint8Array.from(buffer);
+      }
 
       const blockBlobClient = containerClient.getBlockBlobClient(docName);
       await blockBlobClient.upload(documentData, documentData.length);
