@@ -16,13 +16,10 @@ on:
           - azure-pro
         default: "azure-develop"
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
-  deploy:
+  db-migrations:
     name: Run database migrations
+    timeout-minutes: 60
     runs-on: ubuntu-24.04
     environment: ${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-develop' }}
     env:
@@ -30,7 +27,6 @@ jobs:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       AZURE_ACR_USERNAME: ${{ secrets.AZURE_ACR_USERNAME }}
-      AZURE_ACR_NAME: ${{ vars.AZURE_ACR_NAME }}
       AZURE_DATABASE_HOST: ${{ secrets.AZURE_DATABASE_HOST }}
       AZURE_DATABASE_PORT: ${{ secrets.AZURE_DATABASE_PORT }}
       AZURE_DATABASE_NAME: ${{ secrets.AZURE_DATABASE_NAME }}
@@ -47,18 +43,6 @@ jobs:
           ref: ${{ env.BASELINE_BRANCH }}
           fetch-depth: 0
           persist-credentials: false
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ env.AZURE_CLIENT_ID }}
-          tenant-id: ${{ env.AZURE_TENANT_ID }}
-          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
-
-      - name: ACR Login
-        run: |
-          ACR_PASSWORD=$(az acr login --name ${{ env.AZURE_ACR_NAME }} --expose-token --output tsv --query accessToken)
-          echo "AZURE_ACR_PASSWORD=$(echo $ACR_PASSWORD)" >> $GITHUB_ENV
 
       - name: NPM / Setup Dependencies Cache
         uses: actions/cache@v4
@@ -97,6 +81,13 @@ jobs:
           mkdir -p "$HOME"/.npm
           mkdir -p "$HOME"/.asdf/data
 
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+
       - name: Create migrations config file
         working-directory: code
         run: |
@@ -114,13 +105,9 @@ jobs:
           echo '  }' >> config/config.json
           echo "}" >> config/config.json
 
-      - name: NPM / Install dependencies
+      - name: NPM / Run database migrations
         working-directory: code
         run: |
           npm ci
-
-      - name: NPM /Run database migrations
-        working-directory: code
-        run: |
           set NODE_ENV=production
           npm run db:migrate
