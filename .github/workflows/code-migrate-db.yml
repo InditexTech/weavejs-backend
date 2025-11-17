@@ -84,7 +84,7 @@ jobs:
         run: |
           mkdir -p "$HOME"/.npm
 
-      - name: Azure Login
+      - name: Azure / Login
         uses: azure/login@v2
         with:
           client-id: ${{ env.AZURE_CLIENT_ID }}
