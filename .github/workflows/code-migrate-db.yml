@@ -81,4 +81,5 @@ jobs:
         working-directory: code
         run: |
           set NODE_ENV=production
+          npm ci
           npm run db:migrate
