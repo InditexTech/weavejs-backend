@@ -94,11 +94,7 @@ jobs:
       - name: Azure / Save database password
         working-directory: code
         run: |
-          {
-            echo "AZURE_DATABASE_PASSWORD<<EOF"
-            "$(az account get-access-token --resource https://ossrdbms-aad.database.windows.net --query accessToken --output tsv)" 
-            echo "EOF"
-          } >> "$GITHUB_ENV"
+          echo "AZURE_DATABASE_PASSWORD=$(az account get-access-token --resource https://ossrdbms-aad.database.windows.net --query accessToken --output tsv)" >> "$GITHUB_ENV"
 
       - name: NPM / Run database migrations
         working-directory: code
