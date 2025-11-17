@@ -1,4 +1,4 @@
-name: Run db migrations
+name: Code execute db migrations
 
 on:
   workflow_dispatch:
@@ -113,5 +113,4 @@ jobs:
         working-directory: code
         run: |
           npm ci
-          set NODE_ENV=production
           npm run db:migrate
