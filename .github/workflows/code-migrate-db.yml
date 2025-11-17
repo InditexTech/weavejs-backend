@@ -114,9 +114,13 @@ jobs:
           echo '  }' >> config/config.json
           echo "}" >> config/config.json
 
-      - name: Run database migrations
+      - name: NPM / Install dependencies
+        working-directory: code
+        run: |
+          npm ci
+
+      - name: NPM /Run database migrations
         working-directory: code
         run: |
           set NODE_ENV=production
-          npm ci
           npm run db:migrate
