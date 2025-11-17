@@ -1,4 +1,4 @@
-name: Code migrate db
+name: Code run db migrations
 
 on:
   workflow_dispatch:
