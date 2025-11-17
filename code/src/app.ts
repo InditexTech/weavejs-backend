@@ -30,6 +30,10 @@ export function setupApp() {
   // Setup the service
   app = express();
 
+  if (!app) {
+    throw new Error("Failed to create Express app");
+  }
+
   const config = getServiceConfig();
 
   // // Setup Middlewares

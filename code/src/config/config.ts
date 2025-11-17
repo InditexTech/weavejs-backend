@@ -11,7 +11,6 @@ const databaseWithConnectionStringSchema = z.object({
   connection: z.object({
     connectionString: z.string().trim(),
   }),
-  forceSync: z.boolean().default(false),
 });
 
 const databaseDetailedConnectionSchema = z.object({
@@ -25,7 +24,6 @@ const databaseDetailedConnectionSchema = z.object({
     ssl: z.boolean().default(false),
     cloudCredentials: z.boolean().default(false),
   }),
-  forceSync: z.boolean().default(false),
 });
 
 const serviceConfigSchema = z.object({
@@ -239,8 +237,6 @@ export function getServiceConfig(): ServiceConfig {
   const databaseCloudCredentials =
     process.env.DATABASE_CLOUD_CREDENTIALS === "true";
 
-  const databaseForceSync = process.env.DATABASE_FORCE_SYNC === "true";
-
   if (databaseCloudCredentials) {
     databasePassword = "cloud";
   }
@@ -288,7 +284,6 @@ export function getServiceConfig(): ServiceConfig {
         ssl: databaseSsl,
         cloudCredentials: databaseCloudCredentials,
       },
-      forceSync: databaseForceSync,
     };
   }
 
@@ -298,7 +293,6 @@ export function getServiceConfig(): ServiceConfig {
       connection: {
         connectionString: databaseConnectionString,
       },
-      forceSync: databaseForceSync,
     };
   }
 

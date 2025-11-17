@@ -23,7 +23,7 @@ export const getVideoController = () => {
 
     if (response && response.readableStreamBody) {
       // Setting headers for the response
-      res.set("Cache-Control", "public, max-age=86400"); // 1 day
+      res.setHeader("Cache-Control", "public, max-age=86400"); // 1 day
       res.setHeader("Content-Type", "application/octet-stream");
       response.readableStreamBody.pipe(res);
     } else {

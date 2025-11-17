@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Express, Router } from "express";
+import { Application, Router } from "express";
 import multer from "multer";
 import { getServiceConfig } from "../../config/config.js";
 import { getRoomConnectController } from "./controllers/getRoomConnect.js";
@@ -40,6 +40,11 @@ import { postGrayscaleImageController } from "./controllers/postGrayscaleImage.j
 import { postUploadRoomController } from "./controllers/postUploadRoom.js";
 import { getRoomToJsonController } from "./controllers/getRoomToJson.js";
 import { getRoomController } from "./controllers/getRoom.js";
+import { postTemplateController } from "./controllers/postTemplate.js";
+import { getTemplatesController } from "./controllers/getTemplates.js";
+import { delTemplateController } from "./controllers/delTemplate.js";
+import { getTemplateController } from "./controllers/getTemplate.js";
+import { getFrameTemplatesController } from "./controllers/getFrameTemplates.js";
 
 const router: Router = Router();
 
@@ -47,7 +52,7 @@ export function getApiV1Router() {
   return router;
 }
 
-export function setupApiV1Router(app: Express) {
+export function setupApiV1Router(app: Application) {
   const config = getServiceConfig();
 
   const {
@@ -225,6 +230,33 @@ export function setupApiV1Router(app: Express) {
     `/${hubName}/rooms/:roomId/simulate-ws-error`,
     cors,
     getSimulateStoreWsErrorController()
+  );
+
+  // Template handling API
+  router.get(
+    `/${hubName}/rooms/:roomId/templates`,
+    cors,
+    getTemplatesController()
+  );
+  router.get(
+    `/${hubName}/rooms/:roomId/templates/frame`,
+    cors,
+    getFrameTemplatesController()
+  );
+  router.get(
+    `/${hubName}/rooms/:roomId/templates/:templateId`,
+    cors,
+    getTemplateController()
+  );
+  router.post(
+    `/${hubName}/rooms/:roomId/templates`,
+    cors,
+    postTemplateController()
+  );
+  router.delete(
+    `/${hubName}/rooms/:roomId/templates/:templateId`,
+    cors,
+    delTemplateController()
   );
 
   app.use(routerBasePath, router);

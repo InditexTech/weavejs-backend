@@ -13,6 +13,7 @@ import { defineThreadAnswerModel } from "./models/thread-answer.js";
 import { getDatabaseCloudCredentialsToken } from "../utils.js";
 import { AccessToken } from "@azure/identity";
 import { defineConnectionModel } from "./models/connection.js";
+import { defineTemplateModel } from "./models/template.js";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 let activeSequelize: Sequelize | null = null;
@@ -60,12 +61,13 @@ export const setupDatabase = async () => {
         await defineTaskModel(sequelize);
         await defineImageModel(sequelize);
         await defineVideoModel(sequelize);
+        await defineTemplateModel(sequelize);
         await defineThreadModel(sequelize);
         await defineThreadAnswerModel(sequelize);
 
-        logger.info(`Forcing sync: ${config.database.forceSync === true}`);
-
-        await sequelize.sync({ force: config.database.forceSync });
+        if (process.env.NODE_ENV === "development") {
+          await sequelize.sync();
+        }
 
         logger.info("Module ready");
       } else {
@@ -119,12 +121,13 @@ export const setupDatabase = async () => {
         await defineTaskModel(sequelize);
         await defineImageModel(sequelize);
         await defineVideoModel(sequelize);
+        await defineTemplateModel(sequelize);
         await defineThreadModel(sequelize);
         await defineThreadAnswerModel(sequelize);
 
-        logger.info(`Forcing sync: ${config.database.forceSync === true}`);
-
-        await sequelize.sync({ force: config.database.forceSync });
+        if (process.env.NODE_ENV === "development") {
+          await sequelize.sync();
+        }
 
         logger.info("Module ready");
       } else {

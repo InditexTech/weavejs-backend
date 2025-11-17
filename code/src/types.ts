@@ -48,7 +48,6 @@ export type ServiceConfig = {
         connection: {
           connectionString: string;
         };
-        forceSync: boolean;
       }
     | {
         kind: "properties";
@@ -61,7 +60,6 @@ export type ServiceConfig = {
           ssl: boolean;
           cloudCredentials: boolean;
         };
-        forceSync: boolean;
       };
 };
 

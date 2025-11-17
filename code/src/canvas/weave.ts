@@ -29,6 +29,7 @@ import {
   // registerSkiaFonts,
   registerCanvasFonts,
 } from "./fonts.js";
+import { ImageTemplateNode } from "./nodes/image-template/image-template.js";
 
 export type RenderWeaveRoom = {
   instance: Weave;
@@ -203,5 +204,6 @@ const getNodes = (config: ServiceConfig) => {
       },
     }),
     new ColorTokenNode(),
+    new ImageTemplateNode(),
   ];
 };
