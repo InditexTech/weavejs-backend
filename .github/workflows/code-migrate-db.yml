@@ -1,0 +1,84 @@
+name: Code migrate db
+
+on:
+  workflow_dispatch:
+    inputs:
+      BASELINE:
+        description: "Baseline branch"
+        required: true
+        default: "main"
+      ENVIRONMENT:
+        description: "Deploy environment"
+        required: true
+        type: choice
+        options:
+          - azure-develop
+          - azure-pro
+        default: "azure-develop"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Run database migrations
+    runs-on: ubuntu-24.04
+    environment: ${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-develop' }}
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_ACR_USERNAME: ${{ secrets.AZURE_ACR_USERNAME }}
+      AZURE_ACR_NAME: ${{ vars.AZURE_ACR_NAME }}
+      AZURE_DATABASE_HOST: ${{ secrets.AZURE_DATABASE_HOST }}
+      AZURE_DATABASE_PORT: ${{ secrets.AZURE_DATABASE_PORT }}
+      AZURE_DATABASE_NAME: ${{ secrets.AZURE_DATABASE_NAME }}
+      AZURE_DATABASE_USERNAME: ${{ secrets.AZURE_DATABASE_USERNAME }}
+    steps:
+      - name: Get input parameters
+        run: |
+          BASELINE_BRANCH=${{ github.event.inputs.BASELINE || 'main' }}
+          echo "BASELINE_BRANCH=${BASELINE_BRANCH#refs/heads/}" >> "$GITHUB_ENV"
+
+      - name: Checkout merge commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BASELINE_BRANCH }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+
+      - name: ACR Login
+        run: |
+          ACR_PASSWORD=$(az acr login --name ${{ env.AZURE_ACR_NAME }} --expose-token --output tsv --query accessToken)
+          echo "AZURE_ACR_PASSWORD=$(echo $ACR_PASSWORD)" >> $GITHUB_ENV
+
+      - name: Create migrations config file
+        working-directory: code
+        run: |
+          mkdir config
+          touch config/config.json
+          export AZURE_DATABASE_PASSWORD="$(az account get-access-token --resource https://ossrdbms-aad.database.windows.net --query accessToken --output tsv)" 
+          echo "{" >> config/config.json
+          echo '  "production": {' >> config/config.json
+          echo '    "username": "${{ env.AZURE_DATABASE_USERNAME }}",' >> config/config.json
+          echo '    "password": "'${AZURE_DATABASE_PASSWORD}'",' >> config/config.json
+          echo '    "database": "${{ env.AZURE_DATABASE_NAME }}",' >> config/config.json
+          echo '    "host": "${{ env.AZURE_DATABASE_HOST }}",' >> config/config.json
+          echo '    "port": ${{ env.AZURE_DATABASE_PORT }},' >> config/config.json
+          echo '    "dialect": "postgres"' >> config/config.json
+          echo '  }' >> config/config.json
+          echo "}" >> config/config.json
+
+      - name: Run database migrations
+        working-directory: code
+        run: |
+          set NODE_ENV=production
+          npm run db:migrate
