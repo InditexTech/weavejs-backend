@@ -1,4 +1,4 @@
-name: Code run db migrations
+name: Run db migrations
 
 on:
   workflow_dispatch:
@@ -107,6 +107,7 @@ jobs:
           echo '    "dialect": "postgres"' >> config/config.json
           echo '  }' >> config/config.json
           echo "}" >> config/config.json
+          cat config/config.json
 
       - name: NPM / Run database migrations
         working-directory: code
