@@ -8,13 +8,17 @@ on:
         required: true
         default: "main"
       ENVIRONMENT:
-        description: "Deploy environment"
+        description: "Migration environment"
         required: true
         type: choice
         options:
           - azure-develop
           - azure-pro
         default: "azure-develop"
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   db-migrations:
