@@ -40,5 +40,3 @@ server.key
 data/*
 
 env.sh
-
-config/config.json

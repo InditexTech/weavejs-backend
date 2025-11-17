@@ -91,23 +91,14 @@ jobs:
           tenant-id: ${{ env.AZURE_TENANT_ID }}
           subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Create migrations config file
+      - name: Define database password
         working-directory: code
         run: |
-          mkdir config
-          touch config/config.json
-          export AZURE_DATABASE_PASSWORD="$(az account get-access-token --resource https://ossrdbms-aad.database.windows.net --query accessToken --output tsv)" 
-          echo "{" >> config/config.json
-          echo '  "production": {' >> config/config.json
-          echo '    "username": "${{ env.AZURE_DATABASE_USERNAME }}",' >> config/config.json
-          echo '    "password": "'${AZURE_DATABASE_PASSWORD}'",' >> config/config.json
-          echo '    "database": "${{ env.AZURE_DATABASE_NAME }}",' >> config/config.json
-          echo '    "host": "${{ env.AZURE_DATABASE_HOST }}",' >> config/config.json
-          echo '    "port": ${{ env.AZURE_DATABASE_PORT }},' >> config/config.json
-          echo '    "dialect": "postgres"' >> config/config.json
-          echo '  }' >> config/config.json
-          echo "}" >> config/config.json
-          cat config/config.json
+          {
+            echo "AZURE_DATABASE_PASSWORD<<EOF"
+            "$(az account get-access-token --resource https://ossrdbms-aad.database.windows.net --query accessToken --output tsv)" 
+            echo "EOF"
+          } >> "$GITHUB_ENV"
 
       - name: NPM / Run database migrations
         working-directory: code
