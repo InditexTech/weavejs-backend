@@ -11,8 +11,14 @@ module.exports = {
     username: process.env.AZURE_DATABASE_USERNAME,
     password: process.env.AZURE_DATABASE_PASSWORD,
     database: process.env.AZURE_DATABASE_NAME,
-    host: process.env.AZURE_DATABASE_HOST,
+    host: process.env.AZURE_DATABASE_PUBLIC_HOST,
     port: process.env.AZURE_DATABASE_PORT,
-    dialect: "postgres"
+    dialect: "postgres",
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
   }
 };
