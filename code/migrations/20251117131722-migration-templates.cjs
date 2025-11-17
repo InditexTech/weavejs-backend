@@ -1,42 +1,44 @@
 'use strict';
 
+const { DataTypes } = require('sequelize');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up (queryInterface) {
     // Create weavejs_template table
     return queryInterface.createTable('weavejs_template', {
       roomId: {
-        type: Sequelize.DataTypes.UUID,
+        type: DataTypes.UUID,
         allowNull: false,
         primaryKey: true,
       },
       templateId: {
-        type: Sequelize.DataTypes.UUID,
+        type: DataTypes.UUID,
         allowNull: false,
         primaryKey: true,
       },
       status: {
-        type: Sequelize.DataTypes.STRING,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       name: {
-        type: Sequelize.DataTypes.STRING,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       linkedNodeType: {
-        type: Sequelize.DataTypes.STRING,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       templateImage: {
-        type: Sequelize.DataTypes.TEXT("long"),
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       templateData: {
-        type: Sequelize.DataTypes.JSON,
+        type: DataTypes.JSON,
         allowNull: false,
       },
       jobId: {
-        type: Sequelize.DataTypes.STRING,
+        type: DataTypes.STRING,
         allowNull: true,
         references: {
           model: 'weavejs_task',
@@ -46,7 +48,7 @@ module.exports = {
         onDelete: 'CASCADE', // deletes posts if user is deleted
       },
       removalJobId: {
-        type: Sequelize.DataTypes.STRING,
+        type: DataTypes.STRING,
         allowNull: true,
         references: {
           model: 'weavejs_task',
