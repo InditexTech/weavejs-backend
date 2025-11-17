@@ -91,7 +91,7 @@ jobs:
           tenant-id: ${{ env.AZURE_TENANT_ID }}
           subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Define database password
+      - name: Azure / Save database password
         working-directory: code
         run: |
           {
