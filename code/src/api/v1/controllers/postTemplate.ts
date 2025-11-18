@@ -39,8 +39,6 @@ export const postTemplateController = () => {
       removalStatus: null,
     });
 
-    console.log("Template", template);
-
     broadcastToRoom(roomId, {
       jobId: null,
       type: "saveTemplate",
