@@ -16,11 +16,13 @@ import { getLogger } from "../logger/logger.js";
 export class ImagesPersistenceHandler {
   private _blobServiceClient!: BlobServiceClient;
   private _containerClient!: ContainerClient;
+  private _containerName: string | undefined;
   private _initialized!: boolean;
   private _logger!: Logger;
 
-  constructor() {
+  constructor(containerName?: string) {
     this._initialized = false;
+    this._containerName = containerName;
     this._logger = getLogger().child({ module: "images.persistence" });
   }
 
@@ -40,14 +42,19 @@ export class ImagesPersistenceHandler {
 
     const credential = new DefaultAzureCredential();
     const storageAccountUrl = `https://${accountName}.blob.core.windows.net`;
-    
-    this._blobServiceClient = new BlobServiceClient(storageAccountUrl, credential);
+
+    this._blobServiceClient = new BlobServiceClient(
+      storageAccountUrl,
+      credential
+    );
+
+    const containerToUse = this._containerName || containerName;
 
     this._containerClient =
-      this._blobServiceClient.getContainerClient(containerName);
+      this._blobServiceClient.getContainerClient(containerToUse);
     if (!(await this._containerClient.exists())) {
       this._containerClient = (
-        await this._blobServiceClient.createContainer(containerName)
+        await this._blobServiceClient.createContainer(containerToUse)
       ).containerClient;
     }
 

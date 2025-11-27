@@ -7,6 +7,7 @@ import multer from "multer";
 import { getServiceConfig } from "../../config/config.js";
 import { getRoomConnectController } from "./controllers/getRoomConnect.js";
 import { getImageController } from "./controllers/getImage.js";
+import { getChatImageController } from "./controllers/getChatImage.js";
 import { postUploadImageController } from "./controllers/postUploadImage.js";
 import { delImageController } from "./controllers/delImage.js";
 import { getImagesController } from "./controllers/getImages.js";
@@ -87,6 +88,13 @@ export function setupApiV1Router(app: Application) {
     cors,
     upload.single("file"),
     postUploadRoomController()
+  );
+
+  // Generated Images handling API
+  router.get(
+    `/${hubName}/chatId/:chatId/images/:imageId`,
+    cors,
+    getChatImageController()
   );
 
   // Images handling API
