@@ -14,6 +14,8 @@ import { getDatabaseCloudCredentialsToken } from "../utils.js";
 import { AccessToken } from "@azure/identity";
 import { defineConnectionModel } from "./models/connection.js";
 import { defineTemplateModel } from "./models/template.js";
+import { defineChatModel } from "./models/chat.js";
+import { defineChatMessageModel } from "./models/chat-message.js";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 let activeSequelize: Sequelize | null = null;
@@ -64,6 +66,8 @@ export const setupDatabase = async () => {
         await defineTemplateModel(sequelize);
         await defineThreadModel(sequelize);
         await defineThreadAnswerModel(sequelize);
+        await defineChatModel(sequelize);
+        await defineChatMessageModel(sequelize);
 
         logger.info("Module ready");
       } else {
@@ -120,6 +124,8 @@ export const setupDatabase = async () => {
         await defineTemplateModel(sequelize);
         await defineThreadModel(sequelize);
         await defineThreadAnswerModel(sequelize);
+        await defineChatModel(sequelize);
+        await defineChatMessageModel(sequelize);
 
         logger.info("Module ready");
       } else {

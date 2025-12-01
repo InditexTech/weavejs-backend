@@ -9,10 +9,13 @@ export const getChatImageController = () => {
   const persistenceHandler = new ImagesPersistenceHandler("generated-images");
 
   return async (req: Request, res: Response): Promise<void> => {
+    const roomId = req.params.roomId;
     const chatId = req.params.chatId;
     const imageId = req.params.imageId;
 
-    const fileName = `${chatId}/${imageId}`;
+    const fileName = `${roomId}/${chatId}/${imageId}`;
+
+    console.log(`Fetching image from path: ${fileName}`);
 
     if (!(await persistenceHandler.exists(fileName))) {
       res.status(404).json({ status: "KO", message: "Image doesn't exists" });
