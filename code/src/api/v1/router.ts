@@ -45,6 +45,7 @@ import { getTemplatesController } from "./controllers/getTemplates.js";
 import { delTemplateController } from "./controllers/delTemplate.js";
 import { getTemplateController } from "./controllers/getTemplate.js";
 import { getFrameTemplatesController } from "./controllers/getFrameTemplates.js";
+import { postMapTlDrawToWeavejsController } from "./controllers/tldraw-to-weave/postMapTldrawToWeavejs.js";
 
 const router: Router = Router();
 
@@ -257,6 +258,13 @@ export function setupApiV1Router(app: Application) {
     `/${hubName}/rooms/:roomId/templates/:templateId`,
     cors,
     delTemplateController()
+  );
+
+  // Map TLDraw to WeaveJS mapping API
+  router.post(
+    `/${hubName}/rooms/:roomId/tldraw-to-weavejs`,
+    cors,
+    postMapTlDrawToWeavejsController()
   );
 
   app.use(routerBasePath, router);

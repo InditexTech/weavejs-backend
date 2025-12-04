@@ -8,13 +8,13 @@ import {
   getRoomThreads,
   getTotalRoomThreads,
 } from "../../../database/controllers/thread.js";
-import { ThreadStream } from "pino";
+import { ThreadStatus } from "@/database/models/thread.js";
 
 export const getThreadsController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId;
-    const status: ThreadStream | "all" =
-      (req.query.status as ThreadStream | "all") ?? "pending";
+    const status: ThreadStatus | "all" =
+      (req.query.status as ThreadStatus | "all") ?? "pending";
     const paginated: boolean = (req.query.paginated as string) === "true";
     const limit: string = (req.query.limit as string) ?? "20";
     const offset: string = (req.query.offset as string) ?? "0";
