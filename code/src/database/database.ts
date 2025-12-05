@@ -65,6 +65,10 @@ export const setupDatabase = async () => {
         await defineThreadModel(sequelize);
         await defineThreadAnswerModel(sequelize);
 
+        if (process.env.INITIALIZE_DB === "true") {
+          sequelize.sync({ force: true });
+        }
+
         logger.info("Module ready");
       } else {
         logger.info("Module re-initialized");
@@ -120,6 +124,10 @@ export const setupDatabase = async () => {
         await defineTemplateModel(sequelize);
         await defineThreadModel(sequelize);
         await defineThreadAnswerModel(sequelize);
+
+        if (process.env.INITIALIZE_DB === "true") {
+          sequelize.sync({ force: true });
+        }
 
         logger.info("Module ready");
       } else {
