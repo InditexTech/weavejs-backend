@@ -7,12 +7,14 @@ import {
   getRoomAllThreads,
   getRoomThreads,
   getTotalRoomThreads,
-} from "../../../database/controllers/thread.js";
+} from "@/database/controllers/thread.js";
 import { ThreadStatus } from "@/database/models/thread.js";
 
-export const getThreadsController = () => {
+export const getStandaloneThreadsController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
+    const instanceId = req.params.instanceId;
+    const imageId = req.params.imageId;
+    const roomId = `standalone-${instanceId}-${imageId}`;
     const status: ThreadStatus | "all" =
       (req.query.status as ThreadStatus | "all") ?? "pending";
     const paginated: boolean = (req.query.paginated as string) === "true";
