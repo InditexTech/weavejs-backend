@@ -18,6 +18,8 @@ path = [
 
     # code/ directory licensing
     "cleanup-storage/src/whitelist.json",
+    "code/config/**",
+    "code/migrations/**",
     "code/fonts/**",
     "code/.husky/**",
     "code/.prettierrc",

@@ -55,7 +55,6 @@ import { getTemplatesController } from "./controllers/getTemplates.js";
 import { delTemplateController } from "./controllers/delTemplate.js";
 import { getTemplateController } from "./controllers/getTemplate.js";
 import { getFrameTemplatesController } from "./controllers/getFrameTemplates.js";
-import { postMapTlDrawToWeavejsController } from "./controllers/tldraw-to-weave/postMapTldrawToWeavejs.js";
 import { getStandaloneImagesController } from "./controllers/standalone/getStandaloneImages.js";
 import { postStandaloneUploadImageController } from "./controllers/standalone/postStandaloneUploadImage.js";
 import { getStandaloneImageController } from "./controllers/standalone/getStandaloneImage.js";
@@ -328,13 +327,6 @@ export function setupApiV1Router(app: Application) {
     `/${hubName}/rooms/:roomId/templates/:templateId`,
     cors,
     delTemplateController()
-  );
-
-  // Map TLDraw to WeaveJS mapping API
-  router.post(
-    `/${hubName}/rooms/:roomId/tldraw-to-weavejs`,
-    cors,
-    postMapTlDrawToWeavejsController()
   );
 
   // Standalone usage example
