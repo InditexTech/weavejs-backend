@@ -7,6 +7,8 @@ import multer from "multer";
 import { getServiceConfig } from "../../config/config.js";
 import { getRoomConnectController } from "./controllers/getRoomConnect.js";
 import { getImageController } from "./controllers/getImage.js";
+import { getChatImageController } from "./controllers/getChatImage.js";
+import { getChatsController } from "./controllers/getChats.js";
 import { postUploadImageController } from "./controllers/postUploadImage.js";
 import { delImageController } from "./controllers/delImage.js";
 import { getImagesController } from "./controllers/getImages.js";
@@ -55,6 +57,11 @@ import { getTemplatesController } from "./controllers/getTemplates.js";
 import { delTemplateController } from "./controllers/delTemplate.js";
 import { getTemplateController } from "./controllers/getTemplate.js";
 import { getFrameTemplatesController } from "./controllers/getFrameTemplates.js";
+import { postChatController } from "./controllers/postChat.js";
+import { delChatController } from "./controllers/delChat.js";
+import { getChatController } from "./controllers/getChat.js";
+import { postChatMessageController } from "./controllers/postChatMessage.js";
+import { putChatController } from "./controllers/putChat.js";
 import { getStandaloneImagesController } from "./controllers/standalone/getStandaloneImages.js";
 import { postStandaloneUploadImageController } from "./controllers/standalone/postStandaloneUploadImage.js";
 import { getStandaloneImageController } from "./controllers/standalone/getStandaloneImage.js";
@@ -102,6 +109,35 @@ export function setupApiV1Router(app: Application) {
     cors,
     upload.single("file"),
     postUploadRoomController()
+  );
+
+  // AI Chat API
+  router.get(
+    `/${hubName}/rooms/:roomId/chats/:chatId/images/:imageId`,
+    cors,
+    getChatImageController()
+  );
+  router.get(`/${hubName}/rooms/:roomId/chats`, cors, getChatsController());
+  router.get(
+    `/${hubName}/rooms/:roomId/chats/:chatId`,
+    cors,
+    getChatController()
+  );
+  router.put(
+    `/${hubName}/rooms/:roomId/chats/:chatId`,
+    cors,
+    putChatController()
+  );
+  router.post(`/${hubName}/rooms/:roomId/chats`, cors, postChatController());
+  router.post(
+    `/${hubName}/rooms/:roomId/chats/:chatId/messages`,
+    cors,
+    postChatMessageController()
+  );
+  router.delete(
+    `/${hubName}/rooms/:roomId/chats/:chatId`,
+    cors,
+    delChatController()
   );
 
   // Images handling API

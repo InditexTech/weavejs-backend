@@ -16,7 +16,7 @@ import { getLogger } from "../logger/logger.js";
 export class ImagesPersistenceHandler {
   private _blobServiceClient!: BlobServiceClient;
   private _containerClient!: ContainerClient;
-  private _containerName!: string | undefined;
+  private _containerName: string | undefined;
   private _initialized!: boolean;
   private _logger!: Logger;
 

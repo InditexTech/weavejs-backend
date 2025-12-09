@@ -74,7 +74,7 @@ export const defineTemplateModel = async (sequelize: Sequelize) => {
         allowNull: false,
       },
       templateImage: {
-        type: DataTypes.TEXT("long"),
+        type: DataTypes.TEXT,
         allowNull: false,
       },
       templateData: {
