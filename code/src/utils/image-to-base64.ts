@@ -2,8 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-/* eslint-disable @typescript-eslint/no-require-imports */
-
 import fs from "fs";
 import clipboard from "clipboardy";
 
