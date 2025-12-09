@@ -69,6 +69,10 @@ export const setupDatabase = async () => {
         await defineChatModel(sequelize);
         await defineChatMessageModel(sequelize);
 
+        if (process.env.INITIALIZE_DB === "true") {
+          sequelize.sync({ force: true });
+        }
+
         logger.info("Module ready");
       } else {
         logger.info("Module re-initialized");
@@ -126,6 +130,10 @@ export const setupDatabase = async () => {
         await defineThreadAnswerModel(sequelize);
         await defineChatModel(sequelize);
         await defineChatMessageModel(sequelize);
+
+        if (process.env.INITIALIZE_DB === "true") {
+          sequelize.sync({ force: true });
+        }
 
         logger.info("Module ready");
       } else {

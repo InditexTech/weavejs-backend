@@ -48,13 +48,13 @@ export class ImagesPersistenceHandler {
       credential
     );
 
-    const containerToUse = this._containerName || containerName;
+    const finalContainerName = this._containerName ?? containerName;
 
     this._containerClient =
-      this._blobServiceClient.getContainerClient(containerToUse);
+      this._blobServiceClient.getContainerClient(finalContainerName);
     if (!(await this._containerClient.exists())) {
       this._containerClient = (
-        await this._blobServiceClient.createContainer(containerToUse)
+        await this._blobServiceClient.createContainer(finalContainerName)
       ).containerClient;
     }
 

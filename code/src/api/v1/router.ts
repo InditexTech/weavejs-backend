@@ -26,6 +26,16 @@ import { getThreadAnswerController } from "./controllers/getThreadAnswer.js";
 import { delThreadAnswerController } from "./controllers/delThreadAnswer.js";
 import { postThreadAnswerController } from "./controllers/postThreadAnswer.js";
 import { putThreadAnswerController } from "./controllers/putThreadAnswer.js";
+import { getStandaloneThreadsController } from "./controllers/standalone/getStandaloneThreads.js";
+import { getStandaloneThreadController } from "./controllers/standalone/getStandaloneThread.js";
+import { postStandaloneThreadController } from "./controllers/standalone/postStandaloneThread.js";
+import { putStandaloneThreadController } from "./controllers/standalone/putStandaloneThread.js";
+import { delStandaloneThreadController } from "./controllers/standalone/delStandaloneThread.js";
+import { getStandaloneThreadAnswersController } from "./controllers/standalone/getStandaloneThreadAnswers.js";
+import { getStandaloneThreadAnswerController } from "./controllers/standalone/getStandaloneThreadAnswer.js";
+import { delStandaloneThreadAnswerController } from "./controllers/standalone/delStandaloneThreadAnswer.js";
+import { postStandaloneThreadAnswerController } from "./controllers/standalone/postStandaloneThreadAnswer.js";
+import { putStandaloneThreadAnswerController } from "./controllers/standalone/putStandaloneThreadAnswer.js";
 import { getRoomBusNegotiateController } from "./controllers/getRoomBusNegotiate.js";
 import { postRoomBusJoinController } from "./controllers/postRoomBusJoin.js";
 import { postExportToImageController } from "./controllers/postExportToImage.js";
@@ -52,6 +62,11 @@ import { delChatController } from "./controllers/delChat.js";
 import { getChatController } from "./controllers/getChat.js";
 import { postChatMessageController } from "./controllers/postChatMessage.js";
 import { putChatController } from "./controllers/putChat.js";
+import { getStandaloneImagesController } from "./controllers/standalone/getStandaloneImages.js";
+import { postStandaloneUploadImageController } from "./controllers/standalone/postStandaloneUploadImage.js";
+import { getStandaloneImageController } from "./controllers/standalone/getStandaloneImage.js";
+import { putStandaloneSaveInstanceImageController } from "./controllers/standalone/putStandaloneSaveInstanceImage.js";
+import { getStandaloneInstanceImageController } from "./controllers/standalone/getStandaloneInstanceImage.js";
 
 const router: Router = Router();
 
@@ -245,6 +260,61 @@ export function setupApiV1Router(app: Application) {
       delThreadAnswerController()
     );
 
+    // Threads Standalone API
+    router.get(
+      `/${hubName}/standalone/:instanceId/images/:imageId/threads`,
+      cors,
+      getStandaloneThreadsController()
+    );
+    router.get(
+      `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId`,
+      cors,
+      getStandaloneThreadController()
+    );
+    router.post(
+      `/${hubName}/standalone/:instanceId/images/:imageId/threads`,
+      cors,
+      postStandaloneThreadController()
+    );
+    router.put(
+      `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId`,
+      cors,
+      putStandaloneThreadController()
+    );
+    router.delete(
+      `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId`,
+      cors,
+      delStandaloneThreadController()
+    );
+
+    // Threads Answers API
+
+    router.get(
+      `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId/answers`,
+      cors,
+      getStandaloneThreadAnswersController()
+    );
+    router.get(
+      `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId/answers/:answerId`,
+      cors,
+      getStandaloneThreadAnswerController()
+    );
+    router.post(
+      `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId/answers`,
+      cors,
+      postStandaloneThreadAnswerController()
+    );
+    router.put(
+      `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId/answers/:answerId`,
+      cors,
+      putStandaloneThreadAnswerController()
+    );
+    router.delete(
+      `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId/answers/:answerId`,
+      cors,
+      delStandaloneThreadAnswerController()
+    );
+
     // Bus API
     router.get(
       `/${hubName}/rooms/:roomId/bus/:userId`,
@@ -293,6 +363,34 @@ export function setupApiV1Router(app: Application) {
     `/${hubName}/rooms/:roomId/templates/:templateId`,
     cors,
     delTemplateController()
+  );
+
+  // Standalone usage example
+  router.get(
+    `/${hubName}/standalone/:instanceId/images/:imageId`,
+    cors,
+    getStandaloneImageController()
+  );
+  router.put(
+    `/${hubName}/standalone/:instanceId/images/:imageId/data`,
+    cors,
+    putStandaloneSaveInstanceImageController()
+  );
+  router.get(
+    `/${hubName}/standalone/:instanceId/images/:imageId/data`,
+    cors,
+    getStandaloneInstanceImageController()
+  );
+  router.get(
+    `/${hubName}/standalone/:instanceId/images`,
+    cors,
+    getStandaloneImagesController()
+  );
+  router.post(
+    `/${hubName}/standalone/:instanceId/images`,
+    cors,
+    upload.single("file"),
+    postStandaloneUploadImageController()
   );
 
   app.use(routerBasePath, router);
