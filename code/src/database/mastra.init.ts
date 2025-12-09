@@ -9,6 +9,7 @@ console.log("Using DATABASE_URL:", process.env.DATABASE_URL);
 
 const storage = new PostgresStore({
   connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_SSL === "true",
 });
 
 await storage.init();
