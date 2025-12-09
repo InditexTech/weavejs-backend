@@ -24,7 +24,7 @@ export const getChatImageController = () => {
 
     const { response } = await persistenceHandler.fetch(fileName);
 
-    if (response && response.readableStreamBody) {
+    if (response?.readableStreamBody) {
       // Setting headers for the response
       res.set("Cache-Control", "public, max-age=86400"); // 1 day
       res.setHeader("Content-Type", "application/octet-stream");

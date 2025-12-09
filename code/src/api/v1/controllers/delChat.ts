@@ -53,7 +53,6 @@ export const delChatController = () => {
 
     if (deleted === 1) {
       res.status(200).json({ status: "OK", message: "Chat deleted" });
-      return;
     } else {
       res.status(500).json({ status: "KO", message: "Chat failed to delete" });
     }

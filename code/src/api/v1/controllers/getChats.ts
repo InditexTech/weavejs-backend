@@ -35,8 +35,8 @@ export const getChatsController = () => {
         status: "active",
       },
       {
-        limit: parseInt(limit, 10),
-        offset: parseInt(offset, 10),
+        limit: Number.parseInt(limit, 10),
+        offset: Number.parseInt(offset, 10),
       }
     );
 
