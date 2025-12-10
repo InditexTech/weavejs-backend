@@ -95,6 +95,7 @@ jobs:
           echo AZURE_CS_API_KEY=${{ env.AZURE_CS_API_KEY }} >> .env
           echo AZURE_CS_TIMEOUT_SECS=${{ env.AZURE_CS_TIMEOUT_SECS }} >> .env
           echo AZURE_LOG_LEVEL=${{ env.AZURE_LOG_LEVEL }} >> .env
+          echo APP_HOST=${{ env.APP_HOST }} >> .env
           echo GOOGLE_GENERATIVE_AI_API_KEY=${{ env.GOOGLE_GENERATIVE_AI_API_KEY }} >> .env
           echo DATABASE_HOST=${{ env.AZURE_DATABASE_HOST }} >> .env
           echo DATABASE_PORT=${{ env.AZURE_DATABASE_PORT }} >> .env
