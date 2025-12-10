@@ -6,7 +6,10 @@ import { Request, Response } from "express";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 
 export const getChatImageController = () => {
-  const persistenceHandler = new ImagesPersistenceHandler("generated-images");
+  const persistenceHandler = new ImagesPersistenceHandler(
+    process.env.AZURE_STORAGE_GENERATED_IMAGES_CONTAINER_NAME ??
+      "generated-images"
+  );
 
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId;

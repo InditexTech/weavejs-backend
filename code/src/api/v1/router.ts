@@ -67,6 +67,7 @@ import { postStandaloneUploadImageController } from "./controllers/standalone/po
 import { getStandaloneImageController } from "./controllers/standalone/getStandaloneImage.js";
 import { putStandaloneSaveInstanceImageController } from "./controllers/standalone/putStandaloneSaveInstanceImage.js";
 import { getStandaloneInstanceImageController } from "./controllers/standalone/getStandaloneInstanceImage.js";
+import { postAiChatMessageController } from "./controllers/ai/postChatMessage.js";
 
 const router: Router = Router();
 
@@ -391,6 +392,13 @@ export function setupApiV1Router(app: Application) {
     cors,
     upload.single("file"),
     postStandaloneUploadImageController()
+  );
+
+  // AI chat
+  router.post(
+    `/${hubName}/rooms/:roomId/ai/chats/:chatId/message`,
+    cors,
+    postAiChatMessageController()
   );
 
   app.use(routerBasePath, router);

@@ -5,11 +5,17 @@
 import { PostgresStore } from "@mastra/pg";
 
 console.log("Initializing Mastra database...");
-console.log("Using DATABASE_URL:", process.env.DATABASE_URL);
+console.log("Using AZURE_DATABASE_HOST:", process.env.AZURE_DATABASE_HOST);
 
 const storage = new PostgresStore({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_SSL === "true",
+  host: process.env.AZURE_DATABASE_HOST ?? "",
+  port: process.env.AZURE_DATABASE_PORT
+    ? Number.parseInt(process.env.AZURE_DATABASE_PORT, 10)
+    : 5432,
+  database: process.env.AZURE_DATABASE_NAME ?? "",
+  user: process.env.AZURE_DATABASE_USERNAME ?? "",
+  password: process.env.AZURE_DATABASE_PASSWORD ?? "",
+  ssl: process.env.AZURE_DATABASE_SSL === "true",
 });
 
 await storage.init();
