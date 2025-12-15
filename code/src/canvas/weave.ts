@@ -19,6 +19,7 @@ import {
   WeaveRegularPolygonNode,
   WeaveFrameNode,
   WeaveStrokeNode,
+  WeaveMeasureNode,
   // setupSkiaBackend,
   setupCanvasBackend,
 } from "@inditextech/weave-sdk/server";
@@ -203,6 +204,7 @@ const getNodes = (config: ServiceConfig) => {
         },
       },
     }),
+    new WeaveMeasureNode(),
     new ColorTokenNode(),
     new ImageTemplateNode(),
   ];
