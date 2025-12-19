@@ -219,7 +219,7 @@ export class ImageTemplateNode extends WeaveNode {
   }
 
   setImage(template: WeaveElementInstance, node: WeaveElementInstance) {
-    moveNodeToContainer(this.instance, node, template);
+    moveNodeToContainer(this.instance, node, template as Konva.Group);
   }
 
   changeFit(template: WeaveElementInstance, fit: ImageTemplateFit) {
