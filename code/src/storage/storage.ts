@@ -23,18 +23,30 @@ export async function setupStorage() {
   const {
     storage: {
       accountName,
+      connectionString,
       rooms: { containerName },
     },
   } = config;
 
-  const credentials = new DefaultAzureCredential();
-  const storageAccountUrl = `https://${accountName}.blob.core.windows.net`;
-  blobServiceClient = new BlobServiceClient(storageAccountUrl, credentials);
+  if (typeof connectionString !== "undefined") {
+    blobServiceClient =
+      BlobServiceClient.fromConnectionString(connectionString);
 
-  containerClient = blobServiceClient.getContainerClient(containerName);
-  if (!(await containerClient.exists())) {
-    containerClient = (await blobServiceClient.createContainer(containerName))
-      .containerClient;
+    containerClient = blobServiceClient.getContainerClient(containerName);
+    if (!(await containerClient.exists())) {
+      containerClient = (await blobServiceClient.createContainer(containerName))
+        .containerClient;
+    }
+  } else {
+    const credentials = new DefaultAzureCredential();
+    const storageAccountUrl = `https://${accountName}.blob.core.windows.net`;
+    blobServiceClient = new BlobServiceClient(storageAccountUrl, credentials);
+
+    containerClient = blobServiceClient.getContainerClient(containerName);
+    if (!(await containerClient.exists())) {
+      containerClient = (await blobServiceClient.createContainer(containerName))
+        .containerClient;
+    }
   }
 
   storageInitialized = true;

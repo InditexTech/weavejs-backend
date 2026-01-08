@@ -117,7 +117,7 @@ export const setupStore = () => {
   const config = getServiceConfig();
 
   const {
-    pubsub: { endpoint, hubName },
+    pubsub: { endpoint, key, hubName },
   } = config;
 
   const persistenceQueue = new PQueue({ concurrency: 1 });
@@ -125,6 +125,11 @@ export const setupStore = () => {
   azureWebPubsubServer = new WeaveAzureWebPubsubServer({
     pubSubConfig: {
       endpoint,
+      ...(typeof key !== "undefined" && {
+        auth: {
+          key,
+        },
+      }),
       hubName,
       // persistIntervalMs: 5000,
       connectionHandlers: {

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { DefaultAzureCredential } from "@azure/identity";
-import { WebPubSubServiceClient } from "@azure/web-pubsub";
+import { WebPubSubServiceClient, AzureKeyCredential } from "@azure/web-pubsub";
 import { getServiceConfig } from "../config/config.js";
 import { getLogger } from "../logger/logger.js";
 
@@ -15,13 +15,19 @@ export const setupCommBus = () => {
 
   logger.info("Setting up");
 
-  const credentials = new DefaultAzureCredential();
-
   const config = getServiceConfig();
 
   const endpoint = config.pubsub.endpoint;
+  const key = config.pubsub.key;
   const hubName = config.pubsub.hubName;
-  serviceClient = new WebPubSubServiceClient(endpoint, credentials, hubName);
+
+  if (typeof key !== "undefined") {
+    const credentials = new AzureKeyCredential(key);
+    serviceClient = new WebPubSubServiceClient(endpoint, credentials, hubName);
+  } else {
+    const credentials = new DefaultAzureCredential();
+    serviceClient = new WebPubSubServiceClient(endpoint, credentials, hubName);
+  }
 
   logger.info("Module ready");
 };

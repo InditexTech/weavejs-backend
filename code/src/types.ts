@@ -9,12 +9,14 @@ export type ServiceConfig = {
   };
   pubsub: {
     endpoint: string;
+    key?: string;
     hubName: string;
     persistFrequencySeg: number;
     cleanupRoomsIntervalSeg: number;
   };
   storage: {
     accountName: string;
+    connectionString?: string;
     rooms: {
       containerName: string;
     };

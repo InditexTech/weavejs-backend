@@ -52,6 +52,13 @@ const serviceConfigSchema = z.object({
           "Define the Azure Web PubSub endpoint on the environment variable AZURE_WEB_PUBSUB_ENDPOINT",
       })
       .trim(),
+    key: z
+      .string({
+        required_error:
+          "Define the Azure Web PubSub key on the environment variable AZURE_WEB_PUBSUB_KEY",
+      })
+      .trim()
+      .optional(),
     hubName: z
       .string({
         required_error:
@@ -79,6 +86,13 @@ const serviceConfigSchema = z.object({
           "Define the Azure Storage account name on the environment variable AZURE_STORAGE_ACCOUNT_NAME",
       })
       .trim(),
+    connectionString: z
+      .string({
+        required_error:
+          "Define the Azure Storage connection string on the environment variable AZURE_STORAGE_CONNECTION_STRING",
+      })
+      .trim()
+      .optional(),
     rooms: z.object({
       containerName: z
         .string({
@@ -172,6 +186,7 @@ export function getServiceConfig(): ServiceConfig {
   };
 
   const endpoint = process.env.AZURE_WEB_PUBSUB_ENDPOINT;
+  const key = process.env.AZURE_WEB_PUBSUB_KEY;
   const hubName = process.env.AZURE_WEB_PUBSUB_HUB_NAME;
   const persistFrequencySeg = parseInt(
     process.env.PERSIST_FREQUENCY_SEG || "10"
@@ -182,18 +197,21 @@ export function getServiceConfig(): ServiceConfig {
 
   const pubsub = {
     endpoint,
+    key,
     hubName,
     persistFrequencySeg,
     cleanupRoomsIntervalSeg,
   };
 
   const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
+  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
   const roomsContainerName = process.env.AZURE_STORAGE_ROOMS_CONTAINER_NAME;
   const imagesContainerName = process.env.AZURE_STORAGE_IMAGES_CONTAINER_NAME;
   const videosContainerName = process.env.AZURE_STORAGE_VIDEOS_CONTAINER_NAME;
 
   const storage = {
     accountName,
+    connectionString,
     rooms: {
       containerName: roomsContainerName,
     },

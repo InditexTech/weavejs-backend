@@ -36,17 +36,23 @@ export class ImagesPersistenceHandler {
     const {
       storage: {
         accountName,
+        connectionString,
         images: { containerName },
       },
     } = config;
 
-    const credential = new DefaultAzureCredential();
-    const storageAccountUrl = `https://${accountName}.blob.core.windows.net`;
+    if (typeof connectionString !== "undefined") {
+      this._blobServiceClient =
+        BlobServiceClient.fromConnectionString(connectionString);
+    } else {
+      const credential = new DefaultAzureCredential();
+      const storageAccountUrl = `https://${accountName}.blob.core.windows.net`;
 
-    this._blobServiceClient = new BlobServiceClient(
-      storageAccountUrl,
-      credential
-    );
+      this._blobServiceClient = new BlobServiceClient(
+        storageAccountUrl,
+        credential
+      );
+    }
 
     const finalContainerName = this._containerName ?? containerName;
 
