@@ -32,13 +32,28 @@ export const postChatController = () => {
       return;
     }
 
-    const chat = await createChat({
-      chatId,
-      roomId,
-      resourceId,
-      status,
-      title,
-    });
+    let chat = undefined;
+    try {
+      chat = await createChat({
+        chatId,
+        roomId,
+        resourceId,
+        status,
+        title,
+      });
+    } catch (error) {
+      console.error("Error creating chat:", error);
+      chat = await getChat({
+        roomId,
+        chatId,
+        resourceId,
+      });
+    }
+
+    if (!chat) {
+      res.status(500).json({ status: "KO", message: "Error creating chat" });
+      return;
+    }
 
     res.status(201).json({
       chat,
