@@ -328,6 +328,11 @@ export const setupStoreRoomsCleanup = () => {
     logger.info(`Cleanup rooms without active connections started`);
     logger.info(`Rooms loaded in memory <${rooms.length}>`);
 
+    if (process.env.DISABLE_ROOMS_CLEANUP === "true") {
+      logger.info(`Rooms cleanup is disabled, skipping...`);
+      return;
+    }
+
     for (const roomId of rooms) {
       const connections = await listGroupConnections(roomId);
       if (connections.length === 0) {

@@ -32,7 +32,7 @@ export const listGroupConnections = async (roomId: string) => {
     clearTimeout(timeout);
 
     if (!response.ok) {
-      throw new Error("Error generating the images");
+      throw new Error("Error listing group connections");
     }
 
     const jsonData = await response.json();
