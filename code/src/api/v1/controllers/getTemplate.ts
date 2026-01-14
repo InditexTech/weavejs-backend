@@ -7,8 +7,8 @@ import { getTemplate } from "../../../database/controllers/template.js";
 
 export const getTemplateController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const templateId = req.params.templateId;
+    const roomId = req.params.roomId as string;
+    const templateId = req.params.templateId as string;
 
     const template = await getTemplate({
       roomId,

@@ -7,7 +7,7 @@ import { getStore } from "../../../store.js";
 
 export const getSimulateStoreWsErrorController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
+    const roomId = req.params.roomId as string;
 
     const store = getStore();
     const syncHandler = store.getSyncHandler();

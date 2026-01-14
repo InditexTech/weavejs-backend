@@ -12,7 +12,7 @@ import { ThreadStatus } from "@/database/models/thread.js";
 
 export const getThreadsController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
+    const roomId = req.params.roomId as string;
     const status: ThreadStatus | "all" =
       (req.query.status as ThreadStatus | "all") ?? "pending";
     const paginated: boolean = (req.query.paginated as string) === "true";

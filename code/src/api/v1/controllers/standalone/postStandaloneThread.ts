@@ -8,8 +8,8 @@ import { createThread } from "@/database/controllers/thread.js";
 
 export const postStandaloneThreadController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const instanceId = req.params.instanceId;
-    const imageId = req.params.imageId;
+    const instanceId = req.params.instanceId as string;
+    const imageId = req.params.imageId as string;
 
     const { userMetadata, x, y, content } = req.body;
 

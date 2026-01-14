@@ -17,7 +17,7 @@ const payloadSchema = z.object({
 
 export const postTemplateController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
+    const roomId = req.params.roomId as string;
 
     const parsedBody = payloadSchema.safeParse(req.body);
 

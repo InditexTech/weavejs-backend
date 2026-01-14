@@ -9,8 +9,8 @@ import { getJobHandler } from "../../../workloads/workloads.js";
 
 export const delVideoController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const videoId = req.params.videoId;
+    const roomId = req.params.roomId as string;
+    const videoId = req.params.videoId as string;
 
     const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
     const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";

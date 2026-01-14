@@ -7,7 +7,7 @@ import { createChat, getChat } from "../../../database/controllers/chat.js";
 
 export const postChatController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
+    const roomId = req.params.roomId as string;
 
     const { chatId, status, title } = req.body;
 

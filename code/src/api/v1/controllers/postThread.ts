@@ -9,7 +9,7 @@ import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 
 export const postThreadController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
+    const roomId = req.params.roomId as string;
 
     const { userMetadata, x, y, content } = req.body;
 

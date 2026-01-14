@@ -11,8 +11,8 @@ import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 
 export const delThreadController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const threadId = req.params.threadId;
+    const roomId = req.params.roomId as string;
+    const threadId = req.params.threadId as string;
 
     const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
     const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";

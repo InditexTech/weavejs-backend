@@ -12,7 +12,7 @@ export const postGenerateImageControllerV2 = () => {
   const config = getServiceConfig();
 
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
+    const roomId = req.params.roomId as string;
     const { model, prompt, sample_count, size, quality, moderation } = req.body;
     const password = req.query.password;
 

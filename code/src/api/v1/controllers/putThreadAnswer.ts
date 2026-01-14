@@ -12,9 +12,9 @@ import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 
 export const putThreadAnswerController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const threadId = req.params.threadId;
-    const answerId = req.params.answerId;
+    const roomId = req.params.roomId as string;
+    const threadId = req.params.threadId as string;
+    const answerId = req.params.answerId as string;
 
     const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
     const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";

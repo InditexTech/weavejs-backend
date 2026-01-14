@@ -9,8 +9,8 @@ import { JOB_HANDLERS } from "../../../workloads/constants.js";
 
 export const delTemplateController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const templateId = req.params.templateId;
+    const roomId = req.params.roomId as string;
+    const templateId = req.params.templateId as string;
     const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
     const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";
 

@@ -10,7 +10,7 @@ import {
 
 export const getTemplatesController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
+    const roomId = req.params.roomId as string;
     const since: string | null = (req.query.since as string) ?? null;
     const limit: string = (req.query.limit as string) ?? "20";
     const offset: string = (req.query.offset as string) ?? "0";

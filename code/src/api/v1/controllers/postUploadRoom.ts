@@ -18,7 +18,7 @@ export const postUploadRoomController = () => {
       return;
     }
 
-    const roomId = req.params.roomId;
+    const roomId = req.params.roomId as string;
     const data = file?.buffer ?? new Uint8Array();
 
     const docName = `${roomId}`;

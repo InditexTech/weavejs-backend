@@ -11,7 +11,7 @@ import {
 export const getRoomController =
   () =>
   async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
+    const roomId = req.params.roomId as string;
 
     const docName = `${roomId}`;
 

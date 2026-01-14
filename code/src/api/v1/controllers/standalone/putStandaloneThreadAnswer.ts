@@ -11,10 +11,10 @@ import {
 
 export const putStandaloneThreadAnswerController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const instanceId = req.params.instanceId;
-    const imageId = req.params.imageId;
-    const threadId = req.params.threadId;
-    const answerId = req.params.answerId;
+    const instanceId = req.params.instanceId as string;
+    const imageId = req.params.imageId as string;
+    const threadId = req.params.threadId as string;
+    const answerId = req.params.answerId as string;
 
     const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
 

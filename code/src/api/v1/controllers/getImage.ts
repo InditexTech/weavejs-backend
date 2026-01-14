@@ -9,8 +9,8 @@ export const getImageController = () => {
   const persistenceHandler = new ImagesPersistenceHandler();
 
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const imageId = req.params.imageId;
+    const roomId = req.params.roomId as string;
+    const imageId = req.params.imageId as string;
 
     const fileName = `${roomId}/${imageId}`;
 

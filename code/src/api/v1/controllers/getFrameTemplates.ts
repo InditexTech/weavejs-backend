@@ -10,7 +10,7 @@ import {
 
 export const getFrameTemplatesController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
+    const roomId = req.params.roomId as string;
     const since: string | null = (req.query.since as string) ?? null;
 
     const total = await getTotalRoomFrameTemplates({

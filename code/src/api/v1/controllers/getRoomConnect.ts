@@ -8,7 +8,7 @@ import { getAzureWebPubsubServer } from "../../../store.js";
 export const getRoomConnectController =
   () =>
   async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
+    const roomId = req.params.roomId as string;
     const expirationTimeInMinutes: string | undefined =
       (req.query?.tetm as string) ?? undefined;
 

@@ -20,8 +20,8 @@ export const postRemoveBackgroundController = () => {
   const persistenceHandler = new ImagesPersistenceHandler();
   const baseTempDir = path.join(process.cwd(), "temp");
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const imageId = req.params.imageId;
+    const roomId = req.params.roomId as string;
+    const imageId = req.params.imageId as string;
     // Validate roomId and imageId to prevent path traversal and unsafe characters
     if (
       !roomId ||
@@ -29,7 +29,9 @@ export const postRemoveBackgroundController = () => {
       !/^[a-zA-Z0-9_-]+$/.test(roomId) ||
       !/^[a-zA-Z0-9_-]+$/.test(imageId)
     ) {
-      res.status(400).json({ status: "KO", message: "Invalid roomId or imageId." });
+      res
+        .status(400)
+        .json({ status: "KO", message: "Invalid roomId or imageId." });
       return;
     }
     const {
@@ -41,7 +43,9 @@ export const postRemoveBackgroundController = () => {
     const filePath = path.resolve(baseTempDir, fileName);
     // Ensure that filePath is strictly inside baseTempDir
     if (!filePath.startsWith(baseTempDir + path.sep)) {
-      res.status(400).json({ status: "KO", message: "Invalid path traversal attempt." });
+      res
+        .status(400)
+        .json({ status: "KO", message: "Invalid path traversal attempt." });
       return;
     }
 

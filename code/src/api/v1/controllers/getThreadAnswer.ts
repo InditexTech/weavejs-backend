@@ -8,8 +8,8 @@ import { getThreadAnswer } from "../../../database/controllers/thread-answer.js"
 
 export const getThreadAnswerController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const answerId = req.params.answerId;
+    const roomId = req.params.roomId as string;
+    const answerId = req.params.answerId as string;
 
     const threadAnswer = await getThreadAnswer({
       answerId,

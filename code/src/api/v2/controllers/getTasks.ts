@@ -7,7 +7,7 @@ import { getTasksRoom } from "../../../database/controllers/task.js";
 
 export const getTasksController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
+    const roomId = req.params.roomId as string;
     const limit: string = (req.query.limit as string) ?? "20";
     const offset: string = (req.query.offset as string) ?? "0";
 

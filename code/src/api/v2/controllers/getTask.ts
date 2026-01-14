@@ -15,7 +15,7 @@ export const getTaskController = () => {
   const boss = getWorkloadsInstance();
 
   return async (req: Request, res: Response): Promise<void> => {
-    const jobId = req.params.taskId;
+    const jobId = req.params.taskId as string;
 
     const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
 

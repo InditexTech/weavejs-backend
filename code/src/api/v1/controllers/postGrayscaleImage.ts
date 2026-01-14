@@ -9,8 +9,8 @@ import { GrayscaleImageJob } from "../../../workloads/jobs/grayscale-image/job.j
 
 export const postGrayscaleImageController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const imageId = req.params.imageId;
+    const roomId = req.params.roomId as string;
+    const imageId = req.params.imageId as string;
     const {
       image: { replaceImage, dataBase64, contentType },
     } = req.body;

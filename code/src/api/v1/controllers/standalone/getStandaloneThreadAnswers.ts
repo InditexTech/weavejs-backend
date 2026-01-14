@@ -11,9 +11,9 @@ import {
 
 export const getStandaloneThreadAnswersController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const instanceId = req.params.instanceId;
-    const imageId = req.params.imageId;
-    const threadId = req.params.threadId;
+    const instanceId = req.params.instanceId as string;
+    const imageId = req.params.imageId as string;
+    const threadId = req.params.threadId as string;
     const paginated: boolean = (req.query.paginated as string) === "true";
 
     const thread = await getThread({

@@ -12,7 +12,7 @@ export const postUploadImageController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const file = req.file;
 
-    const roomId = req.params.roomId;
+    const roomId = req.params.roomId as string;
     const mimeType = file?.mimetype ?? "application/octet-stream";
     const data = file?.buffer ?? new Uint8Array();
 

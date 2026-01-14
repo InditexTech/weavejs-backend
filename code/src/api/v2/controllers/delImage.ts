@@ -9,8 +9,8 @@ import { JOB_HANDLERS } from "../../../workloads/constants.js";
 
 export const delImageController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const imageId = req.params.imageId;
+    const roomId = req.params.roomId as string;
+    const imageId = req.params.imageId as string;
 
     const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
     const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";

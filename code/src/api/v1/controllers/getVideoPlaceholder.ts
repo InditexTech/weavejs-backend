@@ -9,8 +9,8 @@ export const getVideoPlaceholderController = () => {
   const persistenceHandler = new ImagesPersistenceHandler();
 
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const videoId = req.params.videoId;
+    const roomId = req.params.roomId as string;
+    const videoId = req.params.videoId as string;
 
     const fileName = `${roomId}/${videoId}-placeholder`;
 

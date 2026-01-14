@@ -11,8 +11,8 @@ import {
 
 export const getChatController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const chatId = req.params.chatId;
+    const roomId = req.params.roomId as string;
+    const chatId = req.params.chatId as string;
 
     const resourceId: string =
       (req.headers["x-weave-user-id"] as string) ?? "undefined";

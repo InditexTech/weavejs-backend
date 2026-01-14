@@ -10,7 +10,7 @@ export const postStandaloneUploadImageController = () => {
   const persistenceHandler = new ImagesPersistenceHandler("standalone-images");
 
   return async (req: Request, res: Response): Promise<void> => {
-    const instanceId = req.params.instanceId;
+    const instanceId = req.params.instanceId as string;
     const file = req.file;
 
     const mimeType = file?.mimetype ?? "application/octet-stream";

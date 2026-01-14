@@ -9,8 +9,8 @@ import { RemoveImageBackgroundJob } from "../../../workloads/jobs/remove-image-b
 
 export const postRemoveBackgroundController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const imageId = req.params.imageId;
+    const roomId = req.params.roomId as string;
+    const imageId = req.params.imageId as string;
     const {
       image: { replaceImage, dataBase64, contentType },
     } = req.body;

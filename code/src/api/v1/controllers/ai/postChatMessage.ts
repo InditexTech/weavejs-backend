@@ -15,8 +15,8 @@ import { saveChatMessages } from "@/mastra/manager/chat.js";
 
 export const postAiChatMessageController = () => {
   return async (req: Request, res: Response) => {
-    const roomId = req.params.roomId;
-    const chatId = req.params.chatId;
+    const roomId = req.params.roomId as string;
+    const chatId = req.params.chatId as string;
 
     const resourceId: string = (req.headers["x-weave-user-id"] as string) ?? "";
 

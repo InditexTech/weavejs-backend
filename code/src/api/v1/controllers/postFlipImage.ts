@@ -10,8 +10,8 @@ import { FlipOrientation } from "../../../workloads/jobs/flip-image/types.js";
 
 export const postFlipImageController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const imageId = req.params.imageId;
+    const roomId = req.params.roomId as string;
+    const imageId = req.params.imageId as string;
     const orientation: FlipOrientation = req.params
       .orientation as FlipOrientation;
     const {

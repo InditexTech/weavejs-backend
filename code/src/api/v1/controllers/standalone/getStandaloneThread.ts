@@ -8,9 +8,9 @@ import { getThreadAnswers } from "@/database/controllers/thread-answer.js";
 
 export const getStandaloneThreadController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const instanceId = req.params.instanceId;
-    const imageId = req.params.imageId;
-    const threadId = req.params.threadId;
+    const instanceId = req.params.instanceId as string;
+    const imageId = req.params.imageId as string;
+    const threadId = req.params.threadId as string;
 
     const thread = await getThread({
       threadId,

@@ -12,9 +12,9 @@ export const getChatImageController = () => {
   );
 
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
-    const chatId = req.params.chatId;
-    const imageId = req.params.imageId;
+    const roomId = req.params.roomId as string;
+    const chatId = req.params.chatId as string;
+    const imageId = req.params.imageId as string;
 
     const fileName = `${roomId}/${chatId}/${imageId}`;
 

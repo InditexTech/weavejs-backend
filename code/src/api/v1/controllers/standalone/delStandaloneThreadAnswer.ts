@@ -11,9 +11,9 @@ import {
 
 export const delStandaloneThreadAnswerController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const instanceId = req.params.instanceId;
-    const imageId = req.params.imageId;
-    const answerId = req.params.answerId;
+    const instanceId = req.params.instanceId as string;
+    const imageId = req.params.imageId as string;
+    const answerId = req.params.answerId as string;
 
     const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
 

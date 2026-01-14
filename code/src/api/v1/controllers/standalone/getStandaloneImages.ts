@@ -9,7 +9,7 @@ export const getStandaloneImagesController = () => {
   const persistenceHandler = new ImagesPersistenceHandler("standalone-images");
 
   return async (req: Request, res: Response): Promise<void> => {
-    const instanceId = req.params.instanceId;
+    const instanceId = req.params.instanceId as string;
 
     const pageSize = parseInt(
       (req.query.pageSize as string | undefined) ?? "20"

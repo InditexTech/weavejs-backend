@@ -9,7 +9,7 @@ export const getImagesController = () => {
   const persistenceHandler = new ImagesPersistenceHandler();
 
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId;
+    const roomId = req.params.roomId as string;
 
     const pageSize = parseInt(
       (req.query.pageSize as string | undefined) ?? "20"
