@@ -44,6 +44,7 @@
     "version:release": "npm ci && lerna version --no-git-tag-version --no-push --force-publish --exact --yes $RELEASE_VERSION && npm version $RELEASE_VERSION"
   },
   "overrides": {
+    "@sinclair/typebox": "0.34.47",
     "canvas": "3.2.0",
     "skia-canvas": "3.0.8",
     "konva": "10.0.2",
