@@ -39,19 +39,35 @@ export const postExportToImageController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const parsedBody = payloadSchema.safeParse(req.body);
 
+    console.log("Received export to image request", req.body, parsedBody);
+
     if (!parsedBody.success) {
       res.status(400).json({ errors: parsedBody.error.errors });
       return;
     }
 
     try {
-      const result = await runWorker<ExportToImageWorkerResult>(
-        path.join(__dirname, "./workers/exportToImage.js"),
-        {
-          ...parsedBody.data,
-          config,
+      const result = await runWorker<
+        ExportToImageWorkerResult | { error: { name: string; message: string } }
+      >(path.join(__dirname, "./workers/exportToImage.js"), {
+        ...parsedBody.data,
+        config,
+      });
+
+      let hasError = false;
+      try {
+        const buf = Buffer.from(result as Buffer);
+        const data = JSON.parse(buf.toString("utf8"));
+        if (data.error) {
+          hasError = true;
         }
-      );
+      } catch {
+        // not JSON, all good
+      }
+
+      if (hasError) {
+        throw new Error("Export failed in worker");
+      }
 
       const finalBuffer = result as Buffer;
 

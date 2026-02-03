@@ -32,6 +32,7 @@ import {
   registerCanvasFonts,
 } from "./fonts.js";
 import { ImageTemplateNode } from "./nodes/image-template/image-template.js";
+import { MeasureNode } from "./nodes/measure/measure.js";
 
 export type RenderWeaveRoom = {
   instance: Weave;
@@ -209,5 +210,6 @@ const getNodes = (config: ServiceConfig) => {
     new WeaveConnectorNode(),
     new ColorTokenNode(),
     new ImageTemplateNode(),
+    new MeasureNode(),
   ];
 };
