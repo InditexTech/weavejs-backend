@@ -45,8 +45,27 @@ parentPort?.on("message", async ({ config, roomData, nodes, options }) => {
     }
 
     const imageBuffer = await imagePipeline.toBuffer();
-    parentPort?.postMessage(imageBuffer, [imageBuffer.buffer as ArrayBuffer]);
+
+    const buffer = imageBuffer.buffer.slice(
+      imageBuffer.byteOffset,
+      imageBuffer.byteOffset + imageBuffer.byteLength
+    );
+
+    parentPort?.postMessage(buffer, [buffer as ArrayBuffer]);
   } catch (error) {
-    parentPort?.postMessage((error as Error).message);
+    const buffer = Buffer.from(
+      JSON.stringify({
+        error: {
+          name: (error as Error).name,
+          message: (error as Error).message,
+        },
+      }),
+      "utf8"
+    );
+    const ab = buffer.buffer.slice(
+      buffer.byteOffset,
+      buffer.byteOffset + buffer.byteLength
+    );
+    parentPort?.postMessage(ab, [ab as ArrayBuffer]);
   }
 });
