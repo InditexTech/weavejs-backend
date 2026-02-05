@@ -11,3 +11,9 @@ import { IMAGE_TEMPLATE_FIT } from "./constants.js";
 export type ImageTemplateFitKeys = keyof typeof IMAGE_TEMPLATE_FIT;
 export type ImageTemplateFit =
   (typeof IMAGE_TEMPLATE_FIT)[ImageTemplateFitKeys];
+
+export type ImageTemplateMetadata = {
+  key: string;
+  width: number;
+  height: number;
+};
