@@ -153,8 +153,7 @@ const templateToElementYjs = (
     templatesDetails,
   }: {
     frameName: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    template: any;
+    template: WeaveStateElement;
     templateInstanceId: string;
     templatesDetails: Record<string, TemplateDetails>;
   },
