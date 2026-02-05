@@ -2,7 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
+import {
+  BlobServiceClient,
+  ContainerClient,
+  ContainerListBlobsOptions,
+} from "@azure/storage-blob";
 import { DefaultAzureCredential } from "@azure/identity";
 import { getLogger } from "../logger/logger.js";
 import { getServiceConfig } from "../config/config.js";
@@ -58,6 +62,45 @@ export const isStorageInitialized = () => storageInitialized;
 
 export const getBlobServiceClient = () => blobServiceClient;
 export const getContainerClient = () => containerClient;
+
+export const listRooms = async (
+  prefix: string,
+  pageSize: number,
+  continuationToken: string | undefined,
+) => {
+  if (!isStorageInitialized()) {
+    return { rooms: [], continuationToken: undefined };
+  }
+
+  const containerClient = getContainerClient();
+
+  if (!containerClient) {
+    return { rooms: [], continuationToken: undefined };
+  }
+
+  const listOptions: ContainerListBlobsOptions = {
+    includeMetadata: true,
+    prefix,
+  };
+
+  const rooms: string[] = [];
+  const iterator = await containerClient.listBlobsFlat(listOptions).byPage({
+    continuationToken,
+    maxPageSize: pageSize,
+  });
+
+  const response = await iterator.next();
+
+  if (response.done) {
+    return { rooms: [], continuationToken: undefined };
+  }
+
+  for (const item of response.value.segment.blobItems) {
+    rooms.push(item.name);
+  }
+
+  return { rooms, continuationToken: response.value.continuationToken };
+};
 
 export const isStorageConnected = async () => {
   if (!storageInitialized) {
