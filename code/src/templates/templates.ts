@@ -136,6 +136,7 @@ const getMainLayerFromDocument = (doc: Y.Doc): Y.Map<any> | null => {
   const stageChildren = stageProps.get("children") as Y.Array<any>;
   for (let i = 0; i < stageChildren.length; i++) {
     const child = stageChildren.get(i);
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const childProps = child.get("props") as Y.Map<any>;
     if (childProps.get("id") === "mainLayer") {
