@@ -39,6 +39,7 @@ import { putStandaloneThreadAnswerController } from "./controllers/standalone/pu
 import { getRoomBusNegotiateController } from "./controllers/getRoomBusNegotiate.js";
 import { postRoomBusJoinController } from "./controllers/postRoomBusJoin.js";
 import { postExportToImageController } from "./controllers/postExportToImage.js";
+import { postExportToPDFController } from "./controllers/postExportToPDF.js";
 import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
 import { getSimulateStoreWsErrorController } from "./controllers/getSimulateStoreWsError.js";
 import { getVideosController } from "./controllers/getVideos.js";
@@ -337,6 +338,7 @@ export function setupApiV1Router(app: Application) {
 
     // Render Canvas API
     router.post(`/${hubName}/export`, cors, postExportToImageController());
+    router.post(`/${hubName}/export/pdf`, cors, postExportToPDFController());
   }
 
   // Store testing API (only in dev mode)

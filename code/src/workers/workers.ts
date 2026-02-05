@@ -10,12 +10,14 @@ let queue: any = null;
 
 export const setupWorkers = async () => {
   const PQueue = await import("p-queue");
-  queue = new PQueue.default({ concurrency: cpus().length });
+  const workers = cpus().length - 1 > 0 ? cpus().length - 1 : 1;
+  console.log("Max workers:", workers);
+  queue = new PQueue.default({ concurrency: workers });
 };
 
 export function runWorker<T>(
   workerPath: string,
-  workerData?: unknown
+  workerData?: unknown,
 ): Promise<void | T> {
   if (!queue) {
     throw new Error("Workers not initialized. Call setupWorkers() first.");

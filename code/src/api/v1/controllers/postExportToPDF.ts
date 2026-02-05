@@ -7,7 +7,6 @@ import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { Request, Response } from "express";
 import archiver from "archiver";
-import { WeaveExportFormats } from "@inditextech/weave-types";
 import { getServiceConfig } from "../../../config/config.js";
 import { runWorker } from "../../../workers/workers.js";
 import { ExportToImageWorkerResult } from "./workers/types.js";
@@ -15,25 +14,21 @@ import { ExportToImageWorkerResult } from "./workers/types.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const WeaveExportFormatsSchema: z.ZodType<WeaveExportFormats> = z.enum([
-  "image/png",
-  "image/jpeg",
-]);
-
 const payloadSchema = z.object({
   roomData: z.string().base64(),
-  nodes: z.array(z.string()).optional().default([]),
+  pages: z
+    .array(z.object({ title: z.string(), nodes: z.array(z.string()) }))
+    .optional()
+    .default([]),
   options: z.object({
-    format: WeaveExportFormatsSchema.optional().default("image/png"),
     backgroundColor: z.string().optional().default("transparent"),
     padding: z.number().min(0).optional().default(20),
     pixelRatio: z.number().min(1).optional().default(1),
-    quality: z.number().min(0).max(1).optional().default(1),
   }),
   responseType: z.enum(["base64", "blob", "zip"]).optional().default("blob"),
 });
 
-export const postExportToImageController = () => {
+export const postExportToPDFController = () => {
   const config = getServiceConfig();
 
   return async (req: Request, res: Response): Promise<void> => {
@@ -47,7 +42,7 @@ export const postExportToImageController = () => {
     try {
       const result = await runWorker<
         ExportToImageWorkerResult | { error: { name: string; message: string } }
-      >(path.join(__dirname, "./workers/exportToImage.js"), {
+      >(path.join(__dirname, "./workers/exportToPDF.js"), {
         ...parsedBody.data,
         config,
       });
@@ -70,10 +65,7 @@ export const postExportToImageController = () => {
       const finalBuffer = result as Buffer;
 
       // success
-      const fileExtension =
-        parsedBody.data.options.format.split("/")[1] === "png"
-          ? ".png"
-          : ".jpg";
+      const fileExtension = ".pdf";
 
       if (parsedBody.data.responseType === "zip") {
         res.setHeader("Content-Type", "application/zip");
@@ -103,7 +95,7 @@ export const postExportToImageController = () => {
       }
 
       res.status(200).json({
-        url: `data:${parsedBody.data.options.format};base64,${Buffer.from(finalBuffer).toString("base64")}`,
+        url: `data:application/pdf;base64,${Buffer.from(finalBuffer).toString("base64")}`,
       });
     } catch (error) {
       console.log(error);

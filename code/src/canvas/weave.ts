@@ -33,6 +33,7 @@ import {
 } from "./fonts.js";
 import { ImageTemplateNode } from "./nodes/image-template/image-template.js";
 import { MeasureNode } from "./nodes/measure/measure.js";
+import { PantoneNode } from "./nodes/pantone/pantone.js";
 
 export type RenderWeaveRoom = {
   instance: Weave;
@@ -41,7 +42,7 @@ export type RenderWeaveRoom = {
 
 export const renderWeaveRoom = (
   config: ServiceConfig,
-  roomData: string
+  roomData: string,
 ): Promise<RenderWeaveRoom> => {
   let weave: Weave | undefined = undefined;
 
@@ -73,7 +74,7 @@ export const renderWeaveRoom = (
             email: "user@mail.com",
           };
         },
-      }
+      },
     );
 
     weave = new Weave(
@@ -91,7 +92,7 @@ export const renderWeaveRoom = (
         container: undefined,
         width: 800,
         height: 600,
-      }
+      },
     );
 
     let roomLoaded = false;
@@ -163,13 +164,13 @@ const getNodes = (config: ServiceConfig) => {
         urlTransformer: (url: string) => {
           const isAbsolute = isAbsoluteUrl(url);
 
-          let relativeUrl = url;
-          if (isAbsolute) {
-            relativeUrl = stripOrigin(url);
+          if (!isAbsolute) {
+            const relativeUrl = stripOrigin(url);
+            const transformedUrl = relativeUrl.replace("/weavebff", "");
+            return `http://localhost:${config.service.port}${transformedUrl}`;
           }
 
-          const transformedUrl = relativeUrl.replace("/weavebff", "");
-          return `http://localhost:${config.service.port}${transformedUrl}`;
+          return url;
         },
       },
     }),
@@ -211,5 +212,6 @@ const getNodes = (config: ServiceConfig) => {
     new ColorTokenNode(),
     new ImageTemplateNode(),
     new MeasureNode(),
+    new PantoneNode(),
   ];
 };
