@@ -25,7 +25,7 @@ import {
   setupCanvasBackend,
 } from "@inditextech/weave-sdk/server";
 import { ColorTokenNode } from "./nodes/color-token/color-token.js";
-import { isAbsoluteUrl, stripOrigin } from "../utils.js";
+import { isAbsoluteUrl } from "../utils.js";
 import { ServiceConfig } from "../types.js";
 import {
   // registerSkiaFonts,
@@ -165,8 +165,7 @@ const getNodes = (config: ServiceConfig) => {
           const isAbsolute = isAbsoluteUrl(url);
 
           if (!isAbsolute) {
-            const relativeUrl = stripOrigin(url);
-            const transformedUrl = relativeUrl.replace("/weavebff", "");
+            const transformedUrl = url.replace("/weavebff", "");
             return `http://localhost:${config.service.port}${transformedUrl}`;
           }
 
@@ -179,13 +178,12 @@ const getNodes = (config: ServiceConfig) => {
         urlTransformer: (url: string) => {
           const isAbsolute = isAbsoluteUrl(url);
 
-          let relativeUrl = url;
-          if (isAbsolute) {
-            relativeUrl = stripOrigin(url);
+          if (!isAbsolute) {
+            const transformedUrl = url.replace("/weavebff", "");
+            return `http://localhost:${config.service.port}${transformedUrl}`;
           }
 
-          const transformedUrl = relativeUrl.replace("/weavebff", "");
-          return `http://localhost:${config.service.port}${transformedUrl}`;
+          return url;
         },
       },
     }),
