@@ -39,6 +39,7 @@ import { putStandaloneThreadAnswerController } from "./controllers/standalone/pu
 import { getRoomBusNegotiateController } from "./controllers/getRoomBusNegotiate.js";
 import { postRoomBusJoinController } from "./controllers/postRoomBusJoin.js";
 import { postExportToImageController } from "./controllers/postExportToImage.js";
+import { postExportToImageAsyncController } from "./controllers/postExportToImageAsync.js";
 import { postExportToPDFController } from "./controllers/postExportToPDF.js";
 import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
 import { getSimulateStoreWsErrorController } from "./controllers/getSimulateStoreWsError.js";
@@ -75,6 +76,9 @@ import { postTemplatesUploadImageController } from "./controllers/templates/post
 import { getRoomsController } from "./controllers/getRooms.js";
 import { postAddTemplateToRoomController } from "./controllers/postAddTemplateToRoom.js";
 import { delTemplatesImageController } from "./controllers/templates/delTemplatesImage.js";
+import { getExportedImageController } from "./controllers/getExportedImage.js";
+import { postExportToPDFAsyncController } from "./controllers/postExportToPDFAsync.js";
+import { getExportedPdfController } from "./controllers/getExportedPdf.js";
 
 const router: Router = Router();
 
@@ -339,6 +343,26 @@ export function setupApiV1Router(app: Application) {
     // Render Canvas API
     router.post(`/${hubName}/export`, cors, postExportToImageController());
     router.post(`/${hubName}/export/pdf`, cors, postExportToPDFController());
+    router.get(
+      `/${hubName}/rooms/:roomId/export/:imageId`,
+      cors,
+      getExportedImageController(),
+    );
+    router.post(
+      `/${hubName}/rooms/:roomId/export`,
+      cors,
+      postExportToImageAsyncController(),
+    );
+    router.get(
+      `/${hubName}/rooms/:roomId/export/pdf/:pdfId`,
+      cors,
+      getExportedPdfController(),
+    );
+    router.post(
+      `/${hubName}/rooms/:roomId/export/pdf`,
+      cors,
+      postExportToPDFAsyncController(),
+    );
   }
 
   // Store testing API (only in dev mode)

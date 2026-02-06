@@ -5,10 +5,10 @@
 import pgBoss from "pg-boss";
 import { getLogger } from "../logger/logger.js";
 import { JobHandler } from "./types.js";
-import PgBoss from "pg-boss";
 import { getServiceConfig } from "../config/config.js";
 import { getDatabaseCloudCredentialsToken } from "../utils.js";
 import { AccessToken } from "@azure/identity";
+import PgBoss from "pg-boss";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 let activeBoss: pgBoss | null = null;
@@ -30,7 +30,7 @@ export const setupWorkloads = async () => {
   let currentAccessToken: AccessToken | undefined = undefined;
 
   async function initPgBoss(
-    initialize: boolean = true
+    initialize: boolean = true,
   ): Promise<pgBoss | null> {
     if (config.database.kind === "connection_string") {
       const {
@@ -59,6 +59,8 @@ export const setupWorkloads = async () => {
         await initDeleteImageQueue(boss);
         await initDeleteVideoQueue(boss);
         await initDeleteTemplateQueue(boss);
+        await initExportImageQueue(boss);
+        await initExportPdfQueue(boss);
 
         logger.info("Module ready");
       } else {
@@ -110,6 +112,8 @@ export const setupWorkloads = async () => {
         await initDeleteImageQueue(boss);
         await initDeleteVideoQueue(boss);
         await initDeleteTemplateQueue(boss);
+        await initExportImageQueue(boss);
+        await initExportPdfQueue(boss);
 
         logger.info("Module ready");
       } else {
@@ -167,9 +171,8 @@ export const setupWorkloads = async () => {
 };
 
 const initRemoveImageBackgroundQueue = async (boss: PgBoss) => {
-  const { RemoveImageBackgroundJob } = await import(
-    "./jobs/remove-image-background/job.js"
-  );
+  const { RemoveImageBackgroundJob } =
+    await import("./jobs/remove-image-background/job.js");
 
   const removeBackgroundJob = await RemoveImageBackgroundJob.create(boss);
   await removeBackgroundJob.start();
@@ -246,6 +249,22 @@ const initDeleteTemplateQueue = async (boss: PgBoss) => {
   const deleteTemplateJob = await DeleteTemplateJob.create(boss);
   await deleteTemplateJob.start();
   jobs["deleteTemplate"] = deleteTemplateJob;
+};
+
+const initExportImageQueue = async (boss: PgBoss) => {
+  const { ExportImageJob } = await import("./jobs/export-image/job.js");
+
+  const exportTemplateJob = await ExportImageJob.create(boss);
+  await exportTemplateJob.start();
+  jobs["exportImage"] = exportTemplateJob;
+};
+
+const initExportPdfQueue = async (boss: PgBoss) => {
+  const { ExportPdfJob } = await import("./jobs/export-pdf/job.js");
+
+  const exportPdfJob = await ExportPdfJob.create(boss);
+  await exportPdfJob.start();
+  jobs["exportPdf"] = exportPdfJob;
 };
 
 export const getWorkloadsInstance = () => {

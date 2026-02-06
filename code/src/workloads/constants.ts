@@ -12,4 +12,6 @@ export const JOB_HANDLERS = {
   DELETE_IMAGE: "deleteImage",
   DELETE_TEMPLATE: "deleteTemplate",
   DELETE_VIDEO: "deleteVideo",
+  EXPORT_IMAGE: "exportImage",
+  EXPORT_PDF: "exportPdf",
 } as const;
