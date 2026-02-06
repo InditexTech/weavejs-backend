@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { cpus } from "os";
 import { Worker } from "worker_threads";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -10,7 +9,7 @@ let queue: any = null;
 
 export const setupWorkers = async () => {
   const PQueue = await import("p-queue");
-  const workers = cpus().length - 1 > 0 ? cpus().length - 1 : 1;
+  const workers = 4;
   console.log("Max workers:", workers);
   queue = new PQueue.default({ concurrency: workers });
 };
@@ -27,8 +26,12 @@ export function runWorker<T>(
     const worker = new Worker(workerPath);
 
     const result = await new Promise<T>((resolve, reject) => {
-      worker.on("message", resolve);
-      worker.on("error", reject);
+      worker.on("message", (message) => {
+        resolve(message);
+      });
+      worker.on("error", (error) => {
+        reject(error);
+      });
       worker.on("exit", (code) => {
         if (code !== 0) {
           reject(new Error(`Worker stopped with exit code ${code}`));
