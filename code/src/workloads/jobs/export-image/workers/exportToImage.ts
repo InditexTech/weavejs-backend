@@ -10,6 +10,8 @@ import { renderWeaveRoom } from "../../../../canvas/weave.js";
 parentPort?.on("message", async ({ config, roomData, nodes, options }) => {
   const { instance, destroy } = await renderWeaveRoom(config, roomData);
 
+  console.log("generating image");
+
   const { composites, width, height } = await instance.exportNodesServerSide(
     nodes,
     (nodes) => nodes,
@@ -22,9 +24,13 @@ parentPort?.on("message", async ({ config, roomData, nodes, options }) => {
     },
   );
 
+  console.log("image generated");
+
   destroy();
 
   try {
+    console.log("composing image");
+
     const composedImage = sharp({
       create: {
         width,
@@ -33,6 +39,8 @@ parentPort?.on("message", async ({ config, roomData, nodes, options }) => {
         background: { r: 0, g: 0, b: 0, alpha: 0 },
       },
     }).composite(composites);
+
+    console.log("image composed");
 
     let imagePipeline = composedImage;
     if (options.format === WEAVE_EXPORT_FORMATS.JPEG) {
@@ -44,14 +52,20 @@ parentPort?.on("message", async ({ config, roomData, nodes, options }) => {
       imagePipeline = composedImage.png();
     }
 
+    console.log("getting image buffer");
+
     const imageBuffer = await imagePipeline.toBuffer();
+
+    console.log("image buffer obtained");
 
     const buffer = imageBuffer.buffer.slice(
       imageBuffer.byteOffset,
       imageBuffer.byteOffset + imageBuffer.byteLength,
     );
 
+    console.log("sending image buffer to parent");
     parentPort?.postMessage(buffer, [buffer as ArrayBuffer]);
+    console.log("image buffer sent to parent");
   } catch (error) {
     const buffer = Buffer.from(
       JSON.stringify({

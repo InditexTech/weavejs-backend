@@ -131,7 +131,15 @@ export const renderWeaveRoom = (
       }
     });
 
-    weave.addEventListener("onAsyncElementChange", () => {
+    weave.addEventListener(
+      "onAsyncElementsLoading",
+      ({ loaded, total }: { loaded: number; total: number }) => {
+        console.log(`loading async elements [${loaded} / ${total}]`);
+      },
+    );
+
+    weave.addEventListener("onAsyncElementsLoaded", () => {
+      console.log("async elements loaded");
       if (!weave) {
         return;
       }
@@ -140,9 +148,7 @@ export const renderWeaveRoom = (
         return false;
       }
 
-      if (checkIfRoomLoaded()) {
-        resolve({ instance: weave, destroy: destroyWeaveRoom });
-      }
+      resolve({ instance: weave, destroy: destroyWeaveRoom });
     });
 
     weave.start();
