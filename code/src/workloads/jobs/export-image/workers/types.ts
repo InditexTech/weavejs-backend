@@ -3,3 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export type ExportToImageWorkerResult = Buffer;
+
+export type StateResource = {
+  id: string;
+  type: string;
+  internalId: string;
+  url: string;
+};

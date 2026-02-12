@@ -17,20 +17,6 @@ export const registerSkiaFonts = () => {
   FontLibrary.reset();
 
   const fonts: SkiaFont[] = [
-    // Arial font family
-    {
-      family: "Arial",
-      paths: [
-        path.resolve(process.cwd(), "fonts/ARIALI.ttf"),
-        path.resolve(process.cwd(), "fonts/ARIAL.ttf"),
-      ],
-    },
-    // NotoSansMono font family
-    {
-      family: "NotoSansMono",
-      // paths: [path.resolve(process.cwd(), "fonts/NotoSansMono-Italic.ttf")],
-      paths: [path.resolve(process.cwd(), "fonts/NotoSansMono-Regular.ttf")],
-    },
     // Impact font family
     {
       family: "Impact",

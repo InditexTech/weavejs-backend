@@ -100,6 +100,7 @@ export class ExportImageJob {
       >(path.join(__dirname, "./workers/exportToImage.js"), {
         ...payload,
         config,
+        jobId,
       });
 
       let hasError = false;
