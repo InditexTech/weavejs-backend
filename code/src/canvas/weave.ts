@@ -21,15 +21,15 @@ import {
   WeaveStrokeNode,
   WeaveMeasureNode,
   WeaveConnectorNode,
-  // setupSkiaBackend,
-  setupCanvasBackend,
+  setupSkiaBackend,
+  // setupCanvasBackend,
 } from "@inditextech/weave-sdk/server";
 import { ColorTokenNode } from "./nodes/color-token/color-token.js";
-import { isAbsoluteUrl } from "../utils.js";
+import { isAbsoluteUrl, sleep } from "../utils.js";
 import { ServiceConfig } from "../types.js";
 import {
-  // registerSkiaFonts,
-  registerCanvasFonts,
+  registerSkiaFonts,
+  // registerCanvasFonts,
 } from "./fonts.js";
 import { ImageTemplateNode } from "./nodes/image-template/image-template.js";
 import { MeasureNode } from "./nodes/measure/measure.js";
@@ -55,12 +55,12 @@ export const renderWeaveRoom = (
     };
 
     // Setup Skia backend
-    // registerSkiaFonts();
-    // await setupSkiaBackend();
+    registerSkiaFonts();
+    await setupSkiaBackend();
 
     // Setup Canvas backend
-    registerCanvasFonts();
-    await setupCanvasBackend();
+    // registerCanvasFonts();
+    // await setupCanvasBackend();
 
     const store = new WeaveStoreStandalone(
       {
@@ -151,7 +151,8 @@ export const renderWeaveRoom = (
       resolve({ instance: weave, destroy: destroyWeaveRoom });
     });
 
-    weave.start();
+    await sleep(1000); // Ensure the weave instance is properly initialized before setting up event listeners
+    await weave.start();
   });
 };
 
@@ -170,7 +171,7 @@ const getNodes = (config: ServiceConfig) => {
         urlTransformer: (url: string) => {
           const isAbsolute = isAbsoluteUrl(url);
 
-          if (!isAbsolute) {
+          if (!isAbsolute && url.startsWith("/weavebff")) {
             const transformedUrl = url.replace("/weavebff", "");
             return `http://localhost:${config.service.port}${transformedUrl}`;
           }
@@ -184,7 +185,7 @@ const getNodes = (config: ServiceConfig) => {
         urlTransformer: (url: string) => {
           const isAbsolute = isAbsoluteUrl(url);
 
-          if (!isAbsolute) {
+          if (!isAbsolute && url.startsWith("/weavebff")) {
             const transformedUrl = url.replace("/weavebff", "");
             return `http://localhost:${config.service.port}${transformedUrl}`;
           }
