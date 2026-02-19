@@ -16,11 +16,13 @@ import { getLogger } from "../logger/logger.js";
 export class VideosPersistenceHandler {
   private _blobServiceClient!: BlobServiceClient;
   private _containerClient!: ContainerClient;
+  private _containerName: string | undefined;
   private _initialized!: boolean;
   private _logger!: Logger;
 
-  constructor() {
+  constructor(containerName?: string) {
     this._initialized = false;
+    this._containerName = containerName;
     this._logger = getLogger().child({ module: "videos.persistence" });
   }
 
@@ -34,23 +36,31 @@ export class VideosPersistenceHandler {
     const {
       storage: {
         accountName,
+        connectionString,
         videos: { containerName },
       },
     } = config;
 
-    const credential = new DefaultAzureCredential();
-    const storageAccountUrl = `https://${accountName}.blob.core.windows.net`;
+    if (typeof connectionString !== "undefined") {
+      this._blobServiceClient =
+        BlobServiceClient.fromConnectionString(connectionString);
+    } else {
+      const credential = new DefaultAzureCredential();
+      const storageAccountUrl = `https://${accountName}.blob.core.windows.net`;
 
-    this._blobServiceClient = new BlobServiceClient(
-      storageAccountUrl,
-      credential
-    );
+      this._blobServiceClient = new BlobServiceClient(
+        storageAccountUrl,
+        credential,
+      );
+    }
+
+    const finalContainerName = this._containerName ?? containerName;
 
     this._containerClient =
-      this._blobServiceClient.getContainerClient(containerName);
+      this._blobServiceClient.getContainerClient(finalContainerName);
     if (!(await this._containerClient.exists())) {
       this._containerClient = (
-        await this._blobServiceClient.createContainer(containerName)
+        await this._blobServiceClient.createContainer(finalContainerName)
       ).containerClient;
     }
 
@@ -60,7 +70,7 @@ export class VideosPersistenceHandler {
   async list(
     prefix: string,
     pageSize: number = 20,
-    continuationToken: string | undefined = undefined
+    continuationToken: string | undefined = undefined,
   ) {
     try {
       if (!this._initialized) {
@@ -106,9 +116,10 @@ export class VideosPersistenceHandler {
         this._containerClient.getBlockBlobClient(videoName);
       return await blockBlobClient.exists();
     } catch (ex) {
+      console.log(ex);
       this._logger.error(
         { videoName, error: ex },
-        "Error checking if video exists"
+        "Error checking if video exists",
       );
       return false;
     }
@@ -117,7 +128,7 @@ export class VideosPersistenceHandler {
   async persist(
     videoName: string,
     { mimeType, size }: { mimeType: string; size: number },
-    content: Uint8Array
+    content: Uint8Array,
   ): Promise<boolean> {
     try {
       if (!this._initialized) {
@@ -137,7 +148,7 @@ export class VideosPersistenceHandler {
 
       this._logger.debug(
         { videoName, requestId: uploadBlobResponse.requestId },
-        "Persisted video"
+        "Persisted video",
       );
 
       return !uploadBlobResponse.errorCode;
@@ -167,7 +178,7 @@ export class VideosPersistenceHandler {
 
       this._logger.debug(
         { imageName, requestId: deleteBlobResponse.requestId },
-        "Deleted image"
+        "Deleted image",
       );
 
       return !deleteBlobResponse.errorCode;
