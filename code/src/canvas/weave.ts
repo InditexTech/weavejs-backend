@@ -24,6 +24,8 @@ import {
   setupSkiaBackend,
   // setupCanvasBackend,
 } from "@inditextech/weave-sdk/server";
+import { WeaveKonvaBaseRenderer } from "@inditextech/weave-renderer-konva-base/server";
+// import { WeaveKonvaReactReconcilerRenderer } from "@inditextech/weave-renderer-konva-react-reconciler/server";
 import { ColorTokenNode } from "./nodes/color-token/color-token.js";
 import { isAbsoluteUrl, sleep } from "../utils.js";
 import { ServiceConfig } from "../types.js";
@@ -77,9 +79,13 @@ export const renderWeaveRoom = (
       },
     );
 
+    const renderer = new WeaveKonvaBaseRenderer();
+    // const renderer = new WeaveKonvaReactReconcilerRenderer();
+
     weave = new Weave(
       {
         store,
+        renderer,
         nodes: getNodes(config),
         actions: [],
         plugins: [],

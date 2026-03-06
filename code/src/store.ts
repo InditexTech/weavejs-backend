@@ -71,7 +71,7 @@ export const getStore = () => {
 
 export const performPersistRoom = async (
   docName: string,
-  actualState: Uint8Array<ArrayBufferLike>
+  actualState: Uint8Array<ArrayBufferLike>,
 ) => {
   if (!isStorageInitialized()) {
     await setupStorage();
@@ -87,16 +87,16 @@ export const performPersistRoom = async (
   const actualStateJson = getStateAsJson(actualState);
   const firstLevelNodes = actualStateJson.props.children.find(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (c: any) => c.key === "mainLayer"
+    (c: any) => c.key === "mainLayer",
   ).props.children;
   logger.info(
     `Persisting room ${docName} state change. Amount of first-level nodes: ${
       firstLevelNodes.length
-    }`
+    }`,
   );
 
   const mainLayer = actualStateJson.props.children?.find(
-    (child: any) => child.key === "mainLayer"
+    (child: any) => child.key === "mainLayer",
   );
 
   let images: string[] = [];
@@ -135,7 +135,7 @@ export const setupStore = () => {
       connectionHandlers: {
         onConnect: async (
           connectionId: string,
-          queries: Record<string, string[]> | undefined
+          queries: Record<string, string[]> | undefined,
         ) => {
           logger.info(`onConnect called with <${connectionId}>`);
 
@@ -169,7 +169,7 @@ export const setupStore = () => {
 
             if (connection) {
               logger.info(
-                `Room of connectionId <${connection.connectionId}> is <${connection.roomId}>`
+                `Room of connectionId <${connection.connectionId}> is <${connection.roomId}>`,
               );
             }
 
@@ -177,7 +177,7 @@ export const setupStore = () => {
           } catch (ex) {
             console.error(ex);
             logger.error(
-              `Error getting connection room: <${(ex as Error)?.message}>`
+              `Error getting connection room: <${(ex as Error)?.message}>`,
             );
           }
 
@@ -190,7 +190,7 @@ export const setupStore = () => {
             const connections = await getRoomConnections({ roomId });
 
             logger.info(
-              `Room with roomId <${roomId}> has <${connections.length}> connections`
+              `Room with roomId <${roomId}> has <${connections.length}> connections`,
             );
 
             return connections.map((conn) => conn.connectionId);
@@ -234,7 +234,7 @@ export const setupStore = () => {
     },
     persistRoom: async (
       docName: string,
-      actualState: Uint8Array<ArrayBufferLike>
+      actualState: Uint8Array<ArrayBufferLike>,
     ) => {
       await persistenceQueue.add(async () => {
         await performPersistRoom(docName, actualState);
@@ -249,65 +249,69 @@ export const setupStore = () => {
     ({ context, queries }) => {
       logger.info(
         { queries },
-        `Client with connection Id <${context.connectionId}> connect`
+        `Client with connection Id <${context.connectionId}> connect`,
       );
-    }
+    },
   );
 
   azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnConnectedEvent>(
     "onConnected",
     ({ context }) => {
       logger.info(
-        `Client with connection Id <${context.connectionId}> connected`
+        `Client with connection Id <${context.connectionId}> connected`,
       );
-    }
+    },
   );
 
   azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnDisconnectedEvent>(
     "onDisconnected",
     ({ context }) => {
       logger.info(
-        `Client with connection Id <${context.connectionId}> disconnected`
+        `Client with connection Id <${context.connectionId}> disconnected`,
       );
-    }
+    },
   );
 
   azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketOpenEvent>(
     "onWsOpen",
     ({ group }) => {
-      logger.info(`WebSocket server connection opened for group <${group}>`);
-    }
+      logger.info(
+        `Azure Web PubSub server connection opened for group <${group}>`,
+      );
+    },
   );
 
   azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketJoinGroupEvent>(
     "onWsJoinGroup",
     ({ group }) => {
-      logger.info(`WebSocket server connection joined group <${group}>`);
-    }
+      logger.info(`Azure Web PubSub server connection joined group <${group}>`);
+    },
   );
 
   azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketCloseEvent>(
     "onWsClose",
     ({ event, group }) => {
       logger.info(
-        `WebSocket server connection closed for group <${group}>, code <${event.code}>`
+        `Azure Web PubSub server connection closed for group <${group}>, code <${event.code}>`,
       );
-    }
+    },
   );
 
   azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketErrorEvent>(
     "onWsError",
     ({ group, error }) => {
-      logger.info(`WebSocket server connection error for group <${group}>`);
+      logger.info(
+        `Azure Web PubSub server connection error for group <${group}>`,
+      );
       console.error(error);
-    }
+    },
   );
 
   azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketErrorEvent>(
     "onWsTokenRefresh",
     ({ group }) => {
-      logger.info(`WebSocket server token refresh for group <${group}>`);
-    }
+      logger.info(`Azure Web PubSub server token refresh for group <${group}>`);
+    },
   );
 
   logger.info("Module ready");
@@ -337,13 +341,13 @@ export const setupStoreRoomsCleanup = () => {
       const connections = await listGroupConnections(roomId);
       if (connections.length === 0) {
         logger.info(
-          `Performing cleanup of room <${roomId}>, has no active connections`
+          `Performing cleanup of room <${roomId}>, has no active connections`,
         );
         await storeSyncHandler.destroyRoomInstance(roomId);
         logger.info(`Cleanup of room <${roomId}> successful`);
       } else {
         logger.info(
-          `Room <${roomId}> has active connections <${connections.length}>, skipping cleanup`
+          `Room <${roomId}> has active connections <${connections.length}>, skipping cleanup`,
         );
       }
     }

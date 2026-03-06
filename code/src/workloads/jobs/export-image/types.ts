@@ -11,7 +11,7 @@ export type ExportImageJobNew = {
     roomData: string;
     nodes: string[];
     options: {
-      format: "image/png" | "image/jpeg";
+      format: "image/png" | "image/jpeg" | "image/webp";
       backgroundColor: string;
       padding: number;
       pixelRatio: number;
@@ -30,7 +30,7 @@ export type ExportImageJobProcessing = {
     roomData: string;
     nodes: string[];
     options: {
-      format: "image/png" | "image/jpeg";
+      format: "image/png" | "image/jpeg" | "image/webp";
       backgroundColor: string;
       padding: number;
       pixelRatio: number;
@@ -49,7 +49,7 @@ export type ExportImageJobComplete = {
     roomData: string;
     nodes: string[];
     options: {
-      format: "image/png" | "image/jpeg";
+      format: "image/png" | "image/jpeg" | "image/webp";
       backgroundColor: string;
       padding: number;
       pixelRatio: number;
@@ -69,7 +69,7 @@ export type ExportImageJobFailed = {
     roomData: string;
     nodes: string[];
     options: {
-      format: "image/png" | "image/jpeg";
+      format: "image/png" | "image/jpeg" | "image/webp";
       backgroundColor: string;
       padding: number;
       pixelRatio: number;
@@ -88,7 +88,7 @@ export type ExportImageJobData = {
     roomData: string;
     nodes: string[];
     options: {
-      format: "image/png" | "image/jpeg";
+      format: "image/png" | "image/jpeg" | "image/webp";
       backgroundColor: string;
       padding: number;
       pixelRatio: number;
@@ -107,7 +107,7 @@ export type ExportImageJobWorkData = {
     roomData: string;
     nodes: string[];
     options: {
-      format: "image/png" | "image/jpeg";
+      format: "image/png" | "image/jpeg" | "image/webp";
       backgroundColor: string;
       padding: number;
       pixelRatio: number;

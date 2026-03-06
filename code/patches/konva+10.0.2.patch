@@ -1,0 +1,14 @@
+diff --git a/node_modules/konva/lib/shapes/Text.js b/node_modules/konva/lib/shapes/Text.js
+index c882d0a..a34a9c9 100644
+--- a/node_modules/konva/lib/shapes/Text.js
++++ b/node_modules/konva/lib/shapes/Text.js
+@@ -279,8 +279,7 @@ export class Text extends Shape {
+     _getContextFont() {
+         return (this.fontStyle() +
+             SPACE +
+-            this.fontVariant() +
+-            SPACE +
++            (this.fontVariant() === "normal" ? "" : this.fontVariant() + SPACE) +
+             (this.fontSize() + PX_SPACE) +
+             normalizeFontFamily(this.fontFamily()));
+     }
