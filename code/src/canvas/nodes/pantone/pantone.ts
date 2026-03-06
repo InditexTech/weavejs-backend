@@ -6,7 +6,7 @@ import type {
   WeaveElementAttributes,
   WeaveElementInstance,
 } from "@inditextech/weave-types";
-import { WeaveNode } from "@inditextech/weave-sdk";
+import { WeaveNode } from "@inditextech/weave-sdk/server";
 
 import Konva from "konva";
 import { getNearestPantone } from "pantone-tcx";
@@ -178,7 +178,7 @@ export class PantoneNode extends WeaveNode {
 
   onUpdate(
     nodeInstance: WeaveElementInstance,
-    nextProps: WeaveElementAttributes
+    nextProps: WeaveElementAttributes,
   ) {
     const { id, pantone, pantoneStroke, pantoneStrokeWidth, dash } = nextProps;
 

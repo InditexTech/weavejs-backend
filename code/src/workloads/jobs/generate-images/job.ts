@@ -31,7 +31,7 @@ export class GenerateImagesJob {
   private persistenceHandler: ImagesPersistenceHandler;
 
   static async create(
-    tasksManagerInstance: pgBoss
+    tasksManagerInstance: pgBoss,
   ): Promise<GenerateImagesJob> {
     this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(JOB_GENERATE_IMAGES_QUEUE_NAME);
@@ -71,7 +71,7 @@ export class GenerateImagesJob {
           payload,
           imagesIds,
         });
-      }
+      },
     );
   }
 
@@ -103,7 +103,7 @@ export class GenerateImagesJob {
       const controller = new AbortController();
       const timeout = setTimeout(
         () => controller.abort(),
-        config.azureCsClient.timeoutSecs * 1000
+        config.azureCsClient.timeoutSecs * 1000,
       );
 
       const response = await fetch(
@@ -116,7 +116,7 @@ export class GenerateImagesJob {
           },
           body: JSON.stringify(requestBody),
           signal: controller.signal,
-        }
+        },
       );
 
       clearTimeout(timeout);
@@ -135,7 +135,7 @@ export class GenerateImagesJob {
         await this.persistenceHandler?.persist(
           fileName,
           { size: data.length, mimeType: "image/png" },
-          data
+          data,
         );
       }
     } catch (ex) {
@@ -163,8 +163,10 @@ export class GenerateImagesJob {
       const controller = new AbortController();
       const timeout = setTimeout(
         () => controller.abort(),
-        config.liteLLM.timeoutSecs * 1000
+        config.liteLLM.timeoutSecs * 1000,
       );
+
+      console.log("AQUI 1");
 
       const response = await fetch(
         `${config.liteLLM.endpoint}/litellm/v1/chat/completions`,
@@ -176,10 +178,12 @@ export class GenerateImagesJob {
           },
           body: JSON.stringify(requestBody),
           signal: controller.signal,
-        }
+        },
       );
 
       clearTimeout(timeout);
+
+      console.log("AQUI 2", response.status, response.statusText);
 
       if (!response.ok) {
         throw new Error("Error generating the images");
@@ -197,7 +201,7 @@ export class GenerateImagesJob {
         await this.persistenceHandler?.persist(
           fileName,
           { size: data.length, mimeType },
-          data
+          data,
         );
       }
     } catch (ex) {
@@ -285,7 +289,7 @@ export class GenerateImagesJob {
     clientId: string,
     roomId: string,
     userId: string,
-    parameters: GenerateImagesParameters
+    parameters: GenerateImagesParameters,
   ): Promise<string> {
     const { sampleCount } = parameters;
 
@@ -307,7 +311,7 @@ export class GenerateImagesJob {
       JOB_GENERATE_IMAGES_QUEUE_NAME,
       jobData,
       {},
-      1
+      1,
     );
 
     if (!jobId) {
@@ -373,7 +377,7 @@ export class GenerateImagesJob {
     });
 
     this.logger.info(
-      `Generate images / created new job / ${jobId} / ${clientId}`
+      `Generate images / created new job / ${jobId} / ${clientId}`,
     );
   }
 
@@ -388,7 +392,7 @@ export class GenerateImagesJob {
         },
         {
           status: "working",
-        }
+        },
       );
     }
 
@@ -400,7 +404,7 @@ export class GenerateImagesJob {
         roomId,
         userId,
         status: "active",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -410,7 +414,7 @@ export class GenerateImagesJob {
     });
 
     this.logger.info(
-      `Generate images / job stated active / ${jobId} / ${clientId}`
+      `Generate images / job stated active / ${jobId} / ${clientId}`,
     );
   }
 
@@ -425,7 +429,7 @@ export class GenerateImagesJob {
         },
         {
           status: "completed",
-        }
+        },
       );
     }
 
@@ -435,7 +439,7 @@ export class GenerateImagesJob {
       },
       {
         status: "completed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -445,7 +449,7 @@ export class GenerateImagesJob {
     });
 
     this.logger.info(
-      `Generate images / job completed / ${jobId} / ${clientId})`
+      `Generate images / job completed / ${jobId} / ${clientId})`,
     );
   }
 
@@ -460,7 +464,7 @@ export class GenerateImagesJob {
         },
         {
           status: "failed",
-        }
+        },
       );
     }
 
@@ -470,7 +474,7 @@ export class GenerateImagesJob {
       },
       {
         status: "failed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -480,7 +484,7 @@ export class GenerateImagesJob {
     });
 
     this.logger.error(
-      `Generate images / job failed: / ${jobId} / ${clientId} / ${error}`
+      `Generate images / job failed: / ${jobId} / ${clientId} / ${error}`,
     );
   }
 }

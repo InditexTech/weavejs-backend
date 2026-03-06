@@ -45,10 +45,6 @@ declare global {
     weave: Weave;
     weaveOnFieldFocus?: boolean;
     weaveTextEditing?: Record<string, string>;
-    weaveDragImageURL?: string;
-    weaveDragImageId?: string;
-    weaveDragVideoParams?: WeaveVideoToolDragParams;
-    weaveDragVideoId?: string;
     colorTokenDragColor?: string;
   }
 }

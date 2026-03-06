@@ -19,11 +19,10 @@ import { defineChatMessageModel } from "./models/chat-message.js";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 let activeSequelize: Sequelize | null = null;
-let standbySequelize: Sequelize | null = null;
 
-const RENEW_TOKEN_CHECK_INTERVAL = 60 * 1000; // 1 minute
-const RENEW_TOKEN_THRESHOLD = 5 * 60 * 1000; // 5 minutes
-const CLOSE_STANDBY_SEQUELIZE_DELAY = 5 * 60 * 1000; // 5 minutes
+// const RENEW_TOKEN_CHECK_INTERVAL = 60 * 1000; // 1 minute
+// const RENEW_TOKEN_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+// const CLOSE_STANDBY_SEQUELIZE_DELAY = 5 * 60 * 1000; // 5 minutes
 
 export const setupDatabase = async () => {
   logger = getLogger().child({ module: "database" });
@@ -35,9 +34,10 @@ export const setupDatabase = async () => {
   let currentAccessToken: AccessToken | undefined = undefined;
 
   async function initSequelize(
-    initialize: boolean = true
+    initialize: boolean = true,
   ): Promise<Sequelize | null> {
     if (config.database.kind === "connection_string") {
+      logger.info("Initializing database connection (connection string)");
       const {
         database: {
           connection: { connectionString },
@@ -47,6 +47,12 @@ export const setupDatabase = async () => {
       const sequelize = new Sequelize(connectionString, {
         dialect: "postgres",
         logging: false,
+        pool: {
+          max: 5,
+          min: 0,
+          acquire: 30000,
+          idle: 10000,
+        },
         // logging: (msg: string) => logger.debug(msg),
       });
 
@@ -54,7 +60,7 @@ export const setupDatabase = async () => {
         await sequelize.authenticate();
       } catch (error) {
         throw new Error(
-          `Unable to connect to the database: ${(error as Error).message}`
+          `Unable to connect to the database: ${(error as Error).message}`,
         );
       }
 
@@ -82,6 +88,7 @@ export const setupDatabase = async () => {
     }
 
     if (config.database.kind === "properties") {
+      logger.info("Initializing database connection (properties)");
       const {
         database: {
           connection: { host, port, db, username, password, ssl },
@@ -99,6 +106,12 @@ export const setupDatabase = async () => {
         host,
         port,
         dialect: "postgres",
+        pool: {
+          max: 5,
+          min: 0,
+          acquire: 30000,
+          idle: 10000,
+        },
         ...(ssl && {
           dialectOptions: {
             ssl: {
@@ -111,11 +124,18 @@ export const setupDatabase = async () => {
         // logging: (msg: string) => logger.debug(msg),
       });
 
+      if (config.database.connection.cloudCredentials) {
+        sequelize.addHook("beforeConnect", async (config) => {
+          const accessToken = await getDatabaseCloudCredentialsToken();
+          config.password = accessToken.token;
+        });
+      }
+
       try {
         await sequelize.authenticate();
       } catch (error) {
         throw new Error(
-          `Unable to connect to the database: ${(error as Error).message}`
+          `Unable to connect to the database: ${(error as Error).message}`,
         );
       }
 
@@ -146,54 +166,19 @@ export const setupDatabase = async () => {
     return null;
   }
 
-  function tokenRenewalInterval() {
-    setInterval(async () => {
-      if (!activeSequelize) {
-        logger.info("Not active...");
-        return;
-      }
-
-      if (
-        currentAccessToken?.expiresOnTimestamp &&
-        Date.now() >
-          currentAccessToken.expiresOnTimestamp - RENEW_TOKEN_THRESHOLD
-      ) {
-        logger.info("Renewing access token");
-
-        standbySequelize = await initSequelize(false);
-
-        if (!standbySequelize) {
-          throw new Error("Database settings not defined on database module");
-        }
-
-        const old = activeSequelize;
-        activeSequelize = standbySequelize;
-        standbySequelize = null;
-
-        setTimeout(() => {
-          old.close().catch(console.error);
-        }, CLOSE_STANDBY_SEQUELIZE_DELAY);
-      }
-    }, RENEW_TOKEN_CHECK_INTERVAL);
-
-    logger.info("Token renewal interval started");
-  }
-
   activeSequelize = await initSequelize();
 
   if (!activeSequelize) {
     throw new Error("Database settings not defined on database module");
   }
 
-  tokenRenewalInterval();
-
   return activeSequelize;
 };
 
 export const getDatabaseInstance = () => {
-  if (!activeSequelize && !standbySequelize) {
+  if (!activeSequelize) {
     throw new Error("Database module not initialized");
   }
 
-  return standbySequelize ?? activeSequelize;
+  return activeSequelize;
 };

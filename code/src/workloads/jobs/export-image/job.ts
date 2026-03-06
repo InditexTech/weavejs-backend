@@ -184,7 +184,7 @@ export class ExportImageJob {
       roomData: string;
       nodes: string[];
       options: {
-        format: "image/png" | "image/jpeg";
+        format: "image/png" | "image/jpeg" | "image/webp";
         backgroundColor: string;
         padding: number;
         pixelRatio: number;
