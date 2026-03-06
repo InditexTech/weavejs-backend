@@ -16,6 +16,9 @@ path = [
     "**/tsconfig.json",
     "**/package*.json",
 
+    # patches folder
+    "code/patches/**",
+
     # code/ directory licensing
     "cleanup-storage/src/whitelist.json",
     "code/config/**",
