@@ -174,6 +174,7 @@ const getNodes = (config: ServiceConfig) => {
     new WeaveTextNode(),
     new WeaveImageNode({
       config: {
+        useFallbackImage: false,
         urlTransformer: (url: string) => {
           const isAbsolute = isAbsoluteUrl(url);
 
