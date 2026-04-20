@@ -27,6 +27,7 @@ import {
   updateImage,
 } from "../../../database/controllers/image.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export class FlipImageJob {
   private logger: ReturnType<typeof getLogger>;
@@ -52,7 +53,8 @@ export class FlipImageJob {
 
     this.boss = tasksManagerInstance;
 
-    this.persistenceHandler = new ImagesPersistenceHandler();
+    const config = getServiceConfig();
+    this.persistenceHandler = new ImagesPersistenceHandler(config);
 
     this.logger.info("Job created");
   }
@@ -81,7 +83,7 @@ export class FlipImageJob {
             image,
           },
         });
-      }
+      },
     );
   }
 
@@ -136,7 +138,7 @@ export class FlipImageJob {
       await this.persistenceHandler?.persist(
         fileName,
         { size: realBuffer.length, mimeType: "image/png" },
-        realBuffer
+        realBuffer,
       );
       await fs.promises.rm(filePath);
 
@@ -193,7 +195,7 @@ export class FlipImageJob {
       replaceImage?: string;
       dataBase64: string;
       contentType: string;
-    }
+    },
   ): Promise<string> {
     const newImageId = uuidv4();
 
@@ -301,7 +303,7 @@ export class FlipImageJob {
       },
       {
         status: "working",
-      }
+      },
     );
 
     await updateTask(
@@ -312,7 +314,7 @@ export class FlipImageJob {
         roomId,
         userId,
         status: "active",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -339,7 +341,7 @@ export class FlipImageJob {
       },
       {
         status: "completed",
-      }
+      },
     );
 
     await updateTask(
@@ -348,7 +350,7 @@ export class FlipImageJob {
       },
       {
         status: "completed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -361,7 +363,7 @@ export class FlipImageJob {
     });
 
     this.logger.info(
-      `Flip image / job completed / ${jobId} / ${clientId} / ${imageId})`
+      `Flip image / job completed / ${jobId} / ${clientId} / ${imageId})`,
     );
   }
 
@@ -381,7 +383,7 @@ export class FlipImageJob {
       },
       {
         status: "failed",
-      }
+      },
     );
 
     await updateTask(
@@ -390,7 +392,7 @@ export class FlipImageJob {
       },
       {
         status: "failed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -400,7 +402,7 @@ export class FlipImageJob {
     });
 
     this.logger.error(
-      `Flip image / job failed: / ${jobId} / ${clientId} / ${error}`
+      `Flip image / job failed: / ${jobId} / ${clientId} / ${error}`,
     );
   }
 }

@@ -3,7 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Request, Response } from "express";
-import { createChat, getChat } from "../../../database/controllers/chat.js";
+import {
+  createChat,
+  geBytChatId,
+  getChat,
+} from "../../../database/controllers/chat.js";
 
 export const postChatController = () => {
   return async (req: Request, res: Response): Promise<void> => {
@@ -21,14 +25,16 @@ export const postChatController = () => {
       return;
     }
 
-    const existingChat = await getChat({
-      roomId,
+    const existingChat = await geBytChatId({
       chatId,
-      resourceId,
     });
 
     if (existingChat) {
-      res.status(409).json({ status: "KO", message: "Chat already exists" });
+      res.status(201).json({
+        chat: existingChat,
+        messages: [],
+      });
+
       return;
     }
 

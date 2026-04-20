@@ -25,7 +25,7 @@ export const getRoomResourceChats = async (
   }: {
     limit?: number;
     offset?: number;
-  }
+  },
 ): Promise<ChatModel[]> => {
   return ChatModel.findAll({
     where: {
@@ -66,6 +66,28 @@ export const getRoomResourcesTotalChats = async ({
   });
 };
 
+export const geBytChatId = async ({
+  chatId,
+}: {
+  chatId: string;
+}): Promise<ChatModel | null> => {
+  const chat = await ChatModel.findOne({
+    where: {
+      chatId,
+    },
+    attributes: [
+      "roomId",
+      "chatId",
+      "resourceId",
+      "status",
+      "title",
+      "createdAt",
+      "updatedAt",
+    ],
+  });
+  return chat;
+};
+
 export const getChat = async ({
   roomId,
   chatId,
@@ -91,7 +113,7 @@ export const getChat = async ({
 };
 
 export const createChat = async (
-  chatData: ChatAttributes
+  chatData: ChatAttributes,
 ): Promise<ChatModel> => {
   const newChat = await ChatModel.create(chatData);
 
@@ -101,7 +123,7 @@ export const createChat = async (
 export const updateChat = async (
   { chatId, roomId, resourceId }: ChatIdentifier,
   chatData: Partial<ChatAttributes>,
-  silent: boolean = false
+  silent: boolean = false,
 ): Promise<number> => {
   const affected = await ChatModel.update(chatData, {
     where: {
@@ -136,7 +158,7 @@ export const deleteChat = async ({
         roomId,
         resourceId,
       },
-    }
+    },
   );
 
   return affected[0];

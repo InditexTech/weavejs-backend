@@ -15,6 +15,8 @@ import { setupStorage } from "./storage/storage.js";
 import { getServiceConfig } from "./config/config.js";
 import { setupCommBus } from "./comm-bus/comm-bus.js";
 import { setupWorkers } from "./workers/workers.js";
+import { setupAuth } from "@/lib/auth.js";
+
 const start = async () => {
   try {
     // Setup service logger
@@ -25,6 +27,8 @@ const start = async () => {
     logger.info(`Log level set to: ${process.env.LOG_LEVEL ?? "error"}`);
 
     const config = getServiceConfig();
+
+    setupAuth();
 
     // Setup node.js workers
     await setupWorkers();
@@ -62,7 +66,7 @@ const start = async () => {
         .createServer(options, app)
         .listen(config.service.port, config.service.hostname, () => {
           logger.info(
-            `Server started: https://${config.service.hostname}:${config.service.port}`
+            `Server started: https://${config.service.hostname}:${config.service.port}`,
           );
         });
     } else {
@@ -70,7 +74,7 @@ const start = async () => {
         .createServer(app)
         .listen(config.service.port, config.service.hostname, () => {
           logger.info(
-            `Server started: http://${config.service.hostname}:${config.service.port}`
+            `Server started: http://${config.service.hostname}:${config.service.port}`,
           );
         });
     }

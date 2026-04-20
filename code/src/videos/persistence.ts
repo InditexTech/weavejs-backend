@@ -51,6 +51,9 @@ export class VideosPersistenceHandler {
       this._blobServiceClient = new BlobServiceClient(
         storageAccountUrl,
         credential,
+        {
+          retryOptions: { maxTries: 1 },
+        },
       );
     }
 

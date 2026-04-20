@@ -20,6 +20,7 @@ import {
 } from "./types.js";
 import { JOB_DELETE_IMAGE_QUEUE_NAME } from "./constants.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export class DeleteImageJob {
   private logger: ReturnType<typeof getLogger>;
@@ -45,7 +46,8 @@ export class DeleteImageJob {
 
     this.boss = tasksManagerInstance;
 
-    this.persistenceHandler = new ImagesPersistenceHandler();
+    const config = getServiceConfig();
+    this.persistenceHandler = new ImagesPersistenceHandler(config);
 
     this.logger.info("Job created");
   }
@@ -73,7 +75,7 @@ export class DeleteImageJob {
             mimeType,
           },
         });
-      }
+      },
     );
   }
 
@@ -157,7 +159,7 @@ export class DeleteImageJob {
     clientId: string,
     roomId: string,
     userId: string,
-    imageId: string
+    imageId: string,
   ): Promise<string> {
     const jobData: DeleteImageJobData = {
       clientId,
@@ -172,7 +174,7 @@ export class DeleteImageJob {
       JOB_DELETE_IMAGE_QUEUE_NAME,
       jobData,
       {},
-      1
+      1,
     );
 
     if (!jobId) {
@@ -222,7 +224,7 @@ export class DeleteImageJob {
       {
         removalJobId: jobId,
         removalStatus: "pending",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -250,7 +252,7 @@ export class DeleteImageJob {
       },
       {
         removalStatus: "working",
-      }
+      },
     );
 
     await updateTask(
@@ -261,7 +263,7 @@ export class DeleteImageJob {
         roomId,
         userId,
         status: "active",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -271,7 +273,7 @@ export class DeleteImageJob {
     });
 
     this.logger.info(
-      `Delete image / job stated active / ${jobId} / ${clientId}`
+      `Delete image / job stated active / ${jobId} / ${clientId}`,
     );
   }
 
@@ -289,7 +291,7 @@ export class DeleteImageJob {
       },
       {
         status: "completed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -299,7 +301,7 @@ export class DeleteImageJob {
     });
 
     this.logger.info(
-      `Delete image / job completed / ${jobId} / ${clientId} / ${imageId})`
+      `Delete image / job completed / ${jobId} / ${clientId} / ${imageId})`,
     );
   }
 
@@ -319,7 +321,7 @@ export class DeleteImageJob {
       },
       {
         removalStatus: "failed",
-      }
+      },
     );
 
     await updateTask(
@@ -328,7 +330,7 @@ export class DeleteImageJob {
       },
       {
         status: "failed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -338,7 +340,7 @@ export class DeleteImageJob {
     });
 
     this.logger.error(
-      `Delete image / job failed: / ${jobId} / ${clientId} / ${error}`
+      `Delete image / job failed: / ${jobId} / ${clientId} / ${error}`,
     );
   }
 }

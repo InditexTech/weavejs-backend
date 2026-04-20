@@ -6,9 +6,14 @@ import { Readable } from "stream";
 import { Request, Response } from "express";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import archiver from "archiver";
+import { getServiceConfig } from "@/config/config.js";
 
 export const getExportedPdfController = () => {
-  const persistenceHandler = new ImagesPersistenceHandler("exported-pdf");
+  const config = getServiceConfig();
+  const persistenceHandler = new ImagesPersistenceHandler(
+    config,
+    "exported-pdf",
+  );
 
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId as string;

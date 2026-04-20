@@ -22,7 +22,7 @@ export const postTemplateController = () => {
     const parsedBody = payloadSchema.safeParse(req.body);
 
     if (!parsedBody.success) {
-      res.status(400).json({ errors: parsedBody.error.errors });
+      res.status(400).json({ errors: parsedBody.error.issues });
       return;
     }
 

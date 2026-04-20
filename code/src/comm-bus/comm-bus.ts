@@ -40,6 +40,32 @@ export const getCommBus = () => {
   return serviceClient;
 };
 
+export const closeClientConnection = (connectionId: string) => {
+  if (!serviceClient) {
+    throw new Error("Communication bus not initialized");
+  }
+
+  serviceClient.closeConnection(connectionId);
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const broadcastToGlobal = async (message: any) => {
+  if (!serviceClient) {
+    throw new Error("Communication bus not initialized");
+  }
+  const group = `weavejsGlobal.commbus`;
+
+  try {
+    const existGroup = await serviceClient.groupExists(group);
+
+    if (existGroup) {
+      await serviceClient.group(group).sendToAll(message);
+    }
+  } catch (error) {
+    logger.error({ roomId: group, error }, "Error broadcasting to room");
+  }
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const broadcastToRoom = async (roomId: string, message: any) => {
   if (!serviceClient) {

@@ -26,6 +26,7 @@ import {
   updateImage,
 } from "../../../database/controllers/image.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export class RemoveImageBackgroundJob {
   private logger: ReturnType<typeof getLogger>;
@@ -33,11 +34,11 @@ export class RemoveImageBackgroundJob {
   private persistenceHandler: ImagesPersistenceHandler;
 
   static async create(
-    tasksManagerInstance: pgBoss
+    tasksManagerInstance: pgBoss,
   ): Promise<RemoveImageBackgroundJob> {
     this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(
-      JOB_REMOVE_IMAGE_BACKGROUND_QUEUE_NAME
+      JOB_REMOVE_IMAGE_BACKGROUND_QUEUE_NAME,
     );
 
     return new RemoveImageBackgroundJob(tasksManagerInstance);
@@ -55,7 +56,8 @@ export class RemoveImageBackgroundJob {
 
     this.boss = tasksManagerInstance;
 
-    this.persistenceHandler = new ImagesPersistenceHandler();
+    const config = getServiceConfig();
+    this.persistenceHandler = new ImagesPersistenceHandler(config);
 
     this.logger.info("Job created");
   }
@@ -83,7 +85,7 @@ export class RemoveImageBackgroundJob {
             image,
           },
         });
-      }
+      },
     );
   }
 
@@ -131,7 +133,7 @@ export class RemoveImageBackgroundJob {
       await this.persistenceHandler?.persist(
         fileName,
         { size: data.length, mimeType: "image/png" },
-        data
+        data,
       );
       await fs.promises.rm(filePath);
 
@@ -181,7 +183,7 @@ export class RemoveImageBackgroundJob {
     roomId: string,
     userId: string,
     imageId: string,
-    image: { replaceImage?: string; dataBase64: string; contentType: string }
+    image: { replaceImage?: string; dataBase64: string; contentType: string },
   ): Promise<string> {
     const newImageId = uuidv4();
 
@@ -198,7 +200,7 @@ export class RemoveImageBackgroundJob {
 
     const jobId = await this.boss.send(
       JOB_REMOVE_IMAGE_BACKGROUND_QUEUE_NAME,
-      jobData
+      jobData,
     );
 
     if (!jobId) {
@@ -272,7 +274,7 @@ export class RemoveImageBackgroundJob {
     });
 
     this.logger.info(
-      `Remove image background / created new job / ${jobId} / ${clientId}`
+      `Remove image background / created new job / ${jobId} / ${clientId}`,
     );
   }
 
@@ -292,7 +294,7 @@ export class RemoveImageBackgroundJob {
       },
       {
         status: "working",
-      }
+      },
     );
 
     await updateTask(
@@ -303,7 +305,7 @@ export class RemoveImageBackgroundJob {
         roomId,
         userId,
         status: "active",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -313,7 +315,7 @@ export class RemoveImageBackgroundJob {
     });
 
     this.logger.info(
-      `Remove image background / job stated active / ${jobId} / ${clientId}`
+      `Remove image background / job stated active / ${jobId} / ${clientId}`,
     );
   }
 
@@ -332,7 +334,7 @@ export class RemoveImageBackgroundJob {
       },
       {
         status: "completed",
-      }
+      },
     );
 
     await updateTask(
@@ -341,7 +343,7 @@ export class RemoveImageBackgroundJob {
       },
       {
         status: "completed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -354,7 +356,7 @@ export class RemoveImageBackgroundJob {
     });
 
     this.logger.info(
-      `Remove image background / job completed / ${jobId} / ${clientId} / ${imageId})`
+      `Remove image background / job completed / ${jobId} / ${clientId} / ${imageId})`,
     );
   }
 
@@ -374,7 +376,7 @@ export class RemoveImageBackgroundJob {
       },
       {
         status: "failed",
-      }
+      },
     );
 
     await updateTask(
@@ -383,7 +385,7 @@ export class RemoveImageBackgroundJob {
       },
       {
         status: "failed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -393,7 +395,7 @@ export class RemoveImageBackgroundJob {
     });
 
     this.logger.error(
-      `Remove image background / job failed: / ${jobId} / ${clientId} / ${error}`
+      `Remove image background / job failed: / ${jobId} / ${clientId} / ${error}`,
     );
   }
 }

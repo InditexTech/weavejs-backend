@@ -26,6 +26,7 @@ import {
   updateImage,
 } from "../../../database/controllers/image.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export class NegateImageJob {
   private logger: ReturnType<typeof getLogger>;
@@ -51,7 +52,8 @@ export class NegateImageJob {
 
     this.boss = tasksManagerInstance;
 
-    this.persistenceHandler = new ImagesPersistenceHandler();
+    const config = getServiceConfig();
+    this.persistenceHandler = new ImagesPersistenceHandler(config);
 
     this.logger.info("Job created");
   }
@@ -79,7 +81,7 @@ export class NegateImageJob {
             image,
           },
         });
-      }
+      },
     );
   }
 
@@ -130,7 +132,7 @@ export class NegateImageJob {
       await this.persistenceHandler?.persist(
         fileName,
         { size: realBuffer.length, mimeType: "image/png" },
-        realBuffer
+        realBuffer,
       );
       await fs.promises.rm(filePath);
 
@@ -180,7 +182,7 @@ export class NegateImageJob {
     roomId: string,
     userId: string,
     imageId: string,
-    image: { replaceImage?: string; dataBase64: string; contentType: string }
+    image: { replaceImage?: string; dataBase64: string; contentType: string },
   ): Promise<string> {
     const newImageId = uuidv4();
 
@@ -286,7 +288,7 @@ export class NegateImageJob {
       },
       {
         status: "working",
-      }
+      },
     );
 
     await updateTask(
@@ -297,7 +299,7 @@ export class NegateImageJob {
         roomId,
         userId,
         status: "active",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -307,7 +309,7 @@ export class NegateImageJob {
     });
 
     this.logger.info(
-      `Negate image / job stated active / ${jobId} / ${clientId}`
+      `Negate image / job stated active / ${jobId} / ${clientId}`,
     );
   }
 
@@ -326,7 +328,7 @@ export class NegateImageJob {
       },
       {
         status: "completed",
-      }
+      },
     );
 
     await updateTask(
@@ -335,7 +337,7 @@ export class NegateImageJob {
       },
       {
         status: "completed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -348,7 +350,7 @@ export class NegateImageJob {
     });
 
     this.logger.info(
-      `Negate image / job completed / ${jobId} / ${clientId} / ${imageId})`
+      `Negate image / job completed / ${jobId} / ${clientId} / ${imageId})`,
     );
   }
 
@@ -368,7 +370,7 @@ export class NegateImageJob {
       },
       {
         status: "failed",
-      }
+      },
     );
 
     await updateTask(
@@ -377,7 +379,7 @@ export class NegateImageJob {
       },
       {
         status: "failed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -387,7 +389,7 @@ export class NegateImageJob {
     });
 
     this.logger.error(
-      `Negate image / job failed: / ${jobId} / ${clientId} / ${error}`
+      `Negate image / job failed: / ${jobId} / ${clientId} / ${error}`,
     );
   }
 }

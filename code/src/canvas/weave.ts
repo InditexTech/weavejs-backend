@@ -22,12 +22,13 @@ import {
   WeaveMeasureNode,
   WeaveConnectorNode,
   setupSkiaBackend,
+  WeaveStrokeSingleNode,
   // setupCanvasBackend,
 } from "@inditextech/weave-sdk/server";
 import { WeaveKonvaBaseRenderer } from "@inditextech/weave-renderer-konva-base/server";
 // import { WeaveKonvaReactReconcilerRenderer } from "@inditextech/weave-renderer-konva-react-reconciler/server";
 import { ColorTokenNode } from "./nodes/color-token/color-token.js";
-import { isAbsoluteUrl, sleep } from "../utils.js";
+import { isAbsoluteUrl } from "../utils.js";
 import { ServiceConfig } from "../types.js";
 import {
   registerSkiaFonts,
@@ -157,7 +158,6 @@ export const renderWeaveRoom = (
       resolve({ instance: weave, destroy: destroyWeaveRoom });
     });
 
-    await sleep(1000); // Ensure the weave instance is properly initialized before setting up event listeners
     await weave.start();
   });
 };
@@ -171,6 +171,7 @@ const getNodes = (config: ServiceConfig) => {
     new WeaveEllipseNode(),
     new WeaveLineNode(),
     new WeaveStrokeNode(),
+    new WeaveStrokeSingleNode(),
     new WeaveTextNode(),
     new WeaveImageNode({
       config: {

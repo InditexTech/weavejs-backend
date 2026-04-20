@@ -9,9 +9,11 @@ import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import { createImage } from "../../../database/controllers/image.js";
 import { ImageModel } from "../../../database/models/image.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export const postUploadImageController = () => {
-  const persistenceHandler = new ImagesPersistenceHandler();
+  const config = getServiceConfig();
+  const persistenceHandler = new ImagesPersistenceHandler(config);
 
   return async (req: Request, res: Response): Promise<void> => {
     const file = req.file;
@@ -34,7 +36,7 @@ export const postUploadImageController = () => {
         await persistenceHandler.persist(
           fileName,
           { size: file.size, mimeType },
-          data
+          data,
         );
 
         const imageModel = await createImage({

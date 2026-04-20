@@ -13,10 +13,11 @@ import {
 } from "../agents/image-generator-editor-agent.js";
 import { MastraUnion } from "@mastra/core/action";
 import { ImagesPersistenceHandler } from "@/images/persistence.js";
+import { getServiceConfig } from "@/config/config.js";
 
 type GeneratedImage = {
   imageId: string;
-  status: "generating" | "generated" | "failed";
+  status: "generating" | "generated" | "prohibited_content" | "failed";
   url?: string;
 };
 
@@ -25,9 +26,11 @@ type ImageGenerationToolContext = ImageGeneratorRuntimeContext;
 let imageHandler: ImagesPersistenceHandler | null = null;
 
 export const initImageGenerationTool = async () => {
+  const config = getServiceConfig();
   imageHandler = new ImagesPersistenceHandler(
+    config,
     process.env.AZURE_STORAGE_GENERATED_IMAGES_CONTAINER_NAME ??
-      "generated-images"
+      "generated-images",
   );
   await imageHandler.setup();
 };
@@ -42,9 +45,14 @@ export const imageGenerationTool = createTool({
     images: z.array(
       z.object({
         imageId: z.string(),
-        status: z.enum(["generating", "generated", "failed"]),
+        status: z.enum([
+          "generating",
+          "generated",
+          "prohibited_content",
+          "failed",
+        ]),
         url: z.string().optional(),
-      })
+      }),
     ),
   }),
   execute: async ({ runtimeContext, mastra, context }) => {
@@ -56,7 +64,7 @@ export const imageGenerationTool = createTool({
     const threadId = runtimeContext.get("threadId") as string;
     const resourceId = runtimeContext.get("resourceId") as string;
     const referenceImages = runtimeContext.get(
-      "referenceImages"
+      "referenceImages",
     ) as ReferenceImage[];
 
     const imageOption: ImageOptions = runtimeContext.get("imageOption");
@@ -69,7 +77,7 @@ export const imageGenerationTool = createTool({
     logger?.info(`Generating image prompt: ${prompt}`);
     logger?.info(`Related images: ${referenceImages.length ?? 0}`);
     logger?.info(
-      `With options: model=${model}, samples=${samples}, aspectRatio=${aspectRatio}, quality=${quality ? quality : "-"}, imageSize=${size}`
+      `With options: model=${model}, samples=${samples}, aspectRatio=${aspectRatio}, quality=${quality ? quality : "-"}, imageSize=${size}`,
     );
 
     const images = await generateImages(mastra, prompt, {
@@ -81,7 +89,7 @@ export const imageGenerationTool = createTool({
     });
 
     logger?.info(
-      `Generated [${images.length}] images: ${JSON.stringify(images, null, 2)}`
+      `Generated [${images.length}] images: ${JSON.stringify(images, null, 2)}`,
     );
 
     return { images };
@@ -91,7 +99,7 @@ export const imageGenerationTool = createTool({
 const generateImages = async (
   mastra: MastraUnion | undefined,
   prompt: string,
-  context: ImageGenerationToolContext
+  context: ImageGenerationToolContext,
 ) => {
   if (!imageHandler) {
     await initImageGenerationTool();
@@ -122,7 +130,7 @@ const generateImagesFromGemini = async ({
 
   if (context.imageOption.model !== "gemini/gemini-3-pro-image-preview") {
     throw new Error(
-      `Image model [${context.imageOption.model}] not supported in Gemini generator.`
+      `Image model [${context.imageOption.model}] not supported in Gemini generator.`,
     );
   }
 
@@ -136,7 +144,7 @@ const generateImagesFromGemini = async ({
       imageId: uuidv4(),
       status: "generating",
       url: undefined,
-    })
+    }),
   );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -173,12 +181,21 @@ const generateImagesFromGemini = async ({
       },
     });
 
+    console.log("Gemini response: ", JSON.stringify(response, null, 2));
+
     if (!response.candidates) {
-      throw new Error("No candidates in the image generation response");
+      actualImage.status = "failed";
+      continue;
     }
 
     if (!response.candidates[0]) {
-      throw new Error("No images generated from the prompt");
+      actualImage.status = "failed";
+      continue;
+    }
+
+    if (response.candidates[0].finishReason === "PROHIBITED_CONTENT") {
+      actualImage.status = "prohibited_content";
+      continue;
     }
 
     for (const part of response.candidates[0].content?.parts || []) {
@@ -195,7 +212,7 @@ const generateImagesFromGemini = async ({
             mimeType: part.inlineData.mimeType,
             size: buffer.length,
           },
-          buffer
+          buffer,
         );
 
         actualImage.status = "generated";
@@ -220,7 +237,7 @@ const generateImagesFromChatGPT = async ({
 
   if (context.imageOption.model !== "openai/gpt-image-1") {
     throw new Error(
-      `Image model [${context.imageOption.model}] not supported in ChatGPT generator.`
+      `Image model [${context.imageOption.model}] not supported in ChatGPT generator.`,
     );
   }
 
@@ -230,7 +247,7 @@ const generateImagesFromChatGPT = async ({
       imageId: uuidv4(),
       status: "generating",
       url: undefined,
-    })
+    }),
   );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -302,7 +319,7 @@ const generateImagesFromChatGPT = async ({
             mimeType: "image/png",
             size: buffer.length,
           },
-          buffer
+          buffer,
         );
 
         actualImage.status = "generated";

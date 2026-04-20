@@ -26,6 +26,7 @@ import {
   updateImage,
 } from "../../../database/controllers/image.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export class GrayscaleImageJob {
   private logger: ReturnType<typeof getLogger>;
@@ -33,7 +34,7 @@ export class GrayscaleImageJob {
   private persistenceHandler: ImagesPersistenceHandler;
 
   static async create(
-    tasksManagerInstance: pgBoss
+    tasksManagerInstance: pgBoss,
   ): Promise<GrayscaleImageJob> {
     this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(JOB_GRAYSCALE_IMAGE_QUEUE_NAME);
@@ -53,7 +54,8 @@ export class GrayscaleImageJob {
 
     this.boss = tasksManagerInstance;
 
-    this.persistenceHandler = new ImagesPersistenceHandler();
+    const config = getServiceConfig();
+    this.persistenceHandler = new ImagesPersistenceHandler(config);
 
     this.logger.info("Job created");
   }
@@ -81,7 +83,7 @@ export class GrayscaleImageJob {
             image,
           },
         });
-      }
+      },
     );
   }
 
@@ -132,7 +134,7 @@ export class GrayscaleImageJob {
       await this.persistenceHandler?.persist(
         fileName,
         { size: realBuffer.length, mimeType: "image/png" },
-        realBuffer
+        realBuffer,
       );
       await fs.promises.rm(filePath);
 
@@ -182,7 +184,7 @@ export class GrayscaleImageJob {
     roomId: string,
     userId: string,
     imageId: string,
-    image: { replaceImage?: string; dataBase64: string; contentType: string }
+    image: { replaceImage?: string; dataBase64: string; contentType: string },
   ): Promise<string> {
     const newImageId = uuidv4();
 
@@ -270,7 +272,7 @@ export class GrayscaleImageJob {
     });
 
     this.logger.info(
-      `Grayscale image / created new job / ${jobId} / ${clientId}`
+      `Grayscale image / created new job / ${jobId} / ${clientId}`,
     );
   }
 
@@ -290,7 +292,7 @@ export class GrayscaleImageJob {
       },
       {
         status: "working",
-      }
+      },
     );
 
     await updateTask(
@@ -301,7 +303,7 @@ export class GrayscaleImageJob {
         roomId,
         userId,
         status: "active",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -311,7 +313,7 @@ export class GrayscaleImageJob {
     });
 
     this.logger.info(
-      `Grayscale image / job stated active / ${jobId} / ${clientId}`
+      `Grayscale image / job stated active / ${jobId} / ${clientId}`,
     );
   }
 
@@ -330,7 +332,7 @@ export class GrayscaleImageJob {
       },
       {
         status: "completed",
-      }
+      },
     );
 
     await updateTask(
@@ -339,7 +341,7 @@ export class GrayscaleImageJob {
       },
       {
         status: "completed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -352,7 +354,7 @@ export class GrayscaleImageJob {
     });
 
     this.logger.info(
-      `Grayscale image / job completed / ${jobId} / ${clientId} / ${imageId})`
+      `Grayscale image / job completed / ${jobId} / ${clientId} / ${imageId})`,
     );
   }
 
@@ -372,7 +374,7 @@ export class GrayscaleImageJob {
       },
       {
         status: "failed",
-      }
+      },
     );
 
     await updateTask(
@@ -381,7 +383,7 @@ export class GrayscaleImageJob {
       },
       {
         status: "failed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -391,7 +393,7 @@ export class GrayscaleImageJob {
     });
 
     this.logger.error(
-      `Grayscale image / job failed: / ${jobId} / ${clientId} / ${error}`
+      `Grayscale image / job failed: / ${jobId} / ${clientId} / ${error}`,
     );
   }
 }

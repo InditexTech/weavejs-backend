@@ -10,17 +10,27 @@ import {
   ContainerListBlobsOptions,
 } from "@azure/storage-blob";
 import { DefaultAzureCredential } from "@azure/identity";
-import { getServiceConfig } from "../config/config.js";
-import { getLogger } from "../logger/logger.js";
+import { getLogger, setupLogger } from "@/logger/logger.js";
+import { ServiceConfig } from "@/types.js";
 
 export class ImagesPersistenceHandler {
+  private _config!: ServiceConfig;
   private _blobServiceClient!: BlobServiceClient;
   private _containerClient!: ContainerClient;
   private _containerName: string | undefined;
   private _initialized!: boolean;
   private _logger!: Logger;
 
-  constructor(containerName?: string) {
+  constructor(
+    config: ServiceConfig,
+    containerName?: string,
+    doLoggerSetup: boolean = false,
+  ) {
+    if (doLoggerSetup) {
+      setupLogger();
+    }
+
+    this._config = config;
     this._initialized = false;
     this._containerName = containerName;
     this._logger = getLogger().child({ module: "images.persistence" });
@@ -31,15 +41,13 @@ export class ImagesPersistenceHandler {
   }
 
   async setup() {
-    const config = getServiceConfig();
-
     const {
       storage: {
         accountName,
         connectionString,
         images: { containerName },
       },
-    } = config;
+    } = this._config;
 
     if (typeof connectionString !== "undefined") {
       this._blobServiceClient =
@@ -50,7 +58,10 @@ export class ImagesPersistenceHandler {
 
       this._blobServiceClient = new BlobServiceClient(
         storageAccountUrl,
-        credential
+        credential,
+        {
+          retryOptions: { maxTries: 1 },
+        },
       );
     }
 
@@ -70,7 +81,7 @@ export class ImagesPersistenceHandler {
   async list(
     prefix: string,
     pageSize: number = 20,
-    continuationToken: string | undefined = undefined
+    continuationToken: string | undefined = undefined,
   ) {
     try {
       if (!this._initialized) {
@@ -118,7 +129,7 @@ export class ImagesPersistenceHandler {
     } catch (ex) {
       this._logger.error(
         { imageName, error: ex },
-        "Error checking if image exists"
+        "Error checking if image exists",
       );
       return false;
     }
@@ -127,7 +138,7 @@ export class ImagesPersistenceHandler {
   async persist(
     imageName: string,
     { mimeType, size }: { mimeType: string; size: number },
-    content: Uint8Array
+    content: Uint8Array,
   ): Promise<boolean> {
     try {
       if (!this._initialized) {
@@ -147,7 +158,7 @@ export class ImagesPersistenceHandler {
 
       this._logger.debug(
         { imageName, requestId: uploadBlobResponse.requestId },
-        "Persisted image"
+        "Persisted image",
       );
 
       return !uploadBlobResponse.errorCode;
@@ -177,7 +188,7 @@ export class ImagesPersistenceHandler {
 
       this._logger.debug(
         { imageName, requestId: deleteBlobResponse.requestId },
-        "Deleted image"
+        "Deleted image",
       );
 
       return !deleteBlobResponse.errorCode;

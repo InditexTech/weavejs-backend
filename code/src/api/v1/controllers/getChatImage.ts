@@ -4,11 +4,14 @@
 
 import { Request, Response } from "express";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export const getChatImageController = () => {
+  const config = getServiceConfig();
   const persistenceHandler = new ImagesPersistenceHandler(
+    config,
     process.env.AZURE_STORAGE_GENERATED_IMAGES_CONTAINER_NAME ??
-      "generated-images"
+      "generated-images",
   );
 
   return async (req: Request, res: Response): Promise<void> => {
@@ -17,8 +20,6 @@ export const getChatImageController = () => {
     const imageId = req.params.imageId as string;
 
     const fileName = `${roomId}/${chatId}/${imageId}`;
-
-    console.log(`Fetching image from path: ${fileName}`);
 
     if (!(await persistenceHandler.exists(fileName))) {
       res.status(404).json({ status: "KO", message: "Image doesn't exists" });

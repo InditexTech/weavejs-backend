@@ -4,22 +4,27 @@
 
 import { Request, Response } from "express";
 import { ImagesPersistenceHandler } from "@/images/persistence.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export const getStandaloneImagesController = () => {
-  const persistenceHandler = new ImagesPersistenceHandler("standalone-images");
+  const config = getServiceConfig();
+  const persistenceHandler = new ImagesPersistenceHandler(
+    config,
+    "standalone-images",
+  );
 
   return async (req: Request, res: Response): Promise<void> => {
     const instanceId = req.params.instanceId as string;
 
     const pageSize = parseInt(
-      (req.query.pageSize as string | undefined) ?? "20"
+      (req.query.pageSize as string | undefined) ?? "20",
     );
     const continuationToken = req.query.continuationToken as string | undefined;
 
     const images = await persistenceHandler.list(
       instanceId,
       pageSize,
-      continuationToken
+      continuationToken,
     );
 
     res.status(200).json(images);

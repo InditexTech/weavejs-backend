@@ -59,8 +59,10 @@ export const setupWorkloads = async () => {
         await initDeleteImageQueue(boss);
         await initDeleteVideoQueue(boss);
         await initDeleteTemplateQueue(boss);
-        await initExportImageQueue(boss);
-        await initExportPdfQueue(boss);
+        await initExportPageToImageQueue(boss);
+        await initExportRoomToPdfQueue(boss);
+        await initExportFramesToPdfQueue(boss);
+        await initGeneratePresentationModeImagesQueue(boss);
 
         logger.info("Module ready");
       } else {
@@ -112,8 +114,10 @@ export const setupWorkloads = async () => {
         await initDeleteImageQueue(boss);
         await initDeleteVideoQueue(boss);
         await initDeleteTemplateQueue(boss);
-        await initExportImageQueue(boss);
-        await initExportPdfQueue(boss);
+        await initExportPageToImageQueue(boss);
+        await initExportRoomToPdfQueue(boss);
+        await initExportFramesToPdfQueue(boss);
+        await initGeneratePresentationModeImagesQueue(boss);
 
         logger.info("Module ready");
       } else {
@@ -251,20 +255,40 @@ const initDeleteTemplateQueue = async (boss: PgBoss) => {
   jobs["deleteTemplate"] = deleteTemplateJob;
 };
 
-const initExportImageQueue = async (boss: PgBoss) => {
-  const { ExportImageJob } = await import("./jobs/export-image/job.js");
+const initExportPageToImageQueue = async (boss: PgBoss) => {
+  const { ExportPageToImageJob } =
+    await import("./jobs/export-page-image/job.js");
 
-  const exportTemplateJob = await ExportImageJob.create(boss);
-  await exportTemplateJob.start();
-  jobs["exportImage"] = exportTemplateJob;
+  const exportPageToImageJob = await ExportPageToImageJob.create(boss);
+  await exportPageToImageJob.start();
+  jobs["exportPageToImage"] = exportPageToImageJob;
 };
 
-const initExportPdfQueue = async (boss: PgBoss) => {
-  const { ExportPdfJob } = await import("./jobs/export-pdf/job.js");
+const initExportRoomToPdfQueue = async (boss: PgBoss) => {
+  const { ExportRoomToPdfJob } = await import("./jobs/export-room-pdf/job.js");
 
-  const exportPdfJob = await ExportPdfJob.create(boss);
-  await exportPdfJob.start();
-  jobs["exportPdf"] = exportPdfJob;
+  const exportRoomToPdfJob = await ExportRoomToPdfJob.create(boss);
+  await exportRoomToPdfJob.start();
+  jobs["exportRoomToPdf"] = exportRoomToPdfJob;
+};
+
+const initExportFramesToPdfQueue = async (boss: PgBoss) => {
+  const { ExportFramesToPdfJob } =
+    await import("./jobs/export-frame-pdf/job.js");
+
+  const exportFramesToPdfJob = await ExportFramesToPdfJob.create(boss);
+  await exportFramesToPdfJob.start();
+  jobs["exportFramesToPdf"] = exportFramesToPdfJob;
+};
+
+const initGeneratePresentationModeImagesQueue = async (boss: PgBoss) => {
+  const { PresentationModeImagesJob } =
+    await import("./jobs/presentation-mode-images/job.js");
+
+  const presentationModeImagesJob =
+    await PresentationModeImagesJob.create(boss);
+  await presentationModeImagesJob.start();
+  jobs["presentationModeImages"] = presentationModeImagesJob;
 };
 
 export const getWorkloadsInstance = () => {

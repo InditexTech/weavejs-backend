@@ -4,10 +4,13 @@
 
 import { Request, Response } from "express";
 import { ImagesPersistenceHandler } from "@/images/persistence.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export const putStandaloneSaveInstanceImageController = () => {
+  const config = getServiceConfig();
   const persistenceHandler = new ImagesPersistenceHandler(
-    "standalone-instance-image-data"
+    config,
+    "standalone-instance-image-data",
   );
 
   return async (req: Request, res: Response): Promise<void> => {
@@ -31,7 +34,7 @@ export const putStandaloneSaveInstanceImageController = () => {
       await persistenceHandler.persist(
         docName,
         { size: data.length, mimeType: "application/octet-stream" },
-        data
+        data,
       );
 
       res
