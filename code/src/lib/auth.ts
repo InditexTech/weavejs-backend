@@ -65,8 +65,7 @@ export const setupAuth = () => {
         },
       },
       database: new Pool({
-        connectionString,
-        options: "-c search_path=auth",
+        connectionString: `${connectionString}?options=-c search_path=auth`,
       }),
     });
   }
