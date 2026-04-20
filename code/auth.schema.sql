@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 2025 INDUSTRIA DE DISEÑO TEXTIL S.A. (INDITEX S.A.)
+//
+// SPDX-License-Identifier: Apache-2.0
+
 CREATE TABLE IF NOT EXISTS "user" (
 	"id" text NOT NULL PRIMARY KEY,
 	"name" text NOT NULL,
