@@ -5,9 +5,14 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { ImagesPersistenceHandler } from "@/images/persistence.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export const postStandaloneUploadImageController = () => {
-  const persistenceHandler = new ImagesPersistenceHandler("standalone-images");
+  const config = getServiceConfig();
+  const persistenceHandler = new ImagesPersistenceHandler(
+    config,
+    "standalone-images",
+  );
 
   return async (req: Request, res: Response): Promise<void> => {
     const instanceId = req.params.instanceId as string;
@@ -27,7 +32,7 @@ export const postStandaloneUploadImageController = () => {
         await persistenceHandler.persist(
           fileName,
           { size: file.size, mimeType },
-          data
+          data,
         );
 
         res

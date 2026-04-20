@@ -48,7 +48,8 @@ export class EditImageJob {
 
     this.boss = tasksManagerInstance;
 
-    this.persistenceHandler = new ImagesPersistenceHandler();
+    const config = getServiceConfig();
+    this.persistenceHandler = new ImagesPersistenceHandler(config);
 
     this.logger.info("Job created");
   }
@@ -68,7 +69,7 @@ export class EditImageJob {
           payload,
           imagesIds,
         });
-      }
+      },
     );
   }
 
@@ -108,7 +109,7 @@ export class EditImageJob {
       const file = new File([blob], "image.png", { type: blob.type });
       formData.append(
         editKind === "editImageReferences" ? "image[]" : "image",
-        file
+        file,
       );
 
       if (editKind === "editImageReferences") {
@@ -121,7 +122,7 @@ export class EditImageJob {
             `reference_${i + 1}.png`,
             {
               type: referenceBlob.type,
-            }
+            },
           );
           formData.append("image[]", referenceFile);
         }
@@ -165,7 +166,7 @@ export class EditImageJob {
       const controller = new AbortController();
       const timeout = setTimeout(
         () => controller.abort(),
-        config.azureCsClient.timeoutSecs * 1000
+        config.azureCsClient.timeoutSecs * 1000,
       );
 
       const response = await fetch(
@@ -177,7 +178,7 @@ export class EditImageJob {
           },
           body: formData,
           signal: controller.signal,
-        }
+        },
       );
 
       clearTimeout(timeout);
@@ -196,7 +197,7 @@ export class EditImageJob {
         await this.persistenceHandler?.persist(
           fileName,
           { size: data.length, mimeType: "image/png" },
-          data
+          data,
         );
       }
 
@@ -239,7 +240,7 @@ export class EditImageJob {
     clientId: string,
     roomId: string,
     userId: string,
-    parameters: EditImageParameters
+    parameters: EditImageParameters,
   ): Promise<string> {
     const { sampleCount } = parameters;
 
@@ -261,7 +262,7 @@ export class EditImageJob {
       JOB_EDIT_IMAGE_QUEUE_NAME,
       jobData,
       {},
-      1
+      1,
     );
 
     if (!jobId) {
@@ -340,7 +341,7 @@ export class EditImageJob {
         },
         {
           status: "working",
-        }
+        },
       );
     }
 
@@ -352,7 +353,7 @@ export class EditImageJob {
         roomId,
         userId,
         status: "active",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -375,7 +376,7 @@ export class EditImageJob {
         },
         {
           status: "completed",
-        }
+        },
       );
     }
 
@@ -385,7 +386,7 @@ export class EditImageJob {
       },
       {
         status: "completed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -408,7 +409,7 @@ export class EditImageJob {
         },
         {
           status: "failed",
-        }
+        },
       );
     }
 
@@ -418,7 +419,7 @@ export class EditImageJob {
       },
       {
         status: "failed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -428,7 +429,7 @@ export class EditImageJob {
     });
 
     this.logger.error(
-      `Edit image / job failed: / ${jobId} / ${clientId} / ${error}`
+      `Edit image / job failed: / ${jobId} / ${clientId} / ${error}`,
     );
   }
 }
@@ -452,7 +453,7 @@ function base64ToBlob(dataURL: string): Blob {
   const MAX_BASE64_LENGTH = 50 * 1024 * 1024; // Define a reasonable maximum length (50 MB)
   if (base64.length > MAX_BASE64_LENGTH) {
     throw new Error(
-      `Base64 string exceeds maximum allowed length of ${MAX_BASE64_LENGTH} characters`
+      `Base64 string exceeds maximum allowed length of ${MAX_BASE64_LENGTH} characters`,
     );
   }
 

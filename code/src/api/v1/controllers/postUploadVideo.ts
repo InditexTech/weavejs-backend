@@ -16,6 +16,7 @@ import { VideosPersistenceHandler } from "../../../videos/persistence.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 import { VideoModel } from "../../../database/models/video.js";
 import { createVideo } from "../../../database/controllers/video.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export interface VideoInfo {
   width: number;
@@ -24,8 +25,9 @@ export interface VideoInfo {
 }
 
 export const postUploadVideoController = () => {
+  const config = getServiceConfig();
   const persistenceHandler = new VideosPersistenceHandler();
-  const imagesPersistenceHandler = new ImagesPersistenceHandler();
+  const imagesPersistenceHandler = new ImagesPersistenceHandler(config);
 
   return async (req: Request, res: Response): Promise<void> => {
     const file = req.file;
@@ -38,7 +40,7 @@ export const postUploadVideoController = () => {
     const tempFilePath = path.join(os.tmpdir(), `probe-${tempVideoId}`);
     const tempPlaceholderFilePath = path.join(
       os.tmpdir(),
-      `placeholder-${tempVideoId}`
+      `placeholder-${tempVideoId}`,
     );
 
     try {
@@ -54,7 +56,7 @@ export const postUploadVideoController = () => {
 
       const firstFrame = await extractFirstFrame(
         tempFilePath,
-        tempPlaceholderFilePath
+        tempPlaceholderFilePath,
       );
 
       if (!firstFrame) {
@@ -82,7 +84,7 @@ export const postUploadVideoController = () => {
         await persistenceHandler.persist(
           fileName,
           { size: file.size, mimeType },
-          data
+          data,
         );
 
         const videoModel = await createVideo({
@@ -104,13 +106,13 @@ export const postUploadVideoController = () => {
         const placeholderContent = new Uint8Array(
           buffer.buffer,
           buffer.byteOffset,
-          buffer.byteLength
+          buffer.byteLength,
         );
 
         await imagesPersistenceHandler.persist(
           frameFileName,
           { size: placeholderContent.length, mimeType: "image/png" },
-          placeholderContent
+          placeholderContent,
         );
 
         broadcastToRoom(roomId, {
@@ -137,7 +139,7 @@ export const postUploadVideoController = () => {
 
 async function createTemporaryVideoFile(
   tempFilePath: string,
-  buffer: Buffer<ArrayBufferLike> | Uint8Array<ArrayBuffer>
+  buffer: Buffer<ArrayBufferLike> | Uint8Array<ArrayBuffer>,
 ): Promise<void> {
   try {
     await fs.writeFile(tempFilePath, buffer);
@@ -170,13 +172,13 @@ async function getVideoInfo(tmpPath: string): Promise<VideoInfo | undefined> {
 
 async function extractFirstFrame(
   tempFilePath: string,
-  outputPath: string
+  outputPath: string,
 ): Promise<string | undefined> {
   return new Promise((resolve, reject) => {
     const ffmpegPath = ffmpegStatic as unknown as string;
     if (!ffmpegPath) {
       return reject(
-        new Error("ffmpeg binary not found (install ffmpeg-static).")
+        new Error("ffmpeg binary not found (install ffmpeg-static)."),
       );
     }
 
@@ -204,13 +206,13 @@ async function extractFirstFrame(
     ff.stderr.on("data", (chunk: Buffer) => (errOutput += chunk.toString()));
 
     ff.on("error", (err) =>
-      reject(new Error(`Failed to spawn ffmpeg: ${err.message}`))
+      reject(new Error(`Failed to spawn ffmpeg: ${err.message}`)),
     );
 
     ff.on("close", async (code: number) => {
       if (code !== 0) {
         return reject(
-          new Error(`ffmpeg exited with code ${code}: ${errOutput}`)
+          new Error(`ffmpeg exited with code ${code}: ${errOutput}`),
         );
       }
 

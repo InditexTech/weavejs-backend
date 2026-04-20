@@ -12,6 +12,7 @@ import {
   WeaveStoreAzureWebPubsubOnWebsocketErrorEvent,
   WeaveStoreAzureWebPubsubOnWebsocketJoinGroupEvent,
   WeaveStoreAzureWebPubsubOnWebsocketOpenEvent,
+  WeaveStoreAzureWebPubsubOnWebsocketReconnectEvent,
 } from "@inditextech/weave-store-azure-web-pubsub/server";
 import { getStateAsJson, streamToBuffer } from "./utils.js";
 import { getServiceConfig } from "./config/config.js";
@@ -30,6 +31,7 @@ import {
   updateConnection,
 } from "./database/controllers/connection.js";
 import { listGroupConnections } from "./clients/azure-web-pubsub-api.js";
+import { closeClientConnection } from "./comm-bus/comm-bus.js";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 const endpoint = process.env.AZURE_WEB_PUBSUB_ENDPOINT;
@@ -85,17 +87,19 @@ export const performPersistRoom = async (
   }
 
   const actualStateJson = getStateAsJson(actualState);
-  const firstLevelNodes = actualStateJson.props.children.find(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (c: any) => c.key === "mainLayer",
-  ).props.children;
-  logger.info(
-    `Persisting room ${docName} state change. Amount of first-level nodes: ${
-      firstLevelNodes.length
-    }`,
-  );
+  if (actualStateJson?.props?.children) {
+    const firstLevelNodes = actualStateJson.props.children.find(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (c: any) => c.key === "mainLayer",
+    ).props.children;
+    logger.info(
+      `Persisting room ${docName} state change. Amount of first-level nodes: ${
+        firstLevelNodes.length
+      }`,
+    );
+  }
 
-  const mainLayer = actualStateJson.props.children?.find(
+  const mainLayer = actualStateJson.props?.children?.find(
     (child: any) => child.key === "mainLayer",
   );
 
@@ -257,9 +261,10 @@ export const setupStore = () => {
   azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnConnectedEvent>(
     "onConnected",
     ({ context }) => {
-      logger.info(
-        `Client with connection Id <${context.connectionId}> connected`,
-      );
+      setTimeout(() => {
+        closeClientConnection(context.connectionId);
+      }, 10000);
+      logger.info(`Client with connection Id <${context.connectionId}> joined`);
     },
   );
 
@@ -274,43 +279,46 @@ export const setupStore = () => {
 
   azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketOpenEvent>(
     "onWsOpen",
-    ({ group }) => {
+    ({ group, connectionAttempt }) => {
       logger.info(
-        `Azure Web PubSub server connection opened for group <${group}>`,
+        `[sync-host] for <${group}> connected, attempt: ${connectionAttempt}`,
       );
     },
   );
 
   azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketJoinGroupEvent>(
     "onWsJoinGroup",
-    ({ group }) => {
-      logger.info(`Azure Web PubSub server connection joined group <${group}>`);
+    ({ group, connectionAttempt }) => {
+      logger.info(
+        `[sync-host] for <${group}> joined, attempt: ${connectionAttempt}`,
+      );
+    },
+  );
+
+  azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketReconnectEvent>(
+    "onWsReconnect",
+    ({ group, connectionAttempt, timeoutMs }) => {
+      logger.info(
+        `[sync-host] for <${group}> reconnecting in ${timeoutMs}ms, attempt: ${connectionAttempt}`,
+      );
     },
   );
 
   azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketCloseEvent>(
     "onWsClose",
-    ({ event, group }) => {
+    ({ event, group, connectionAttempt }) => {
       logger.info(
-        `Azure Web PubSub server connection closed for group <${group}>, code <${event.code}>`,
+        `[sync-host] for <${group}> disconnected with code <${event.code}>, attempt: ${connectionAttempt}`,
       );
     },
   );
 
   azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketErrorEvent>(
     "onWsError",
-    ({ group, error }) => {
+    ({ group, error, connectionAttempt }) => {
       logger.info(
-        `Azure Web PubSub server connection error for group <${group}>`,
+        `[sync-host] for <${group}> error: ${error.message}, attempt: ${connectionAttempt}`,
       );
-      console.error(error);
-    },
-  );
-
-  azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnWebsocketErrorEvent>(
-    "onWsTokenRefresh",
-    ({ group }) => {
-      logger.info(`Azure Web PubSub server token refresh for group <${group}>`);
     },
   );
 
@@ -343,8 +351,12 @@ export const setupStoreRoomsCleanup = () => {
         logger.info(
           `Performing cleanup of room <${roomId}>, has no active connections`,
         );
-        await storeSyncHandler.destroyRoomInstance(roomId);
-        logger.info(`Cleanup of room <${roomId}> successful`);
+        const status: any = await storeSyncHandler.destroyRoomInstance(roomId);
+        if (status === "destroyed") {
+          logger.info(`Cleanup of room <${roomId}> performed`);
+        } else {
+          logger.info(`Room <${roomId}> disconnected, skipping cleanup`);
+        }
       } else {
         logger.info(
           `Room <${roomId}> has active connections <${connections.length}>, skipping cleanup`,
@@ -360,5 +372,23 @@ export const stopStoreRoomsCleanup = () => {
   if (cleanupRoomsInterval) {
     clearInterval(cleanupRoomsInterval);
     cleanupRoomsInterval = null;
+  }
+};
+
+export const disconnectStoreForRoom = async (roomId: string) => {
+  if (azureWebPubsubServer) {
+    azureWebPubsubServer.clientDisconnect(roomId);
+  }
+};
+
+export const connectTransportStoreForRoom = async (roomId: string) => {
+  if (azureWebPubsubServer) {
+    azureWebPubsubServer.clientTransportConnect(roomId);
+  }
+};
+
+export const disconnectTransportStoreForRoom = async (roomId: string) => {
+  if (azureWebPubsubServer) {
+    azureWebPubsubServer.clientTransportDisconnect(roomId);
   }
 };

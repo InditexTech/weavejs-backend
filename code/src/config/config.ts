@@ -30,7 +30,7 @@ const serviceConfigSchema = z.object({
   service: z.object({
     hostname: z
       .string({
-        required_error:
+        error:
           "Define the service hostname on the environment variable HOSTNAME",
       })
       .trim()
@@ -38,8 +38,7 @@ const serviceConfigSchema = z.object({
       .default("0.0.0.0"),
     port: z
       .number({
-        required_error:
-          "Define the service port on the environment variable PORT",
+        error: "Define the service port on the environment variable PORT",
       })
       .int({ message: "The post must be an integer" })
       .optional()
@@ -48,32 +47,32 @@ const serviceConfigSchema = z.object({
   pubsub: z.object({
     endpoint: z
       .string({
-        required_error:
+        error:
           "Define the Azure Web PubSub endpoint on the environment variable AZURE_WEB_PUBSUB_ENDPOINT",
       })
       .trim(),
     key: z
       .string({
-        required_error:
+        error:
           "Define the Azure Web PubSub key on the environment variable AZURE_WEB_PUBSUB_KEY",
       })
       .trim()
       .optional(),
     hubName: z
       .string({
-        required_error:
+        error:
           "Define the Azure Web PubSub hub name on the environment variable AZURE_WEB_PUBSUB_HUB_NAME",
       })
       .trim(),
     persistFrequencySeg: z
       .number({
-        required_error:
+        error:
           "Define the room persistence frequency on the environment variable PERSIST_FREQUENCY_SEG",
       })
       .int({ message: "The persist frequency must be an integer" }),
     cleanupRoomsIntervalSeg: z
       .number({
-        required_error:
+        error:
           "Define the room cleanup interval on the environment variable CLEANUP_ROOMS_INTERVAL_SEG",
       })
       .int({ message: "The cleanup interval must be an integer" })
@@ -82,13 +81,13 @@ const serviceConfigSchema = z.object({
   storage: z.object({
     accountName: z
       .string({
-        required_error:
+        error:
           "Define the Azure Storage account name on the environment variable AZURE_STORAGE_ACCOUNT_NAME",
       })
       .trim(),
     connectionString: z
       .string({
-        required_error:
+        error:
           "Define the Azure Storage connection string on the environment variable AZURE_STORAGE_CONNECTION_STRING",
       })
       .trim()
@@ -96,7 +95,7 @@ const serviceConfigSchema = z.object({
     rooms: z.object({
       containerName: z
         .string({
-          required_error:
+          error:
             "Define the Azure Blob Storage container name for the rooms data on the environment variable AZURE_STORAGE_ROOMS_CONTAINER_NAME",
         })
         .trim(),
@@ -104,7 +103,7 @@ const serviceConfigSchema = z.object({
     images: z.object({
       containerName: z
         .string({
-          required_error:
+          error:
             "Define the Azure Blob Storage container name for the images data on the environment variable AZURE_STORAGE_IMAGES_CONTAINER_NAME",
         })
         .trim(),
@@ -112,7 +111,7 @@ const serviceConfigSchema = z.object({
     videos: z.object({
       containerName: z
         .string({
-          required_error:
+          error:
             "Define the Azure Blob Storage container name for the videos data on the environment variable AZURE_STORAGE_VIDEOS_CONTAINER_NAME",
         })
         .trim(),
@@ -121,27 +120,26 @@ const serviceConfigSchema = z.object({
   ai: z.object({
     password: z
       .string({
-        required_error:
-          "Define the AI password on the environment variable AI_PASSWORD",
+        error: "Define the AI password on the environment variable AI_PASSWORD",
       })
       .trim(),
   }),
   liteLLM: z.object({
     endpoint: z
       .string({
-        required_error:
+        error:
           "Define the LiteLLM endpoint on the environment variable LITELLM_ENDPOINT",
       })
       .trim(),
     apiKey: z
       .string({
-        required_error:
+        error:
           "Define the LiteLLM API key on the environment variable LITELLM_API_KEY",
       })
       .trim(),
     timeoutSecs: z
       .number({
-        required_error:
+        error:
           "Define the LiteLLM API timeout on the environment variable LITELLM_TIMEOUT_SECS",
       })
       .int({ message: "The timeout must be an integer" }),
@@ -149,19 +147,19 @@ const serviceConfigSchema = z.object({
   azureCsClient: z.object({
     endpoint: z
       .string({
-        required_error:
+        error:
           "Define the Azure CS endpoint on the environment variable AZURE_CS_ENDPOINT",
       })
       .trim(),
     apiKey: z
       .string({
-        required_error:
+        error:
           "Define the Azure CS api key on the environment variable AZURE_CS_API_KEY",
       })
       .trim(),
     timeoutSecs: z
       .number({
-        required_error:
+        error:
           "Define the Azure CS timeout on the environment variable AZURE_CS_TIMEOUT_SECS",
       })
       .int({ message: "The timeout must be an integer" }),
@@ -189,10 +187,10 @@ export function getServiceConfig(): ServiceConfig {
   const key = process.env.AZURE_WEB_PUBSUB_KEY;
   const hubName = process.env.AZURE_WEB_PUBSUB_HUB_NAME;
   const persistFrequencySeg = parseInt(
-    process.env.PERSIST_FREQUENCY_SEG || "10"
+    process.env.PERSIST_FREQUENCY_SEG || "10",
   );
   const cleanupRoomsIntervalSeg = parseInt(
-    process.env.CLEANUP_ROOMS_INTERVAL_SEG || "300"
+    process.env.CLEANUP_ROOMS_INTERVAL_SEG || "300",
   );
 
   const pubsub = {
@@ -261,13 +259,13 @@ export function getServiceConfig(): ServiceConfig {
 
   if (databaseHost && databaseConnectionString) {
     throw new Error(
-      "cannot setup DATABASE_URL and DATABASE_HOST, please check"
+      "cannot setup DATABASE_URL and DATABASE_HOST, please check",
     );
   }
 
   if (!databaseHost && !databaseConnectionString) {
     throw new Error(
-      "must define a connection to the database, via connection string using DATABASE_URL env var or via detailed configuration using DATABASE_HOST, DATABASE_PORT, DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_SSL and DATABASE_CLOUD_CREDENTIALS env vars"
+      "must define a connection to the database, via connection string using DATABASE_URL env var or via detailed configuration using DATABASE_HOST, DATABASE_PORT, DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_SSL and DATABASE_CLOUD_CREDENTIALS env vars",
     );
   }
 
@@ -275,19 +273,19 @@ export function getServiceConfig(): ServiceConfig {
   if (databaseHost) {
     if (!databaseName) {
       throw new Error(
-        "must define the database name via DATABASE_NAME env var"
+        "must define the database name via DATABASE_NAME env var",
       );
     }
 
     if (!databaseUsername) {
       throw new Error(
-        "must define the database username via DATABASE_USERNAME env var"
+        "must define the database username via DATABASE_USERNAME env var",
       );
     }
 
     if (!databasePassword && !databaseCloudCredentials) {
       throw new Error(
-        "must define the database password via DATABASE_PASSWORD env var"
+        "must define the database password via DATABASE_PASSWORD env var",
       );
     }
 

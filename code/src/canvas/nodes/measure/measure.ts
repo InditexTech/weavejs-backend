@@ -23,6 +23,7 @@ export class MeasureNode extends WeaveNode {
   protected nodeType: string = MEASURE_NODE_TYPE;
   protected eventsInitiated: boolean;
   protected handlePointCircleRadius: number = 6;
+  initialize = undefined;
 
   constructor(params?: Partial<MeasureNodeParams>) {
     super();

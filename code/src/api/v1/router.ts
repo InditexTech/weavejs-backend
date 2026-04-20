@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Application, Router } from "express";
+import { Application, Router, raw } from "express";
 import multer from "multer";
 import { getServiceConfig } from "../../config/config.js";
 import { getRoomConnectController } from "./controllers/getRoomConnect.js";
@@ -38,9 +38,7 @@ import { postStandaloneThreadAnswerController } from "./controllers/standalone/p
 import { putStandaloneThreadAnswerController } from "./controllers/standalone/putStandaloneThreadAnswer.js";
 import { getRoomBusNegotiateController } from "./controllers/getRoomBusNegotiate.js";
 import { postRoomBusJoinController } from "./controllers/postRoomBusJoin.js";
-import { postExportToImageController } from "./controllers/postExportToImage.js";
-import { postExportToImageAsyncController } from "./controllers/postExportToImageAsync.js";
-import { postExportToPDFController } from "./controllers/postExportToPDF.js";
+import { postExportPageToImageAsyncController } from "./controllers/postExportPageToImageAsync.js";
 import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
 import { getSimulateStoreWsErrorController } from "./controllers/getSimulateStoreWsError.js";
 import { getVideosController } from "./controllers/getVideos.js";
@@ -53,7 +51,6 @@ import { postFlipImageController } from "./controllers/postFlipImage.js";
 import { postGrayscaleImageController } from "./controllers/postGrayscaleImage.js";
 import { postUploadRoomController } from "./controllers/postUploadRoom.js";
 import { getRoomToJsonController } from "./controllers/getRoomToJson.js";
-import { getRoomController } from "./controllers/getRoom.js";
 import { postTemplateController } from "./controllers/postTemplate.js";
 import { getTemplatesController } from "./controllers/getTemplates.js";
 import { delTemplateController } from "./controllers/delTemplate.js";
@@ -73,12 +70,38 @@ import { postAiChatMessageController } from "./controllers/ai/postChatMessage.js
 import { getTemplatesImageController } from "./controllers/templates/getTemplatesImage.js";
 import { getTemplatesImagesController } from "./controllers/templates/getTemplatesImages.js";
 import { postTemplatesUploadImageController } from "./controllers/templates/postTemplatesUploadImage.js";
-import { getRoomsController } from "./controllers/getRooms.js";
+import { getRoomsStorageController } from "./controllers/getRoomsStorage.js";
 import { postAddTemplateToRoomController } from "./controllers/postAddTemplateToRoom.js";
 import { delTemplatesImageController } from "./controllers/templates/delTemplatesImage.js";
 import { getExportedImageController } from "./controllers/getExportedImage.js";
-import { postExportToPDFAsyncController } from "./controllers/postExportToPDFAsync.js";
 import { getExportedPdfController } from "./controllers/getExportedPdf.js";
+import { delPageController } from "./controllers/pages/delPage.js";
+import { getPagesController } from "./controllers/pages/getPages.js";
+import { postPageController } from "./controllers/pages/postPage.js";
+import { putPageController } from "./controllers/pages/putPage.js";
+import { getPageController } from "./controllers/pages/getPage.js";
+import { postDisconnectSyncHostController } from "./controllers/postDisconnectSyncHost.js";
+import { postConnectTransportSyncHostController } from "./controllers/postConnectTransportSyncHost.js";
+import { postDisconnectTransportSyncHostController } from "./controllers/postDisconnectTransportSyncHost.js";
+import { getRoomsController } from "./controllers/rooms/getRooms.js";
+import { postRoomController } from "./controllers/rooms/postRoom.js";
+import { auth } from "@/middlewares/auth.js";
+import { session } from "@/middlewares/session.js";
+import { getRoomController } from "./controllers/rooms/getRoom.js";
+import { putRoomController } from "./controllers/rooms/putRoom.js";
+import { delRoomController } from "./controllers/rooms/delRoom.js";
+import { postRoomAccessController } from "./controllers/rooms/postRoomAccess.js";
+import { putRoomAccessController } from "./controllers/rooms/putRoomAccess.js";
+import { getRoomStorageController } from "./controllers/getRoomStorage.js";
+import { getPageByIndexController } from "./controllers/pages/getPageByIndex.js";
+import { putPageThumbnailController } from "./controllers/pages/putPageThumbnail.js";
+import { getPageThumbnailController } from "./controllers/pages/getPageThumbnail.js";
+import { getRoomThumbnailController } from "./controllers/rooms/getRoomThumbnail.js";
+import { postExportFramesToPDFAsyncController } from "./controllers/postExportFramesToPDFAsync.js";
+import { postExportRoomToPDFAsyncController } from "./controllers/postExportRoomToPDFAsync.js";
+import { postGeneratePresentationModeImagesAsyncController } from "./controllers/postGeneratePresentationModeImagesAsync.js";
+import { getPresentationImageController } from "./controllers/getPresentationImage.js";
+import { getAllPagesController } from "./controllers/pages/getAllPages.js";
 
 const router: Router = Router();
 
@@ -110,16 +133,38 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/rooms/:roomId/connect`,
     cors,
+    session,
+    auth,
     getRoomConnectController(),
   );
 
   // Room tools
-  router.get(`/${hubName}/rooms`, cors, getRoomsController());
-  router.get(`/${hubName}/rooms/:roomId`, cors, getRoomController());
-  router.get(`/${hubName}/rooms/:roomId/json`, cors, getRoomToJsonController());
+  router.get(
+    `/${hubName}/rooms`,
+    cors,
+    session,
+    auth,
+    getRoomsStorageController(),
+  );
+  router.get(
+    `/${hubName}/rooms/:roomId`,
+    cors,
+    session,
+    auth,
+    getRoomStorageController(),
+  );
+  router.get(
+    `/${hubName}/rooms/:roomId/json`,
+    cors,
+    session,
+    auth,
+    getRoomToJsonController(),
+  );
   router.post(
     `/${hubName}/rooms/:roomId/upload`,
     cors,
+    session,
+    auth,
     upload.single("file"),
     postUploadRoomController(),
   );
@@ -130,31 +175,57 @@ export function setupApiV1Router(app: Application) {
     cors,
     getChatImageController(),
   );
-  router.get(`/${hubName}/rooms/:roomId/chats`, cors, getChatsController());
+  router.get(
+    `/${hubName}/rooms/:roomId/chats`,
+    cors,
+    session,
+    auth,
+    getChatsController(),
+  );
   router.get(
     `/${hubName}/rooms/:roomId/chats/:chatId`,
     cors,
+    session,
+    auth,
     getChatController(),
   );
   router.put(
     `/${hubName}/rooms/:roomId/chats/:chatId`,
     cors,
+    session,
+    auth,
     putChatController(),
   );
-  router.post(`/${hubName}/rooms/:roomId/chats`, cors, postChatController());
+  router.post(
+    `/${hubName}/rooms/:roomId/chats`,
+    cors,
+    session,
+    auth,
+    postChatController(),
+  );
   router.post(
     `/${hubName}/rooms/:roomId/chats/:chatId/messages`,
     cors,
+    session,
+    auth,
     postChatMessageController(),
   );
   router.delete(
     `/${hubName}/rooms/:roomId/chats/:chatId`,
     cors,
+    session,
+    auth,
     delChatController(),
   );
 
   // Images handling API
-  router.get(`/${hubName}/rooms/:roomId/images`, cors, getImagesController());
+  router.get(
+    `/${hubName}/rooms/:roomId/images`,
+    cors,
+    session,
+    auth,
+    getImagesController(),
+  );
   router.get(
     `/${hubName}/rooms/:roomId/images/:imageId`,
     cors,
@@ -163,38 +234,62 @@ export function setupApiV1Router(app: Application) {
   router.post(
     `/${hubName}/rooms/:roomId/images/:imageId/remove-background`,
     cors,
+    session,
+    auth,
     postRemoveBackgroundController(),
   );
   router.post(
     `/${hubName}/rooms/:roomId/images/:imageId/negate`,
     cors,
+    session,
+    auth,
     postNegateImageController(),
   );
   router.post(
     `/${hubName}/rooms/:roomId/images/:imageId/flip/:orientation`,
     cors,
+    session,
+    auth,
     postFlipImageController(),
   );
   router.post(
     `/${hubName}/rooms/:roomId/images/:imageId/grayscale`,
     cors,
+    session,
+    auth,
     postGrayscaleImageController(),
   );
-  router.post(`/ai/password/validate`, cors, postValidateAIPassword());
+  router.post(
+    `/ai/password/validate`,
+    cors,
+    session,
+    auth,
+    postValidateAIPassword(),
+  );
   router.post(
     `/${hubName}/rooms/:roomId/images`,
     cors,
+    session,
+    auth,
     upload.single("file"),
     postUploadImageController(),
   );
   router.delete(
     `/${hubName}/rooms/:roomId/images/:imageId`,
     cors,
+    session,
+    auth,
     delImageController(),
   );
 
   // Video handling API
-  router.get(`/${hubName}/rooms/:roomId/videos`, cors, getVideosController());
+  router.get(
+    `/${hubName}/rooms/:roomId/videos`,
+    cors,
+    session,
+    auth,
+    getVideosController(),
+  );
   router.get(
     `/${hubName}/rooms/:roomId/videos/:videoId`,
     cors,
@@ -208,12 +303,16 @@ export function setupApiV1Router(app: Application) {
   router.post(
     `/${hubName}/rooms/:roomId/videos`,
     cors,
+    session,
+    auth,
     upload.single("file"),
     postUploadVideoController(),
   );
   router.delete(
     `/${hubName}/rooms/:roomId/videos/:videoId`,
     cors,
+    session,
+    auth,
     delVideoController(),
   );
 
@@ -222,26 +321,36 @@ export function setupApiV1Router(app: Application) {
     router.get(
       `/${hubName}/rooms/:roomId/threads`,
       cors,
+      session,
+      auth,
       getThreadsController(),
     );
     router.get(
       `/${hubName}/rooms/:roomId/threads/:threadId`,
       cors,
+      session,
+      auth,
       getThreadController(),
     );
     router.post(
       `/${hubName}/rooms/:roomId/threads`,
       cors,
+      session,
+      auth,
       postThreadController(),
     );
     router.put(
       `/${hubName}/rooms/:roomId/threads/:threadId`,
       cors,
+      session,
+      auth,
       putThreadController(),
     );
     router.delete(
       `/${hubName}/rooms/:roomId/threads/:threadId`,
       cors,
+      session,
+      auth,
       delThreadController(),
     );
 
@@ -250,26 +359,36 @@ export function setupApiV1Router(app: Application) {
     router.get(
       `/${hubName}/rooms/:roomId/threads/:threadId/answers`,
       cors,
+      session,
+      auth,
       getThreadAnswersController(),
     );
     router.get(
       `/${hubName}/rooms/:roomId/threads/:threadId/answers/:answerId`,
       cors,
+      session,
+      auth,
       getThreadAnswerController(),
     );
     router.post(
       `/${hubName}/rooms/:roomId/threads/:threadId/answers`,
       cors,
+      session,
+      auth,
       postThreadAnswerController(),
     );
     router.put(
       `/${hubName}/rooms/:roomId/threads/:threadId/answers/:answerId`,
       cors,
+      session,
+      auth,
       putThreadAnswerController(),
     );
     router.delete(
       `/${hubName}/rooms/:roomId/threads/:threadId/answers/:answerId`,
       cors,
+      session,
+      auth,
       delThreadAnswerController(),
     );
 
@@ -277,26 +396,36 @@ export function setupApiV1Router(app: Application) {
     router.get(
       `/${hubName}/standalone/:instanceId/images/:imageId/threads`,
       cors,
+      session,
+      auth,
       getStandaloneThreadsController(),
     );
     router.get(
       `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId`,
       cors,
+      session,
+      auth,
       getStandaloneThreadController(),
     );
     router.post(
       `/${hubName}/standalone/:instanceId/images/:imageId/threads`,
       cors,
+      session,
+      auth,
       postStandaloneThreadController(),
     );
     router.put(
       `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId`,
       cors,
+      session,
+      auth,
       putStandaloneThreadController(),
     );
     router.delete(
       `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId`,
       cors,
+      session,
+      auth,
       delStandaloneThreadController(),
     );
 
@@ -305,26 +434,36 @@ export function setupApiV1Router(app: Application) {
     router.get(
       `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId/answers`,
       cors,
+      session,
+      auth,
       getStandaloneThreadAnswersController(),
     );
     router.get(
       `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId/answers/:answerId`,
       cors,
+      session,
+      auth,
       getStandaloneThreadAnswerController(),
     );
     router.post(
       `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId/answers`,
       cors,
+      session,
+      auth,
       postStandaloneThreadAnswerController(),
     );
     router.put(
       `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId/answers/:answerId`,
       cors,
+      session,
+      auth,
       putStandaloneThreadAnswerController(),
     );
     router.delete(
       `/${hubName}/standalone/:instanceId/images/:imageId/threads/:threadId/answers/:answerId`,
       cors,
+      session,
+      auth,
       delStandaloneThreadAnswerController(),
     );
 
@@ -332,36 +471,53 @@ export function setupApiV1Router(app: Application) {
     router.get(
       `/${hubName}/rooms/:roomId/bus/:userId`,
       cors,
+      session,
+      auth,
       getRoomBusNegotiateController(),
     );
     router.post(
       `/${hubName}/rooms/:roomId/bus/:userId`,
       cors,
+      session,
+      auth,
       postRoomBusJoinController(),
     );
 
     // Render Canvas API
-    router.post(`/${hubName}/export`, cors, postExportToImageController());
-    router.post(`/${hubName}/export/pdf`, cors, postExportToPDFController());
     router.get(
       `/${hubName}/rooms/:roomId/export/:imageId`,
       cors,
+      session,
+      auth,
       getExportedImageController(),
     );
     router.post(
       `/${hubName}/rooms/:roomId/export`,
       cors,
-      postExportToImageAsyncController(),
+      session,
+      auth,
+      postExportPageToImageAsyncController(),
     );
     router.get(
       `/${hubName}/rooms/:roomId/export/pdf/:pdfId`,
       cors,
+      session,
+      auth,
       getExportedPdfController(),
     );
     router.post(
       `/${hubName}/rooms/:roomId/export/pdf`,
       cors,
-      postExportToPDFAsyncController(),
+      session,
+      auth,
+      postExportRoomToPDFAsyncController(),
+    );
+    router.post(
+      `/${hubName}/rooms/:roomId/frames/export/pdf`,
+      cors,
+      session,
+      auth,
+      postExportFramesToPDFAsyncController(),
     );
   }
 
@@ -369,6 +525,8 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/rooms/:roomId/simulate-ws-error`,
     cors,
+    session,
+    auth,
     getSimulateStoreWsErrorController(),
   );
 
@@ -376,26 +534,36 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/rooms/:roomId/templates`,
     cors,
+    session,
+    auth,
     getTemplatesController(),
   );
   router.get(
     `/${hubName}/rooms/:roomId/templates/frame`,
     cors,
+    session,
+    auth,
     getFrameTemplatesController(),
   );
   router.get(
     `/${hubName}/rooms/:roomId/templates/:templateId`,
     cors,
+    session,
+    auth,
     getTemplateController(),
   );
   router.post(
     `/${hubName}/rooms/:roomId/templates`,
     cors,
+    session,
+    auth,
     postTemplateController(),
   );
   router.delete(
     `/${hubName}/rooms/:roomId/templates/:templateId`,
     cors,
+    session,
+    auth,
     delTemplateController(),
   );
 
@@ -403,11 +571,15 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/standalone/:instanceId/images/:imageId`,
     cors,
+    session,
+    auth,
     getStandaloneImageController(),
   );
   router.put(
     `/${hubName}/standalone/:instanceId/images/:imageId/data`,
     cors,
+    session,
+    auth,
     putStandaloneSaveInstanceImageController(),
   );
   router.get(
@@ -418,11 +590,15 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/standalone/:instanceId/images`,
     cors,
+    session,
+    auth,
     getStandaloneImagesController(),
   );
   router.post(
     `/${hubName}/standalone/:instanceId/images`,
     cors,
+    session,
+    auth,
     upload.single("file"),
     postStandaloneUploadImageController(),
   );
@@ -436,16 +612,22 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/templates/:instanceId/images`,
     cors,
+    session,
+    auth,
     getTemplatesImagesController(),
   );
   router.delete(
     `/${hubName}/templates/:instanceId/images/:imageId`,
     cors,
+    session,
+    auth,
     delTemplatesImageController(),
   );
   router.post(
     `/${hubName}/templates/:instanceId/images`,
     cors,
+    session,
+    auth,
     upload.single("file"),
     postTemplatesUploadImageController(),
   );
@@ -454,6 +636,8 @@ export function setupApiV1Router(app: Application) {
   router.post(
     `/${hubName}/rooms/:roomId/ai/chats/:chatId/message`,
     cors,
+    session,
+    auth,
     postAiChatMessageController(),
   );
 
@@ -462,7 +646,159 @@ export function setupApiV1Router(app: Application) {
   router.post(
     `/${hubName}/templates/add-template-to-room`,
     cors,
+    session,
+    auth,
     postAddTemplateToRoomController(),
+  );
+
+  // Rooms API
+
+  router.get(`/rooms`, cors, session, auth, getRoomsController());
+  router.get(`/rooms/:roomId`, cors, session, auth, getRoomController());
+  router.post(`/rooms`, cors, session, auth, postRoomController());
+  router.put(`/rooms/:roomId`, cors, session, auth, putRoomController());
+  router.delete(`/rooms/:roomId`, cors, session, auth, delRoomController());
+
+  // Rooms Access API
+
+  router.post(
+    `/rooms/access-link`,
+    cors,
+    session,
+    auth,
+    postRoomAccessController(),
+  );
+  router.put(
+    `/rooms/access-link/:accessId`,
+    cors,
+    session,
+    auth,
+    putRoomAccessController(),
+  );
+
+  // Pages API
+
+  router.get(
+    `/${hubName}/rooms/:roomId/pages/all`,
+    cors,
+    session,
+    auth,
+    getAllPagesController(),
+  );
+
+  router.get(
+    `/${hubName}/rooms/:roomId/pages`,
+    cors,
+    session,
+    auth,
+    getPagesController(),
+  );
+
+  router.get(
+    `/${hubName}/rooms/:roomId/pages/:pageIndex/index`,
+    cors,
+    session,
+    auth,
+    getPageByIndexController(),
+  );
+
+  router.get(
+    `/${hubName}/rooms/:roomId/pages/:pageId`,
+    cors,
+    session,
+    auth,
+    getPageController(),
+  );
+
+  router.post(
+    `/${hubName}/rooms/:roomId/pages`,
+    cors,
+    session,
+    auth,
+    postPageController(),
+  );
+
+  router.put(
+    `/${hubName}/rooms/:roomId/pages/:pageId`,
+    cors,
+    session,
+    auth,
+    putPageController(),
+  );
+
+  router.get(
+    `/${hubName}/rooms/:roomId/thumbnail`,
+    cors,
+    session,
+    auth,
+    getRoomThumbnailController(),
+  );
+
+  router.get(
+    `/${hubName}/rooms/:roomId/pages/:pageId/thumbnail`,
+    cors,
+    session,
+    auth,
+    getPageThumbnailController(),
+  );
+
+  router.put(
+    `/${hubName}/rooms/:roomId/pages/:pageId/thumbnail`,
+    cors,
+    session,
+    auth,
+    raw({ type: "*/*", limit: "2mb" }),
+    putPageThumbnailController(),
+  );
+
+  router.delete(
+    `/${hubName}/rooms/:roomId/pages/:pageId`,
+    cors,
+    session,
+    auth,
+    delPageController(),
+  );
+
+  // SYNC HOST DISCONNECT API
+  router.post(
+    `/${hubName}/sync-host/disconnect`,
+    cors,
+    session,
+    auth,
+    postDisconnectSyncHostController(),
+  );
+
+  router.post(
+    `/${hubName}/sync-host/transport/connect`,
+    cors,
+    session,
+    auth,
+    postConnectTransportSyncHostController(),
+  );
+
+  router.post(
+    `/${hubName}/sync-host/transport/disconnect`,
+    cors,
+    session,
+    auth,
+    postDisconnectTransportSyncHostController(),
+  );
+
+  // PRESENTATION MODE IMAGES API
+  router.get(
+    `/${hubName}/rooms/:roomId/presentation-mode/:presentationId/pages/:pageId/image`,
+    cors,
+    session,
+    auth,
+    getPresentationImageController(),
+  );
+
+  router.post(
+    `/${hubName}/rooms/:roomId/presentation-mode`,
+    cors,
+    session,
+    auth,
+    postGeneratePresentationModeImagesAsyncController(),
   );
 
   app.use(routerBasePath, router);

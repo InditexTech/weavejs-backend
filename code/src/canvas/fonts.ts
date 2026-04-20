@@ -100,8 +100,6 @@ export const registerSkiaFonts = () => {
     FontLibrary.use(font.family, font.paths);
   }
 
-  console.log(FontLibrary.family("Arial")); // Log registered font families
-
   registered = true;
 };
 

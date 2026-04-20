@@ -44,7 +44,9 @@ export async function setupStorage() {
   } else {
     const credentials = new DefaultAzureCredential();
     const storageAccountUrl = `https://${accountName}.blob.core.windows.net`;
-    blobServiceClient = new BlobServiceClient(storageAccountUrl, credentials);
+    blobServiceClient = new BlobServiceClient(storageAccountUrl, credentials, {
+      retryOptions: { maxTries: 1 },
+    });
 
     containerClient = blobServiceClient.getContainerClient(containerName);
     if (!(await containerClient.exists())) {

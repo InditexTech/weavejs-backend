@@ -5,9 +5,14 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { ImagesPersistenceHandler } from "@/images/persistence.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export const postTemplatesUploadImageController = () => {
-  const persistenceHandler = new ImagesPersistenceHandler("templates-images");
+  const config = getServiceConfig();
+  const persistenceHandler = new ImagesPersistenceHandler(
+    config,
+    "templates-images",
+  );
 
   return async (req: Request, res: Response): Promise<void> => {
     const instanceId = req.params.instanceId as string;

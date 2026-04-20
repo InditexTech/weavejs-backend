@@ -21,6 +21,7 @@ import { JOB_DELETE_VIDEO_QUEUE_NAME } from "./constants.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 import { VideosPersistenceHandler } from "../../../videos/persistence.js";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export class DeleteVideoJob {
   private logger: ReturnType<typeof getLogger>;
@@ -49,7 +50,8 @@ export class DeleteVideoJob {
 
     this.persistenceHandler = new VideosPersistenceHandler();
 
-    this.imagesPersistenceHandler = new ImagesPersistenceHandler();
+    const config = getServiceConfig();
+    this.imagesPersistenceHandler = new ImagesPersistenceHandler(config);
 
     this.logger.info("Job created");
   }
@@ -75,7 +77,7 @@ export class DeleteVideoJob {
             videoId,
           },
         });
-      }
+      },
     );
   }
 
@@ -164,7 +166,7 @@ export class DeleteVideoJob {
     clientId: string,
     roomId: string,
     userId: string,
-    videoId: string
+    videoId: string,
   ): Promise<string> {
     const jobData: DeleteVideoJobData = {
       clientId,
@@ -179,7 +181,7 @@ export class DeleteVideoJob {
       JOB_DELETE_VIDEO_QUEUE_NAME,
       jobData,
       {},
-      1
+      1,
     );
 
     if (!jobId) {
@@ -228,7 +230,7 @@ export class DeleteVideoJob {
       {
         removalJobId: jobId,
         removalStatus: "pending",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -256,7 +258,7 @@ export class DeleteVideoJob {
       },
       {
         removalStatus: "working",
-      }
+      },
     );
 
     await updateTask(
@@ -267,7 +269,7 @@ export class DeleteVideoJob {
         roomId,
         userId,
         status: "active",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -277,7 +279,7 @@ export class DeleteVideoJob {
     });
 
     this.logger.info(
-      `Delete video / job stated active / ${jobId} / ${clientId}`
+      `Delete video / job stated active / ${jobId} / ${clientId}`,
     );
   }
 
@@ -295,7 +297,7 @@ export class DeleteVideoJob {
       },
       {
         status: "completed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -305,7 +307,7 @@ export class DeleteVideoJob {
     });
 
     this.logger.info(
-      `Delete video / job completed / ${jobId} / ${clientId} / ${videoId})`
+      `Delete video / job completed / ${jobId} / ${clientId} / ${videoId})`,
     );
   }
 
@@ -325,7 +327,7 @@ export class DeleteVideoJob {
       },
       {
         removalStatus: "failed",
-      }
+      },
     );
 
     await updateTask(
@@ -334,7 +336,7 @@ export class DeleteVideoJob {
       },
       {
         status: "failed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -344,7 +346,7 @@ export class DeleteVideoJob {
     });
 
     this.logger.error(
-      `Delete video / job failed: / ${jobId} / ${clientId} / ${error}`
+      `Delete video / job failed: / ${jobId} / ${clientId} / ${error}`,
     );
   }
 }

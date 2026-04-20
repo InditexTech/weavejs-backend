@@ -9,6 +9,7 @@ import mimeTypes from "mime-types";
 import { removeBackground } from "@imgly/background-removal-node";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import { saveBase64ToFile } from "../../../utils.js";
+import { getServiceConfig } from "@/config/config.js";
 
 async function myBlobToUIntDemo(blob: Blob) {
   const arrayBuffer = await blob.arrayBuffer();
@@ -17,7 +18,8 @@ async function myBlobToUIntDemo(blob: Blob) {
 }
 
 export const postRemoveBackgroundController = () => {
-  const persistenceHandler = new ImagesPersistenceHandler();
+  const config = getServiceConfig();
+  const persistenceHandler = new ImagesPersistenceHandler(config);
   const baseTempDir = path.join(process.cwd(), "temp");
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId as string;
@@ -62,7 +64,7 @@ export const postRemoveBackgroundController = () => {
           await persistenceHandler.persist(
             fileNameRemoved,
             { size: data.length, mimeType: "image/png" },
-            data
+            data,
           );
           fs.rmSync(filePath);
 

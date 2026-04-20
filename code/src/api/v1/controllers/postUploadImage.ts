@@ -5,9 +5,11 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export const postUploadImageController = () => {
-  const persistenceHandler = new ImagesPersistenceHandler();
+  const config = getServiceConfig();
+  const persistenceHandler = new ImagesPersistenceHandler(config);
 
   return async (req: Request, res: Response): Promise<void> => {
     const file = req.file;
@@ -27,7 +29,7 @@ export const postUploadImageController = () => {
         await persistenceHandler.persist(
           fileName,
           { size: file.size, mimeType },
-          data
+          data,
         );
 
         res

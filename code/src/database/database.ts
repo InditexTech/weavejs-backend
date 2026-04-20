@@ -16,6 +16,10 @@ import { defineConnectionModel } from "./models/connection.js";
 import { defineTemplateModel } from "./models/template.js";
 import { defineChatModel } from "./models/chat.js";
 import { defineChatMessageModel } from "./models/chat-message.js";
+import { definePageModel } from "./models/page.js";
+import { defineRoomModel } from "./models/room.js";
+import { defineRoomUserModel } from "./models/room-user.js";
+import { defineRoomAccessModel } from "./models/room-access.js";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 let activeSequelize: Sequelize | null = null;
@@ -46,14 +50,14 @@ export const setupDatabase = async () => {
 
       const sequelize = new Sequelize(connectionString, {
         dialect: "postgres",
-        logging: false,
         pool: {
           max: 5,
           min: 0,
           acquire: 30000,
           idle: 10000,
         },
-        // logging: (msg: string) => logger.debug(msg),
+        logging: false,
+        // logging: console.log,
       });
 
       try {
@@ -74,6 +78,10 @@ export const setupDatabase = async () => {
         await defineThreadAnswerModel(sequelize);
         await defineChatModel(sequelize);
         await defineChatMessageModel(sequelize);
+        await defineRoomModel(sequelize);
+        await defineRoomUserModel(sequelize);
+        await defineRoomAccessModel(sequelize);
+        await definePageModel(sequelize);
 
         if (process.env.INITIALIZE_DB === "true") {
           sequelize.sync({ force: true });
@@ -121,7 +129,7 @@ export const setupDatabase = async () => {
           },
         }),
         logging: false,
-        // logging: (msg: string) => logger.debug(msg),
+        // logging: console.log,
       });
 
       if (config.database.connection.cloudCredentials) {
@@ -150,6 +158,10 @@ export const setupDatabase = async () => {
         await defineThreadAnswerModel(sequelize);
         await defineChatModel(sequelize);
         await defineChatMessageModel(sequelize);
+        await defineRoomModel(sequelize);
+        await defineRoomUserModel(sequelize);
+        await defineRoomAccessModel(sequelize);
+        await definePageModel(sequelize);
 
         if (process.env.INITIALIZE_DB === "true") {
           sequelize.sync({ force: true });

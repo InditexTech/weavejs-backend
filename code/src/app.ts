@@ -13,6 +13,9 @@ import { setLogLevel } from "@azure/logger";
 import { getLogger } from "./logger/logger.js";
 import { setupApiV3Router } from "./api/v3/router.js";
 import { getServiceConfig } from "./config/config.js";
+import { toNodeHandler } from "better-auth/node";
+import { getAuth } from "@/lib/auth.js";
+import { getCorsMiddleware } from "./middlewares/cors.js";
 
 setLogLevel("verbose");
 
@@ -36,14 +39,19 @@ export function setupApp() {
 
   const config = getServiceConfig();
 
-  // // Setup Middlewares
+  // Setup Middlewares
   setupHttpLoggerMiddleware(app);
   // setupHttpResponseHeadersMiddleware(app);
 
-  // // Setup Health Checks Router
+  // Setup Health Checks Router
   setupHealthChecksRouter(app);
 
-  // // Setup Routers
+  // Setup Auth / Authz
+  const cors = getCorsMiddleware("/api/auth/*");
+  const auth = getAuth();
+  app.all("/api/auth/*", cors, toNodeHandler(auth));
+
+  // Setup Routers
   setupApiV1Router(app);
   setupApiV2Router(app);
   if (config.features.workloads) {
@@ -61,7 +69,7 @@ export function setupApp() {
         res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
         res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
       },
-    })
+    }),
   );
 
   return app;

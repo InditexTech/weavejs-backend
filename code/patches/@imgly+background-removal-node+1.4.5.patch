@@ -1,0 +1,16 @@
+diff --git a/node_modules/@imgly/background-removal-node/dist/index.mjs b/node_modules/@imgly/background-removal-node/dist/index.mjs
+index 687f5ac..58a1946 100644
+--- a/node_modules/@imgly/background-removal-node/dist/index.mjs
++++ b/node_modules/@imgly/background-removal-node/dist/index.mjs
+@@ -402,7 +402,10 @@ var ConfigSchema = z.object({
+   debug: z.boolean().default(false).describe("Whether to enable debug logging."),
+   proxyToWorker: z.boolean().default(true).describe("Whether to proxy inference to a web worker."),
+   fetchArgs: z.any({}).default({}).describe("Arguments to pass to fetch when loading the model."),
+-  progress: z.function().args(z.string(), z.number(), z.number()).returns(z.void()).describe("Progress callback.").optional(),
++  progress: z.function({
++    input: [z.string(), z.number(), z.number()], 
++    output: z.void(),
++  }).describe("Progress callback.").optional(),
+   model: z.enum(["small", "medium", "large"]).default("medium"),
+   output: z.object({
+     format: z.enum([

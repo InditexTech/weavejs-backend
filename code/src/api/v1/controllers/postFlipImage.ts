@@ -58,7 +58,7 @@ export const postFlipImageController = () => {
         replaceImage,
         dataBase64,
         contentType,
-      }
+      },
     );
 
     if (id) {

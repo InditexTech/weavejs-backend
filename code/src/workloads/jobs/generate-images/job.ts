@@ -51,7 +51,8 @@ export class GenerateImagesJob {
 
     this.boss = tasksManagerInstance;
 
-    this.persistenceHandler = new ImagesPersistenceHandler();
+    const config = getServiceConfig();
+    this.persistenceHandler = new ImagesPersistenceHandler(config);
 
     this.logger.info("Job created");
   }
@@ -166,8 +167,6 @@ export class GenerateImagesJob {
         config.liteLLM.timeoutSecs * 1000,
       );
 
-      console.log("AQUI 1");
-
       const response = await fetch(
         `${config.liteLLM.endpoint}/litellm/v1/chat/completions`,
         {
@@ -182,8 +181,6 @@ export class GenerateImagesJob {
       );
 
       clearTimeout(timeout);
-
-      console.log("AQUI 2", response.status, response.statusText);
 
       if (!response.ok) {
         throw new Error("Error generating the images");

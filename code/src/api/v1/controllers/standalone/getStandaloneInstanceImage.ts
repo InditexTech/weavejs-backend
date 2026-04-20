@@ -4,10 +4,13 @@
 
 import { Request, Response } from "express";
 import { ImagesPersistenceHandler } from "@/images/persistence.js";
+import { getServiceConfig } from "@/config/config.js";
 
 export const getStandaloneInstanceImageController = () => {
+  const config = getServiceConfig();
   const persistenceHandler = new ImagesPersistenceHandler(
-    "standalone-instance-image-data"
+    config,
+    "standalone-instance-image-data",
   );
 
   return async (req: Request, res: Response): Promise<void> => {

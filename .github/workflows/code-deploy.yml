@@ -2,9 +2,9 @@ name: Code deploy
 
 on:
   pull_request:
-    types: [closed]
-    branches: ["main", "main-*"]
-    paths: ["code/**", ".github/workflows/code**"]
+    types: [ closed ]
+    branches: [ "main", "main-*" ]
+    paths: [ "code/**", ".github/workflows/code**" ]
   workflow_dispatch:
     inputs:
       BASELINE:
@@ -28,7 +28,8 @@ jobs:
   deploy:
     name: Deploy to Container Apps
     runs-on: ubuntu-24.04
-    environment: ${{ github.event.inputs.ENVIRONMENT && github.event.inputs.ENVIRONMENT || 'azure-develop' }}
+    environment: ${{ github.event.inputs.ENVIRONMENT &&
+      github.event.inputs.ENVIRONMENT || 'azure-develop' }}
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -64,6 +65,11 @@ jobs:
       LOG_LEVEL: ${{ vars.LOG_LEVEL }}
       AZURE_CS_API_KEY: ${{ secrets.AZURE_CS_API_KEY }}
       AI_PASSWORD: ${{ secrets.AI_PASSWORD }}
+      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+      GITHUB_CLIENT_ID: ${{ secrets.SOCIAL_GITHUB_CLIENT_ID }}
+      GITHUB_CLIENT_SECRET: ${{ secrets.SOCIAL_GITHUB_CLIENT_SECRET }}
+      GOOGLE_CLIENT_ID: ${{ secrets.SOCIAL_GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.SOCIAL_GOOGLE_CLIENT_SECRET }}
     steps:
       - name: Get input parameters
         run: |
@@ -107,6 +113,12 @@ jobs:
           echo FEATURE_THREADS=${{ env.FEATURE_THREADS }} >> .env
           echo LITELLM_ENDPOINT=${{ env.LITELLM_ENDPOINT }} >> .env
           echo LITELLM_API_KEY=${{ env.LITELLM_API_KEY }} >> .env
+          echo BETTER_AUTH_SECRET=${{ env.BETTER_AUTH_SECRET }} >> .env
+          echo BETTER_AUTH_URL=${{ env.APP_HOST }} >> .env
+          echo GITHUB_CLIENT_ID=${{ env.GITHUB_CLIENT_ID }} >> .env
+          echo GITHUB_CLIENT_SECRET=${{ env.GITHUB_CLIENT_SECRET }} >> .env
+          echo GOOGLE_CLIENT_ID=${{ env.GOOGLE_CLIENT_ID }} >> .env
+          echo GOOGLE_CLIENT_SECRET=${{ env.GOOGLE_CLIENT_SECRET }} >> .env
           echo LOG_LEVEL=${{ env.AZURE_LOG_LEVEL }} >> .env
 
       - name: Azure / Login
@@ -134,7 +146,8 @@ jobs:
           push: true
           platforms: linux/amd64
           context: code
-          tags: ${{ env.AZURE_ACR_NAME }}.azurecr.io/${{ env.AZURE_CONTAINER_NAME }}:${{ github.sha }}
+          tags: ${{ env.AZURE_ACR_NAME }}.azurecr.io/${{ env.AZURE_CONTAINER_NAME }}:${{
+            github.sha }}
           file: code/Dockerfile
 
       - name: Azure / Deploy

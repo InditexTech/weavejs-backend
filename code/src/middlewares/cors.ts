@@ -11,6 +11,8 @@ export function getCorsMiddleware(path: string) {
   // Setup CORS configuration
   const corsOptions = {
     origin: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
   };
 
   logger.info({ corsOptions }, `CORS configured on path: ${path}`);

@@ -28,6 +28,7 @@ export class ImageTemplateNode extends WeaveNode {
   protected padding = 20;
   protected borderWidth = 1;
   protected templateIdDefault = "Template ID";
+  initialize = undefined;
 
   onRender(props: WeaveElementAttributes) {
     const { id } = props;
@@ -134,13 +135,13 @@ export class ImageTemplateNode extends WeaveNode {
         if (node && container === imageTemplateNode) {
           this.link(imageTemplateNode, node as WeaveElementInstance);
         }
-      }
+      },
     );
 
     this.setupDefaultNodeEvents(imageTemplateNode);
 
     imageTemplateNode.canMoveToContainer = function (
-      node: Konva.Node
+      node: Konva.Node,
     ): boolean {
       return node.getAttr("nodeType") === "image";
     };
@@ -165,7 +166,7 @@ export class ImageTemplateNode extends WeaveNode {
 
   onUpdate(
     nodeInstance: WeaveElementInstance,
-    nextProps: WeaveElementAttributes
+    nextProps: WeaveElementAttributes,
   ) {
     const imageTemplateNode = nodeInstance as Konva.Group;
     imageTemplateNode.setAttrs({
@@ -173,7 +174,7 @@ export class ImageTemplateNode extends WeaveNode {
     });
 
     const internalRect = imageTemplateNode.findOne(
-      `#${nextProps.id}-imageTemplate`
+      `#${nextProps.id}-imageTemplate`,
     ) as Konva.Rect;
     internalRect?.setAttrs({
       width: nextProps.width,
@@ -181,7 +182,7 @@ export class ImageTemplateNode extends WeaveNode {
     });
 
     const internalText = imageTemplateNode.findOne(
-      `#${nextProps.id}-imageTemplateId`
+      `#${nextProps.id}-imageTemplateId`,
     ) as Konva.Text;
     internalText?.setAttrs({
       x: this.padding,
@@ -192,7 +193,7 @@ export class ImageTemplateNode extends WeaveNode {
     });
 
     const internalGroup = imageTemplateNode.findOne(
-      `#${nextProps.id}-imageTemplate-group`
+      `#${nextProps.id}-imageTemplate-group`,
     ) as Konva.Group;
     internalGroup?.setAttrs({
       clipWidth: nextProps.width,
@@ -226,7 +227,7 @@ export class ImageTemplateNode extends WeaveNode {
     const nodeInstance = template as Konva.Group;
 
     const internalGroup = nodeInstance.findOne(
-      `#${nodeInstance.getAttr("id")}-imageTemplate-group`
+      `#${nodeInstance.getAttr("id")}-imageTemplate-group`,
     ) as Konva.Group;
 
     if (!internalGroup) {
@@ -236,7 +237,7 @@ export class ImageTemplateNode extends WeaveNode {
     this.link(
       nodeInstance,
       internalGroup.getChildren()[0] as WeaveElementInstance,
-      fit
+      fit,
     );
   }
 
@@ -244,7 +245,7 @@ export class ImageTemplateNode extends WeaveNode {
     const nodeInstance = template as Konva.Group;
 
     const internalGroup = nodeInstance.findOne(
-      `#${nodeInstance.getAttr("id")}-imageTemplate-group`
+      `#${nodeInstance.getAttr("id")}-imageTemplate-group`,
     ) as Konva.Group;
 
     if (!internalGroup) {
@@ -266,7 +267,7 @@ export class ImageTemplateNode extends WeaveNode {
     });
 
     this.instance.updateNode(
-      imageHandler.serialize(imageNode as WeaveElementInstance)
+      imageHandler.serialize(imageNode as WeaveElementInstance),
     );
 
     template.setAttrs({
@@ -289,7 +290,7 @@ export class ImageTemplateNode extends WeaveNode {
     const nodeInstance = template as Konva.Group;
 
     const internalGroup = nodeInstance.findOne(
-      `#${nodeInstance.getAttr("id")}-imageTemplate-group`
+      `#${nodeInstance.getAttr("id")}-imageTemplate-group`,
     ) as Konva.Group;
 
     if (!internalGroup) {
@@ -311,7 +312,7 @@ export class ImageTemplateNode extends WeaveNode {
     });
 
     this.instance.updateNode(
-      imageHandler.serialize(imageNode as WeaveElementInstance)
+      imageHandler.serialize(imageNode as WeaveElementInstance),
     );
 
     template.setAttrs({
@@ -331,11 +332,11 @@ export class ImageTemplateNode extends WeaveNode {
   link(
     template: WeaveElementInstance,
     node: WeaveElementInstance,
-    fit: ImageTemplateFit = IMAGE_TEMPLATE_FIT.COVER
+    fit: ImageTemplateFit = IMAGE_TEMPLATE_FIT.COVER,
   ) {
     const stage = this.instance.getStage();
     const imageNode = (node as Konva.Group).findOne(
-      `#${node.getAttr("id")}-image`
+      `#${node.getAttr("id")}-image`,
     );
 
     if (!imageNode) {
@@ -450,7 +451,7 @@ export class ImageTemplateNode extends WeaveNode {
 
     if (attrs.isUsed) {
       const internalGroup = imageTemplateNode.findOne(
-        `#${attrs.id}-imageTemplate-group`
+        `#${attrs.id}-imageTemplate-group`,
       ) as Konva.Group;
 
       if (!internalGroup) return;
@@ -492,15 +493,15 @@ export class ImageTemplateNode extends WeaveNode {
       imageNode.draggable(true);
       imageNode.listening(true);
       imageNode.x(
-        imageNode.x() - (actualImageLayerAttrs?.containerOffsetX ?? 0)
+        imageNode.x() - (actualImageLayerAttrs?.containerOffsetX ?? 0),
       );
       imageNode.y(
-        imageNode.y() - (actualImageLayerAttrs?.containerOffsetY ?? 0)
+        imageNode.y() - (actualImageLayerAttrs?.containerOffsetY ?? 0),
       );
       imageHandler.scaleReset(imageNode as Konva.Group);
 
       const actualNode = imageHandler.serialize(
-        imageNode as WeaveElementInstance
+        imageNode as WeaveElementInstance,
       );
 
       this.instance.removeNode(actualNode);
@@ -513,7 +514,7 @@ export class ImageTemplateNode extends WeaveNode {
       imageTemplateNode.setAttr("lockToContainer", false);
       imageTemplateNode.setAttr("moving", false);
       this.instance.updateNode(
-        this.serialize(imageTemplateNode as WeaveElementInstance)
+        this.serialize(imageTemplateNode as WeaveElementInstance),
       );
 
       this.getNodesSelectionPlugin()?.setSelectedNodes([imageNode]);
@@ -527,7 +528,7 @@ export class ImageTemplateNode extends WeaveNode {
     const mainNode = instance as Konva.Group | undefined;
 
     const frameInternal: Konva.Group | undefined = stage.findOne(
-      `#${attrs.containerId}`
+      `#${attrs.containerId}`,
     );
 
     const childrenMapped: WeaveStateElement[] = [];
@@ -537,7 +538,7 @@ export class ImageTemplateNode extends WeaveNode {
       ];
       for (const node of children) {
         const handler = this.instance.getNodeHandler<WeaveNode>(
-          node.getAttr("nodeType")
+          node.getAttr("nodeType"),
         );
         if (!handler) {
           continue;

@@ -14,10 +14,7 @@ export const setupWorkers = async () => {
   queue = new PQueue.default({ concurrency: workers });
 };
 
-export function runWorker<T>(
-  workerPath: string,
-  workerData?: unknown,
-): Promise<void | T> {
+export function runWorker<P, T>(workerPath: string, workerData: P): Promise<T> {
   if (!queue) {
     throw new Error("Workers not initialized. Call setupWorkers() first.");
   }
