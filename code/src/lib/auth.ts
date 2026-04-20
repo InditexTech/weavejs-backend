@@ -68,7 +68,7 @@ export const setupAuth = () => {
       },
       database: new Pool({
         connectionString,
-        max: 5,
+        max: 3,
         min: 0,
         idleTimeoutMillis: 10000,
         connectionTimeoutMillis: 30000,
@@ -127,6 +127,10 @@ export const setupAuth = () => {
         ...(ssl && {
           rejectUnauthorized: true,
         }),
+        max: 3,
+        min: 0,
+        idleTimeoutMillis: 10000,
+        connectionTimeoutMillis: 30000,
         options: "-c search_path=auth",
       }),
     });

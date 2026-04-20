@@ -51,7 +51,7 @@ export const setupDatabase = async () => {
       const sequelize = new Sequelize(connectionString, {
         dialect: "postgres",
         pool: {
-          max: 5,
+          max: 3,
           min: 0,
           acquire: 30000,
           idle: 10000,
@@ -115,7 +115,7 @@ export const setupDatabase = async () => {
         port,
         dialect: "postgres",
         pool: {
-          max: 5,
+          max: 3,
           min: 0,
           acquire: 30000,
           idle: 10000,
