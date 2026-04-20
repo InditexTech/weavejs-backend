@@ -23,6 +23,7 @@ import {
 } from "../../../database/controllers/image.js";
 import { getServiceConfig } from "../../../config/config.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
+import { getDatabaseInstance } from "@/database/database.js";
 
 export class EditImageJob {
   private logger: ReturnType<typeof getLogger>;
@@ -37,10 +38,16 @@ export class EditImageJob {
   }
 
   private static async createJobQueue(instance: pgBoss) {
-    await instance.createQueue(JOB_EDIT_IMAGE_QUEUE_NAME, {
-      name: JOB_EDIT_IMAGE_QUEUE_NAME,
-      policy: "singleton",
-    });
+    await getDatabaseInstance().query(`SELECT pg_advisory_lock(42)`);
+
+    try {
+      await instance.createQueue(JOB_EDIT_IMAGE_QUEUE_NAME, {
+        name: JOB_EDIT_IMAGE_QUEUE_NAME,
+        policy: "singleton",
+      });
+    } finally {
+      await getDatabaseInstance().query(`SELECT pg_advisory_unlock(42)`);
+    }
   }
 
   constructor(tasksManagerInstance: pgBoss) {

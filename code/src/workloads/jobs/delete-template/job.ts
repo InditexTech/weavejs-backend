@@ -19,13 +19,14 @@ import {
   getTemplate,
   updateTemplate,
 } from "../../../database/controllers/template.js";
+import { getDatabaseInstance } from "@/database/database.js";
 
 export class DeleteTemplateJob {
   private logger: ReturnType<typeof getLogger>;
   private boss: pgBoss;
 
   static async create(
-    tasksManagerInstance: pgBoss
+    tasksManagerInstance: pgBoss,
   ): Promise<DeleteTemplateJob> {
     this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(JOB_DELETE_TEMPLATE_QUEUE_NAME);
@@ -34,10 +35,16 @@ export class DeleteTemplateJob {
   }
 
   private static async createJobQueue(instance: pgBoss) {
-    await instance.createQueue(JOB_DELETE_TEMPLATE_QUEUE_NAME, {
-      name: JOB_DELETE_TEMPLATE_QUEUE_NAME,
-      policy: "singleton",
-    });
+    await getDatabaseInstance().query(`SELECT pg_advisory_lock(42)`);
+
+    try {
+      await instance.createQueue(JOB_DELETE_TEMPLATE_QUEUE_NAME, {
+        name: JOB_DELETE_TEMPLATE_QUEUE_NAME,
+        policy: "singleton",
+      });
+    } finally {
+      await getDatabaseInstance().query(`SELECT pg_advisory_unlock(42)`);
+    }
   }
 
   constructor(tasksManagerInstance: pgBoss) {
@@ -69,7 +76,7 @@ export class DeleteTemplateJob {
             templateId,
           },
         });
-      }
+      },
     );
   }
 
@@ -143,7 +150,7 @@ export class DeleteTemplateJob {
     clientId: string,
     roomId: string,
     userId: string,
-    templateId: string
+    templateId: string,
   ): Promise<string> {
     const jobData: DeleteTemplateJobData = {
       clientId,
@@ -158,7 +165,7 @@ export class DeleteTemplateJob {
       JOB_DELETE_TEMPLATE_QUEUE_NAME,
       jobData,
       {},
-      1
+      1,
     );
 
     if (!jobId) {
@@ -207,7 +214,7 @@ export class DeleteTemplateJob {
       {
         removalJobId: jobId,
         removalStatus: "pending",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -217,7 +224,7 @@ export class DeleteTemplateJob {
     });
 
     this.logger.info(
-      `Delete template / created new job / ${jobId} / ${clientId}`
+      `Delete template / created new job / ${jobId} / ${clientId}`,
     );
   }
 
@@ -237,7 +244,7 @@ export class DeleteTemplateJob {
       },
       {
         removalStatus: "working",
-      }
+      },
     );
 
     await updateTask(
@@ -248,7 +255,7 @@ export class DeleteTemplateJob {
         roomId,
         userId,
         status: "active",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -258,7 +265,7 @@ export class DeleteTemplateJob {
     });
 
     this.logger.info(
-      `Delete template / job stated active / ${jobId} / ${clientId}`
+      `Delete template / job stated active / ${jobId} / ${clientId}`,
     );
   }
 
@@ -276,7 +283,7 @@ export class DeleteTemplateJob {
       },
       {
         status: "completed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -286,7 +293,7 @@ export class DeleteTemplateJob {
     });
 
     this.logger.info(
-      `Delete template / job completed / ${jobId} / ${clientId} / ${templateId})`
+      `Delete template / job completed / ${jobId} / ${clientId} / ${templateId})`,
     );
   }
 
@@ -306,7 +313,7 @@ export class DeleteTemplateJob {
       },
       {
         removalStatus: "failed",
-      }
+      },
     );
 
     await updateTask(
@@ -315,7 +322,7 @@ export class DeleteTemplateJob {
       },
       {
         status: "failed",
-      }
+      },
     );
 
     broadcastToRoom(roomId, {
@@ -325,7 +332,7 @@ export class DeleteTemplateJob {
     });
 
     this.logger.error(
-      `Delete template / job failed: / ${jobId} / ${clientId} / ${error}`
+      `Delete template / job failed: / ${jobId} / ${clientId} / ${error}`,
     );
   }
 }

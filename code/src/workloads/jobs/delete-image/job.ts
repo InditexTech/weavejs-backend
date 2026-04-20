@@ -21,6 +21,7 @@ import {
 import { JOB_DELETE_IMAGE_QUEUE_NAME } from "./constants.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 import { getServiceConfig } from "@/config/config.js";
+import { getDatabaseInstance } from "@/database/database.js";
 
 export class DeleteImageJob {
   private logger: ReturnType<typeof getLogger>;
@@ -35,10 +36,16 @@ export class DeleteImageJob {
   }
 
   private static async createJobQueue(instance: pgBoss) {
-    await instance.createQueue(JOB_DELETE_IMAGE_QUEUE_NAME, {
-      name: JOB_DELETE_IMAGE_QUEUE_NAME,
-      policy: "singleton",
-    });
+    await getDatabaseInstance().query(`SELECT pg_advisory_lock(42)`);
+
+    try {
+      await instance.createQueue(JOB_DELETE_IMAGE_QUEUE_NAME, {
+        name: JOB_DELETE_IMAGE_QUEUE_NAME,
+        policy: "singleton",
+      });
+    } finally {
+      await getDatabaseInstance().query(`SELECT pg_advisory_unlock(42)`);
+    }
   }
 
   constructor(tasksManagerInstance: pgBoss) {

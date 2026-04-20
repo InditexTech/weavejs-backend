@@ -24,6 +24,7 @@ import {
   ExportFramesToPdfWorkerPayload,
   ExportToIPdfWorkerResult,
 } from "./workers/types.js";
+import { getDatabaseInstance } from "@/database/database.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,10 +43,16 @@ export class ExportFramesToPdfJob {
   }
 
   private static async createJobQueue(instance: pgBoss) {
-    await instance.createQueue(JOB_EXPORT_FRAMES_TO_PDF_QUEUE_NAME, {
-      name: JOB_EXPORT_FRAMES_TO_PDF_QUEUE_NAME,
-      policy: "singleton",
-    });
+    await getDatabaseInstance().query(`SELECT pg_advisory_lock(42)`);
+
+    try {
+      await instance.createQueue(JOB_EXPORT_FRAMES_TO_PDF_QUEUE_NAME, {
+        name: JOB_EXPORT_FRAMES_TO_PDF_QUEUE_NAME,
+        policy: "singleton",
+      });
+    } finally {
+      await getDatabaseInstance().query(`SELECT pg_advisory_unlock(42)`);
+    }
   }
 
   constructor(tasksManagerInstance: pgBoss) {

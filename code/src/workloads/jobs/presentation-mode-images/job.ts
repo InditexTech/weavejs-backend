@@ -27,6 +27,7 @@ import {
 import { getRoomAllPages } from "@/database/controllers/page.js";
 import { getBlobServiceClient, getContainerClient } from "@/storage/storage.js";
 import { Readable } from "node:stream";
+import { getDatabaseInstance } from "@/database/database.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,10 +48,16 @@ export class PresentationModeImagesJob {
   }
 
   private static async createJobQueue(instance: pgBoss) {
-    await instance.createQueue(JOB_PRESENTATION_MODE_IMAGES_QUEUE_NAME, {
-      name: JOB_PRESENTATION_MODE_IMAGES_QUEUE_NAME,
-      policy: "singleton",
-    });
+    await getDatabaseInstance().query(`SELECT pg_advisory_lock(42)`);
+
+    try {
+      await instance.createQueue(JOB_PRESENTATION_MODE_IMAGES_QUEUE_NAME, {
+        name: JOB_PRESENTATION_MODE_IMAGES_QUEUE_NAME,
+        policy: "singleton",
+      });
+    } finally {
+      await getDatabaseInstance().query(`SELECT pg_advisory_unlock(42)`);
+    }
   }
 
   constructor(tasksManagerInstance: pgBoss) {
