@@ -73,6 +73,9 @@ export const setupAuth = () => {
         idleTimeoutMillis: 10000,
         connectionTimeoutMillis: 30000,
         options: "-c search_path=auth",
+        ssl: {
+          rejectUnauthorized: true,
+        },
       }),
     });
   }
@@ -80,7 +83,7 @@ export const setupAuth = () => {
   if (config.database.kind === "properties") {
     const {
       database: {
-        connection: { host, port, db, username, password },
+        connection: { host, port, db, username, password, ssl },
       },
     } = config;
 
@@ -121,6 +124,9 @@ export const setupAuth = () => {
         user: username,
         password,
         database: db,
+        ...(ssl && {
+          rejectUnauthorized: true,
+        }),
         options: "-c search_path=auth",
       }),
     });
