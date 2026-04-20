@@ -34,6 +34,8 @@ export const setupAuth = () => {
       },
     } = config;
 
+    console.log("Connection string:", connectionString);
+
     auth = betterAuth({
       appName: "Weave.js Backend",
       baseURL: process.env.BETTER_AUTH_URL,
@@ -65,7 +67,8 @@ export const setupAuth = () => {
         },
       },
       database: new Pool({
-        connectionString: `${connectionString}?options=-c search_path=auth`,
+        connectionString,
+        options: "-c search_path=auth",
       }),
     });
   }
