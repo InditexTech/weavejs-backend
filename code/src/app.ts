@@ -23,7 +23,7 @@ let app: Express | null = null;
 
 export function getApp() {
   if (!app) {
-    throw new Error("App not initialized");
+    throw new Error("Weave.js backend not initialized");
   }
 
   return app;
@@ -34,7 +34,7 @@ export function setupApp() {
   app = express();
 
   if (!app) {
-    throw new Error("Failed to create Express app");
+    throw new Error("Failed to create Weave.js backend app");
   }
 
   const config = getServiceConfig();
