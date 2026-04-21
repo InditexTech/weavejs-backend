@@ -27,6 +27,8 @@ export const setupAuth = () => {
 
   const config = getServiceConfig();
 
+  console.log("Auth DB kind:", config.database.kind);
+
   if (config.database.kind === "connection_string") {
     const {
       database: {
@@ -34,7 +36,7 @@ export const setupAuth = () => {
       },
     } = config;
 
-    console.log("Connection string:", connectionString);
+    console.log("Connection string AUTH:", connectionString);
 
     auth = betterAuth({
       appName: "Weave.js Backend",
