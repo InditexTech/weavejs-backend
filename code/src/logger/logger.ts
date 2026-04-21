@@ -32,8 +32,6 @@ export function setupLogger() {
     },
   });
 
-  logger.info(`Log level set to: ${process.env.LOG_LEVEL ?? "error"}`);
-
   AzureLogger.log = (...args) => {
     const azureLogger = getLogger().child({ module: "azure" });
     azureLogger.error(null, args.join(" "));
