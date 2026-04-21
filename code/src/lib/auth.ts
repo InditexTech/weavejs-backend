@@ -28,6 +28,44 @@ export const setupAuth = async () => {
 
   const config = getServiceConfig();
 
+  const authConfig = {
+    appName: "Weave.js Backend",
+    baseURL: process.env.BETTER_AUTH_URL,
+    trustedOrigins: [process.env.BETTER_AUTH_URL ?? ""],
+    cookies: {
+      sessionToken: {
+        attributes: {
+          sameSite: "lax",
+          secure: true,
+        },
+      },
+    },
+    advanced: {
+      cookiePrefix: process.env.DEPLOY_ENVIRONMENT,
+      crossSubDomainCookies: {
+        enabled: true,
+      },
+    },
+    emailAndPassword: {
+      enabled: false,
+    },
+    onAPIError: {
+      errorURL: `${process.env.BETTER_AUTH_URL}/error`,
+    },
+    socialProviders: {
+      github: {
+        clientId: process.env.GITHUB_CLIENT_ID as string,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+        redirectURI: `${process.env.BETTER_AUTH_URL}/weavebff/api/auth/callback/github`,
+      },
+      google: {
+        clientId: process.env.GOOGLE_CLIENT_ID as string,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+        redirectURI: `${process.env.BETTER_AUTH_URL}/weavebff/api/auth/callback/google`,
+      },
+    },
+  };
+
   if (config.database.kind === "connection_string") {
     logger.info("Initializing auth database connection (connection string)");
 
@@ -45,35 +83,7 @@ export const setupAuth = async () => {
     }
 
     auth = betterAuth({
-      appName: "Weave.js Backend",
-      baseURL: process.env.BETTER_AUTH_URL,
-      trustedOrigins: [process.env.BETTER_AUTH_URL ?? ""],
-      cookies: {
-        sessionToken: {
-          attributes: {
-            sameSite: "lax",
-            secure: true,
-          },
-        },
-      },
-      emailAndPassword: {
-        enabled: false,
-      },
-      onAPIError: {
-        errorURL: `${process.env.BETTER_AUTH_URL}/error`,
-      },
-      socialProviders: {
-        github: {
-          clientId: process.env.GITHUB_CLIENT_ID as string,
-          clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-          redirectURI: `${process.env.BETTER_AUTH_URL}/weavebff/api/auth/callback/github`,
-        },
-        google: {
-          clientId: process.env.GOOGLE_CLIENT_ID as string,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-          redirectURI: `${process.env.BETTER_AUTH_URL}/weavebff/api/auth/callback/google`,
-        },
-      },
+      ...authConfig,
       database: new Pool({
         connectionString: finalConnectionString,
         max: 3,
@@ -104,35 +114,7 @@ export const setupAuth = async () => {
     }
 
     auth = betterAuth({
-      appName: "Weave.js Backend",
-      baseURL: process.env.BETTER_AUTH_URL,
-      trustedOrigins: [process.env.BETTER_AUTH_URL ?? ""],
-      cookies: {
-        sessionToken: {
-          attributes: {
-            sameSite: "lax",
-            secure: true,
-          },
-        },
-      },
-      emailAndPassword: {
-        enabled: false,
-      },
-      onAPIError: {
-        errorURL: `${process.env.BETTER_AUTH_URL}/error`,
-      },
-      socialProviders: {
-        github: {
-          clientId: process.env.GITHUB_CLIENT_ID as string,
-          clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-          redirectURI: `${process.env.BETTER_AUTH_URL}/weavebff/api/auth/callback/github`,
-        },
-        google: {
-          clientId: process.env.GOOGLE_CLIENT_ID as string,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-          redirectURI: `${process.env.BETTER_AUTH_URL}/weavebff/api/auth/callback/google`,
-        },
-      },
+      ...authConfig,
       database: new Pool({
         host,
         port,
