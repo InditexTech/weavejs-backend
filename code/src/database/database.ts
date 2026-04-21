@@ -50,9 +50,16 @@ export const setupDatabase = async () => {
         },
       } = config;
 
+      let finalConnectionString = connectionString;
+      if (connectionString.indexOf("?") === -1) {
+        finalConnectionString = `${connectionString}?sslmode=no-verify`;
+      } else {
+        finalConnectionString = `${connectionString}$sslmode=no-verify`;
+      }
+
       console.log("Connection string DB:", connectionString);
 
-      const sequelize = new Sequelize(connectionString, {
+      const sequelize = new Sequelize(finalConnectionString, {
         dialect: "postgres",
         pool: {
           max: 3,

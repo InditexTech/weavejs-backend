@@ -38,6 +38,13 @@ export const setupAuth = () => {
 
     console.log("Connection string AUTH:", connectionString);
 
+    let finalConnectionString = connectionString;
+    if (connectionString.indexOf("?") === -1) {
+      finalConnectionString = `${connectionString}?sslmode=no-verify`;
+    } else {
+      finalConnectionString = `${connectionString}$sslmode=no-verify`;
+    }
+
     auth = betterAuth({
       appName: "Weave.js Backend",
       baseURL: process.env.BETTER_AUTH_URL,
@@ -69,7 +76,7 @@ export const setupAuth = () => {
         },
       },
       database: new Pool({
-        connectionString,
+        connectionString: finalConnectionString,
         max: 3,
         min: 0,
         idleTimeoutMillis: 10000,
