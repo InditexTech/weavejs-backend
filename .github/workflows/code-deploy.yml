@@ -59,6 +59,7 @@ jobs:
       AZURE_DATABASE_USERNAME: ${{ secrets.AZURE_DATABASE_USERNAME }}
       AZURE_DATABASE_SSL: ${{ secrets.AZURE_DATABASE_SSL }}
       AZURE_DATABASE_CLOUD_CREDENTIALS: ${{ vars.AZURE_DATABASE_CLOUD_CREDENTIALS }}
+      AZURE_DEPLOY_ENVIRONMENT: ${{ vars.AZURE_DEPLOY_ENVIRONMENT }}
       FEATURE_WORKLOADS: ${{ vars.FEATURE_WORKLOADS }}
       FEATURE_THREADS: ${{ vars.FEATURE_THREADS }}
       LITELLM_ENDPOINT: ${{ vars.LITELLM_ENDPOINT }}
@@ -120,6 +121,7 @@ jobs:
           echo GOOGLE_CLIENT_SECRET=${{ env.GOOGLE_CLIENT_SECRET }} >> .env
           echo LOG_LEVEL=${{ env.AZURE_LOG_LEVEL }} >> .env
           echo HTTP_LOG_LEVEL=${{ env.AZURE_HTTP_LOG_LEVEL }} >> .env
+          echo DEPLOY_ENVIRONMENT=${{ env.AZURE_DEPLOY_ENVIRONMENT }} >> .env
 
       - name: Azure / Login
         uses: azure/login@v2
