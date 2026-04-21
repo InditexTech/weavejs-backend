@@ -28,7 +28,7 @@ const start = async () => {
 
     const config = getServiceConfig();
 
-    setupAuth();
+    await setupAuth();
 
     // Setup node.js workers
     await setupWorkers();

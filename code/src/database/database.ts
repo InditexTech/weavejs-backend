@@ -24,10 +24,6 @@ import { defineRoomAccessModel } from "./models/room-access.js";
 let logger = null as unknown as ReturnType<typeof getLogger>;
 let activeSequelize: Sequelize | null = null;
 
-// const RENEW_TOKEN_CHECK_INTERVAL = 60 * 1000; // 1 minute
-// const RENEW_TOKEN_THRESHOLD = 5 * 60 * 1000; // 5 minutes
-// const CLOSE_STANDBY_SEQUELIZE_DELAY = 5 * 60 * 1000; // 5 minutes
-
 export const setupDatabase = async () => {
   logger = getLogger().child({ module: "database" });
 
@@ -111,7 +107,6 @@ export const setupDatabase = async () => {
       } = config;
 
       let finalPassword = password;
-
       if (config.database.connection.cloudCredentials) {
         currentAccessToken = await getDatabaseCloudCredentialsToken();
         finalPassword = currentAccessToken.token;

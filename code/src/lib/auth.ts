@@ -4,6 +4,7 @@
 
 import { getServiceConfig } from "@/config/config.js";
 import { getLogger } from "@/logger/logger.js";
+import { getDatabaseCloudCredentialsToken } from "@/utils.js";
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
 
@@ -20,7 +21,7 @@ declare global {
   }
 }
 
-export const setupAuth = () => {
+export const setupAuth = async () => {
   logger = getLogger().child({ module: "auth" });
 
   logger.info("Setting up");
@@ -96,6 +97,12 @@ export const setupAuth = () => {
       },
     } = config;
 
+    let finalPassword = password;
+    if (config.database.connection.cloudCredentials) {
+      const accessToken = await getDatabaseCloudCredentialsToken();
+      finalPassword = accessToken.token;
+    }
+
     auth = betterAuth({
       appName: "Weave.js Backend",
       baseURL: process.env.BETTER_AUTH_URL,
@@ -127,11 +134,10 @@ export const setupAuth = () => {
         },
       },
       database: new Pool({
-        // connectionString: "postgres://user:password@localhost:5432/database",
         host,
         port,
         user: username,
-        password,
+        password: finalPassword,
         database: db,
         ...(ssl && {
           ssl: {
