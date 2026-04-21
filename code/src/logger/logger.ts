@@ -23,7 +23,7 @@ export function setupLogger() {
     transport: {
       target: "pino-pretty",
       options: {
-        colorize: true,
+        colorize: process.env.NODE_ENV !== "production",
         singleLine: true,
         levelFirst: true,
         ignore: process.env.NODE_ENV === "production" ? "time,pid" : "",
