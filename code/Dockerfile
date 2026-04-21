@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-FROM node:20 AS base
+FROM node:20 as base
 
 # Install dependencies step
 FROM base AS deps
@@ -38,6 +38,7 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 service
 COPY --from=deps --chown=service:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=service:nodejs /app/fonts ./fonts
+COPY --from=builder --chown=service:nodejs /app/dist ./
 COPY --chown=service:nodejs .env ./
 COPY --chown=service:nodejs package.json ./
 RUN mkdir -p /usr/share/fonts /tmp/fontconfig && \
