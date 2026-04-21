@@ -153,17 +153,26 @@ export const setupStore = () => {
               roomId,
               status: "connect",
             });
+
+            logger.info(`Connection with <${connectionId}> created`);
           }
         },
         onConnected: async (connectionId: string) => {
           logger.info(`onConnected called with <${connectionId}>`);
 
-          await updateConnection({ connectionId }, { status: "connected" });
+          const count = await updateConnection(
+            { connectionId },
+            { status: "connected" },
+          );
+
+          logger.info(`Connection with <${connectionId}> connected: ${count}`);
         },
         removeConnection: async (connectionId: string) => {
           logger.info(`removeConnection called with <${connectionId}>`);
 
-          await deleteConnection({ connectionId });
+          const count = await deleteConnection({ connectionId });
+
+          logger.info(`Connection with <${connectionId}> removed: ${count}`);
         },
         getConnectionRoom: async (connectionId: string) => {
           logger.info(`getConnectionRoom called with <${connectionId}>`);
@@ -261,9 +270,6 @@ export const setupStore = () => {
   azureWebPubsubServer.addEventListener<WeaveStoreAzureWebPubsubOnConnectedEvent>(
     "onConnected",
     ({ context }) => {
-      setTimeout(() => {
-        closeClientConnection(context.connectionId);
-      }, 10000);
       logger.info(`Client with connection Id <${context.connectionId}> joined`);
     },
   );

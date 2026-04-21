@@ -41,7 +41,7 @@ export const getRoomToJsonController = () => {
       }
 
       const bufferData = await streamToBuffer(
-        downloadResponse.readableStreamBody
+        downloadResponse.readableStreamBody,
       );
       const hexString = bufferData.toString();
       const cleanHex = hexString.startsWith("0x")
@@ -53,8 +53,8 @@ export const getRoomToJsonController = () => {
       const actualStateJson = getStateAsJson(data);
 
       res.status(200).json({ status: "OK", roomId, state: actualStateJson });
-    } catch (error) {
-      console.log(error);
+    } catch (ex) {
+      console.log(ex);
       res
         .status(500)
         .json({ status: "KO", message: "Error fetching the room" });

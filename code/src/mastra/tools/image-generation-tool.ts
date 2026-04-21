@@ -181,8 +181,6 @@ const generateImagesFromGemini = async ({
       },
     });
 
-    console.log("Gemini response: ", JSON.stringify(response, null, 2));
-
     if (!response.candidates) {
       actualImage.status = "failed";
       continue;

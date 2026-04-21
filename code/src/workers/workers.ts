@@ -2,15 +2,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { getLogger } from "@/logger/logger.js";
 import { Worker } from "worker_threads";
 
+let logger = null as unknown as ReturnType<typeof getLogger>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let queue: any = null;
 
 export const setupWorkers = async () => {
+  logger = getLogger().child({ module: "workers" });
+
   const PQueue = await import("p-queue");
   const workers = 4;
-  console.log("Max workers:", workers);
+
+  logger.info(`Setting up max workers: ${workers}`);
   queue = new PQueue.default({ concurrency: workers });
 };
 

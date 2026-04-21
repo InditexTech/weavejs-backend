@@ -27,16 +27,14 @@ export const setupAuth = () => {
 
   const config = getServiceConfig();
 
-  console.log("Auth DB kind:", config.database.kind);
-
   if (config.database.kind === "connection_string") {
+    logger.info("Initializing auth database connection (connection string)");
+
     const {
       database: {
         connection: { connectionString },
       },
     } = config;
-
-    console.log("Connection string AUTH:", connectionString);
 
     let finalConnectionString = connectionString;
     if (connectionString.indexOf("?") === -1) {
@@ -90,6 +88,8 @@ export const setupAuth = () => {
   }
 
   if (config.database.kind === "properties") {
+    logger.info("Initializing auth database connection (properties)");
+
     const {
       database: {
         connection: { host, port, db, username, password, ssl },
@@ -134,7 +134,9 @@ export const setupAuth = () => {
         password,
         database: db,
         ...(ssl && {
-          rejectUnauthorized: true,
+          ssl: {
+            rejectUnauthorized: false,
+          },
         }),
         max: 3,
         min: 0,

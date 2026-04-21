@@ -56,8 +56,8 @@ export const getRoomStorageController =
 
       // Pipe the blob stream directly to the response (no buffering in memory)
       readableStream.pipe(res);
-    } catch (error) {
-      console.log(error);
+    } catch (ex) {
+      console.log(ex);
       res
         .status(500)
         .json({ status: "KO", message: "Error fetching the room" });

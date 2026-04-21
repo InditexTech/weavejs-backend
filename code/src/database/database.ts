@@ -40,8 +40,6 @@ export const setupDatabase = async () => {
   async function initSequelize(
     initialize: boolean = true,
   ): Promise<Sequelize | null> {
-    console.log("DB kind:", config.database.kind);
-
     if (config.database.kind === "connection_string") {
       logger.info("Initializing database connection (connection string)");
       const {
@@ -56,8 +54,6 @@ export const setupDatabase = async () => {
       } else {
         finalConnectionString = `${connectionString}$sslmode=no-verify`;
       }
-
-      console.log("Connection string DB:", connectionString);
 
       const sequelize = new Sequelize(finalConnectionString, {
         dialect: "postgres",

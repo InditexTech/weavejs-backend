@@ -438,8 +438,8 @@ export class PresentationModeImagesJob {
       );
 
       return buffer.toString("base64");
-    } catch (error) {
-      console.log(error);
+    } catch (ex) {
+      console.log(ex);
       return undefined;
     }
   }
