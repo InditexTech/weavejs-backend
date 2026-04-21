@@ -24,8 +24,10 @@ export function setupLogger() {
       target: "pino-pretty",
       options: {
         colorize: true,
-        colorizeObjects: false,
-        singleLine: false,
+        singleLine: true,
+        levelFirst: true,
+        ignore: process.env.NODE_ENV === "production" ? "time,pid" : "",
+        messageFormat: "[{module}] / {msg}",
       },
     },
   });
