@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { getServiceConfig } from "@/config/config.js";
+import { pipeline } from "stream/promises";
 import { ImagesPersistenceHandler } from "@/images/persistence.js";
 import { Request, Response } from "express";
 
@@ -31,7 +32,18 @@ export const getRoomThumbnailController = () => {
       // Setting headers for the response
       res.set("Cache-Control", "public, max-age=86400"); // 1 day
       res.setHeader("Content-Type", "application/octet-stream");
-      response.readableStreamBody.pipe(res);
+
+      try {
+        // Pipe the blob stream directly to the response (no buffering in memory)
+        await pipeline(response.readableStreamBody, res);
+      } catch {
+        if (!res.headersSent) {
+          res.status(500).json({
+            status: "KO",
+            message: "Download room thumbnail failed",
+          });
+        }
+      }
     } else {
       res
         .status(500)

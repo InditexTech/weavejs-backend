@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Request, Response } from "express";
+import { pipeline } from "stream/promises";
 import {
   getBlobServiceClient,
   getContainerClient,
@@ -54,8 +55,17 @@ export const getRoomStorageController =
       res.setHeader("Content-Type", contentType);
       res.setHeader("Content-Disposition", `attachment; filename="${docName}"`);
 
-      // Pipe the blob stream directly to the response (no buffering in memory)
-      readableStream.pipe(res);
+      try {
+        // Pipe the blob stream directly to the response (no buffering in memory)
+        await pipeline(readableStream, res);
+      } catch {
+        if (!res.headersSent) {
+          res.status(500).json({
+            status: "KO",
+            message: "Download room data failed",
+          });
+        }
+      }
     } catch (ex) {
       console.log(ex);
       res

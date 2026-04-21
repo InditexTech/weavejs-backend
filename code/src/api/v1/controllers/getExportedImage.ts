@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Readable } from "stream";
+import { pipeline } from "stream/promises";
 import { Request, Response } from "express";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import archiver from "archiver";
@@ -43,7 +44,17 @@ export const getExportedImageController = () => {
           "Content-Disposition",
           `attachment; filename="render${fileExtension}"`,
         );
-        response.readableStreamBody.pipe(res);
+
+        try {
+          await pipeline(response.readableStreamBody, res);
+        } catch {
+          if (!res.headersSent) {
+            res.status(500).json({
+              status: "KO",
+              message: "Download exported image failed",
+            });
+          }
+        }
 
         return;
       }
