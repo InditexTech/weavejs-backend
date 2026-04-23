@@ -107,19 +107,18 @@ export const setupAuth = async () => {
       },
     } = config;
 
-    let finalPassword = password;
-    if (config.database.connection.cloudCredentials) {
-      const accessToken = await getDatabaseCloudCredentialsToken();
-      finalPassword = accessToken.token;
-    }
-
     auth = betterAuth({
       ...authConfig,
       database: new Pool({
         host,
         port,
         user: username,
-        password: finalPassword,
+        password: config.database.connection.cloudCredentials
+          ? async () => {
+              const accessToken = await getDatabaseCloudCredentialsToken();
+              return accessToken.token;
+            }
+          : password,
         database: db,
         ...(ssl && {
           ssl: {

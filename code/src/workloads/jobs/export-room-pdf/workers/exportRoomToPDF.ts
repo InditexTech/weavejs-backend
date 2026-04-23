@@ -88,7 +88,7 @@ parentPort?.on(
         const rightText = `Page ${i + 1} of ${pages.length}`;
 
         // Title
-        const titleFontSize = 24;
+        const titleFontSize = 20;
         const titleTextHeight = font.heightAtSize(titleFontSize);
 
         page.drawText(leftText, {
