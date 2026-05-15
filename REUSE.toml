@@ -30,6 +30,7 @@ path = [
     "code/justfile",
     "code/.tool-versions",
     "code/tsconfig.base.json",
+    "code/templates-examples.md",
 ]
 SPDX-FileCopyrightText = "2025 INDUSTRIA DE DISEÑO TEXTIL S.A. (INDITEX S.A.)"
 SPDX-License-Identifier = "Apache-2.0"
