@@ -35,14 +35,9 @@ export const getRooms = async (
   return RoomModel.findAll({
     include: [
       {
-        model: PageModel,
-        attributes: [],
-        required: false,
-      },
-      {
         model: RoomUserModel,
         required: true,
-        subQuery: false,
+        subQuery: true,
         where: {
           userId,
         },
@@ -93,10 +88,12 @@ export const getTotalRooms = async ({
     include: [
       {
         model: RoomUserModel,
+        required: true,
+        subQuery: true,
         where: {
           userId,
         },
-        attributes: [],
+        attributes: ["userId", "role"],
       },
     ],
     where: {
