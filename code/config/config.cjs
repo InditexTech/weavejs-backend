@@ -1,8 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 require('dotenv').config();
 
-console.log(process.env);
-
 module.exports = {
   development: {
     username: process.env.DATABASE_USERNAME,

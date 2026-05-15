@@ -39,7 +39,7 @@ export class PresentationModeImagesJob {
   static async create(
     tasksManagerInstance: pgBoss,
   ): Promise<PresentationModeImagesJob> {
-    this.createJobQueue(tasksManagerInstance);
+    await this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(
       JOB_PRESENTATION_MODE_IMAGES_QUEUE_NAME,
     );
@@ -61,7 +61,9 @@ export class PresentationModeImagesJob {
   }
 
   constructor(tasksManagerInstance: pgBoss) {
-    this.logger = getLogger().child({ module: "export-pdf-job" });
+    this.logger = getLogger().child({
+      module: JOB_PRESENTATION_MODE_IMAGES_QUEUE_NAME,
+    });
 
     this.boss = tasksManagerInstance;
 

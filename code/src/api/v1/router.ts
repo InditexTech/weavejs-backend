@@ -72,6 +72,7 @@ import { getTemplatesImagesController } from "./controllers/templates/getTemplat
 import { postTemplatesUploadImageController } from "./controllers/templates/postTemplatesUploadImage.js";
 import { getRoomsStorageController } from "./controllers/getRoomsStorage.js";
 import { postAddTemplateToRoomController } from "./controllers/postAddTemplateToRoom.js";
+import { postAddJsonTemplateToRoomController } from "./controllers/postAddJsonTemplateToRoom.js";
 import { delTemplatesImageController } from "./controllers/templates/delTemplatesImage.js";
 import { getExportedImageController } from "./controllers/getExportedImage.js";
 import { getExportedPdfController } from "./controllers/getExportedPdf.js";
@@ -649,6 +650,14 @@ export function setupApiV1Router(app: Application) {
     session,
     auth,
     postAddTemplateToRoomController(),
+  );
+
+  router.post(
+    `/${hubName}/templates/create`,
+    cors,
+    // session,
+    // auth,
+    postAddJsonTemplateToRoomController(),
   );
 
   // Rooms API

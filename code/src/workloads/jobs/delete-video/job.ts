@@ -31,7 +31,7 @@ export class DeleteVideoJob {
   private imagesPersistenceHandler: ImagesPersistenceHandler;
 
   static async create(tasksManagerInstance: pgBoss): Promise<DeleteVideoJob> {
-    this.createJobQueue(tasksManagerInstance);
+    await this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(JOB_DELETE_VIDEO_QUEUE_NAME);
 
     return new DeleteVideoJob(tasksManagerInstance);
