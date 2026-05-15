@@ -37,7 +37,7 @@ export class RemoveImageBackgroundJob {
   static async create(
     tasksManagerInstance: pgBoss,
   ): Promise<RemoveImageBackgroundJob> {
-    this.createJobQueue(tasksManagerInstance);
+    await this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(
       JOB_REMOVE_IMAGE_BACKGROUND_QUEUE_NAME,
     );

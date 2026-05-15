@@ -36,7 +36,7 @@ export class FlipImageJob {
   private persistenceHandler: ImagesPersistenceHandler;
 
   static async create(tasksManagerInstance: pgBoss): Promise<FlipImageJob> {
-    this.createJobQueue(tasksManagerInstance);
+    await this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(JOB_FLIP_IMAGE_QUEUE_NAME);
 
     return new FlipImageJob(tasksManagerInstance);

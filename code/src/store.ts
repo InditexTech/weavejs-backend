@@ -31,7 +31,6 @@ import {
   updateConnection,
 } from "./database/controllers/connection.js";
 import { listGroupConnections } from "./clients/azure-web-pubsub-api.js";
-import { closeClientConnection } from "./comm-bus/comm-bus.js";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 const endpoint = process.env.AZURE_WEB_PUBSUB_ENDPOINT;

@@ -35,7 +35,7 @@ export class NegateImageJob {
   private persistenceHandler: ImagesPersistenceHandler;
 
   static async create(tasksManagerInstance: pgBoss): Promise<NegateImageJob> {
-    this.createJobQueue(tasksManagerInstance);
+    await this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(JOB_NEGATE_IMAGE_QUEUE_NAME);
 
     return new NegateImageJob(tasksManagerInstance);

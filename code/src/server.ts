@@ -55,6 +55,24 @@ const start = async () => {
     // Init application
     const app = setupApp();
 
+    if (process.env.PRINT_MEMORY_USAGE === "true") {
+      const printInterval = parseInt(
+        process.env.PRINT_MEMORY_USAGE_INTERVAL ?? "500",
+        10,
+      );
+      logger.info(`Memory usage enabled, printed every ${printInterval} ms`);
+      setInterval(() => {
+        console.log(
+          "HEAP ",
+          (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2) + " MB",
+          " | EXTE ",
+          (process.memoryUsage().external / 1024 / 1024).toFixed(2) + " MB",
+          " | RSS1 ",
+          (process.memoryUsage().rss / 1024 / 1024).toFixed(2) + " MB",
+        );
+      }, printInterval);
+    }
+
     // Start server
     if (process.env.HTTPS_ENABLED === "true") {
       const options = {

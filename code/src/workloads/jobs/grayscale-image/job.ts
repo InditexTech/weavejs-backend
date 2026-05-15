@@ -37,7 +37,7 @@ export class GrayscaleImageJob {
   static async create(
     tasksManagerInstance: pgBoss,
   ): Promise<GrayscaleImageJob> {
-    this.createJobQueue(tasksManagerInstance);
+    await this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(JOB_GRAYSCALE_IMAGE_QUEUE_NAME);
 
     return new GrayscaleImageJob(tasksManagerInstance);

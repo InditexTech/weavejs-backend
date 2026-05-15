@@ -41,7 +41,7 @@ export class ExportRoomToPdfJob {
   static async create(
     tasksManagerInstance: pgBoss,
   ): Promise<ExportRoomToPdfJob> {
-    this.createJobQueue(tasksManagerInstance);
+    await this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(JOB_EXPORT_ROOM_TO_PDF_QUEUE_NAME);
 
     return new ExportRoomToPdfJob(tasksManagerInstance);
@@ -61,7 +61,9 @@ export class ExportRoomToPdfJob {
   }
 
   constructor(tasksManagerInstance: pgBoss) {
-    this.logger = getLogger().child({ module: "export-pdf-job" });
+    this.logger = getLogger().child({
+      module: JOB_EXPORT_ROOM_TO_PDF_QUEUE_NAME,
+    });
 
     this.boss = tasksManagerInstance;
 

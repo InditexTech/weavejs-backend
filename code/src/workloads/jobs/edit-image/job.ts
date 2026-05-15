@@ -31,7 +31,7 @@ export class EditImageJob {
   private persistenceHandler: ImagesPersistenceHandler;
 
   static async create(tasksManagerInstance: pgBoss): Promise<EditImageJob> {
-    this.createJobQueue(tasksManagerInstance);
+    await this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(JOB_EDIT_IMAGE_QUEUE_NAME);
 
     return new EditImageJob(tasksManagerInstance);

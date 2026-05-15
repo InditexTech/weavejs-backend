@@ -37,7 +37,7 @@ export class ExportPageToImageJob {
   static async create(
     tasksManagerInstance: pgBoss,
   ): Promise<ExportPageToImageJob> {
-    this.createJobQueue(tasksManagerInstance);
+    await this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(JOB_EXPORT_PAGE_IMAGE_QUEUE_NAME);
 
     return new ExportPageToImageJob(tasksManagerInstance);

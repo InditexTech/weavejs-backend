@@ -28,7 +28,7 @@ export class DeleteTemplateJob {
   static async create(
     tasksManagerInstance: pgBoss,
   ): Promise<DeleteTemplateJob> {
-    this.createJobQueue(tasksManagerInstance);
+    await this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(JOB_DELETE_TEMPLATE_QUEUE_NAME);
 
     return new DeleteTemplateJob(tasksManagerInstance);

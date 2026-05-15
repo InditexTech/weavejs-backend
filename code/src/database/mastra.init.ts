@@ -4,9 +4,6 @@
 
 import { PostgresStore } from "@mastra/pg";
 
-console.log("Initializing Mastra database...");
-console.log("Using AZURE_DATABASE_HOST:", process.env.AZURE_DATABASE_HOST);
-
 const storage = new PostgresStore({
   host: process.env.AZURE_DATABASE_HOST ?? "",
   port: process.env.AZURE_DATABASE_PORT

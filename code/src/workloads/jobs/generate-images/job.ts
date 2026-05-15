@@ -34,7 +34,7 @@ export class GenerateImagesJob {
   static async create(
     tasksManagerInstance: pgBoss,
   ): Promise<GenerateImagesJob> {
-    this.createJobQueue(tasksManagerInstance);
+    await this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(JOB_GENERATE_IMAGES_QUEUE_NAME);
 
     return new GenerateImagesJob(tasksManagerInstance);

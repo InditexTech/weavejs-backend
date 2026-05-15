@@ -25,21 +25,35 @@ export function runWorker<P, T>(workerPath: string, workerData: P): Promise<T> {
   }
 
   return queue.add(async () => {
-    const worker = new Worker(workerPath);
+    let worker: Worker | null = new Worker(workerPath);
 
     const result = await new Promise<T>((resolve, reject) => {
-      worker.on("message", (message) => {
-        resolve(message);
-      });
-      worker.on("error", (error) => {
-        reject(error);
-      });
-      worker.on("exit", (code) => {
-        if (code !== 0) {
-          reject(new Error(`Worker stopped with exit code ${code}`));
-        }
-      });
-      worker.postMessage(workerData);
+      if (worker) {
+        worker.on("message", (message) => {
+          console.log("on worker message", message);
+          resolve(message);
+          if (worker) {
+            worker.terminate();
+            worker.removeAllListeners();
+            worker = null;
+          }
+        });
+        worker.on("error", (error) => {
+          console.log("on worker error", error);
+          reject(error);
+          if (worker) {
+            worker.terminate();
+            worker.removeAllListeners();
+            worker = null;
+          }
+        });
+        worker.on("exit", (code) => {
+          if (code !== 0) {
+            reject(new Error(`Worker stopped with exit code ${code}`));
+          }
+        });
+        worker.postMessage(workerData);
+      }
     });
 
     return result;

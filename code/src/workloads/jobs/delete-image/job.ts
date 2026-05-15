@@ -29,7 +29,7 @@ export class DeleteImageJob {
   private persistenceHandler: ImagesPersistenceHandler;
 
   static async create(tasksManagerInstance: pgBoss): Promise<DeleteImageJob> {
-    this.createJobQueue(tasksManagerInstance);
+    await this.createJobQueue(tasksManagerInstance);
     await tasksManagerInstance.purgeQueue(JOB_DELETE_IMAGE_QUEUE_NAME);
 
     return new DeleteImageJob(tasksManagerInstance);
