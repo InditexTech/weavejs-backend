@@ -11,6 +11,8 @@ import {
 export const getTemplatesController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId as string;
+    const kind: string | null = (req.query.kind as string) ?? null;
+    const imageSlots: string | null = (req.query.imageSlots as string) ?? null;
     const since: string | null = (req.query.since as string) ?? null;
     const limit: string = (req.query.limit as string) ?? "20";
     const offset: string = (req.query.offset as string) ?? "0";
@@ -18,17 +20,21 @@ export const getTemplatesController = () => {
     const total = await getTotalRoomTemplates({
       roomId,
       since: since ? new Date(since) : undefined,
+      kind,
+      imageSlots: imageSlots ? Number(imageSlots) : undefined,
     });
 
     const roomTemplates = await getRoomTemplates(
       {
         roomId,
         since: since ? new Date(since) : undefined,
+        kind,
+        imageSlots: imageSlots ? Number(imageSlots) : undefined,
       },
       {
         limit: parseInt(limit, 10),
         offset: parseInt(offset, 10),
-      }
+      },
     );
 
     res.status(200).json({ items: roomTemplates, total });

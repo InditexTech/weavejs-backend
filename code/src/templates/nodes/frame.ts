@@ -5,57 +5,141 @@
 import { v4 as uuidv4 } from "uuid";
 import * as Y from "yjs";
 import Konva from "konva";
-import { FrameNode } from "../types.js";
+import {
+  FrameNode,
+  RenderNode,
+  TemplateExecutionNodes,
+  TemplateFrameNode,
+  TemplateFrameNodeExecution,
+} from "../types.js";
+import { WeaveStateElement } from "@inditextech/weave-types";
+import {
+  WeaveStateManipulation,
+  mergeExceptArrays,
+  WeaveFrameNode,
+} from "@inditextech/weave-sdk";
+import { BaseNodeMapper } from "./base.js";
 import { getNodeMapperByKind } from "./index.js";
 
-export const frameNodeToYjsFormat = (
-  origin: Konva.Vector2d,
-  node: FrameNode,
-): {
-  nodeId: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  element: Y.Map<any>;
-} => {
-  if (node.kind !== "frame") {
-    throw new Error("Node is not an frame");
+export class FrameNodeMapper implements BaseNodeMapper<
+  TemplateFrameNode,
+  FrameNode
+> {
+  constructor() {}
+
+  getNodeFromTemplateAndExecution(
+    node: TemplateFrameNode,
+    parameters: Record<string, TemplateExecutionNodes>,
+  ) {
+    const frameExecution = parameters[node.id] as TemplateFrameNodeExecution;
+
+    if (!frameExecution) {
+      return undefined;
+    }
+
+    return mergeExceptArrays(
+      {
+        ...node,
+        ...node.defaultProperties,
+      },
+      {
+        ...frameExecution.properties,
+        children: node.children
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((child: any, index: number) => {
+            const childExecution = node.children[index];
+            if (!childExecution) {
+              return undefined;
+            }
+            const mapHandler = getNodeMapperByKind(child.kind);
+            return mapHandler.getNodeFromTemplateAndExecution(
+              child,
+              parameters,
+            ) as RenderNode;
+          })
+          .filter((child) => child !== undefined),
+        kind: "frame",
+      } as FrameNode,
+    );
   }
 
-  // create frame node
-  const frameId = uuidv4();
-  const frameElement = new Y.Map();
-  const frameProps = new Y.Map();
+  mapNodeToWeaveState(
+    node: FrameNode,
+    origin: Konva.Vector2d,
+  ): {
+    nodeId: string;
+    nodeState: WeaveStateElement;
+  } {
+    if (node.kind !== "frame") {
+      throw new Error("Node is not an frame");
+    }
 
-  frameElement.set("key", frameId);
-  frameElement.set("type", "frame");
-  frameElement.set("props", frameProps);
+    const nodeId = uuidv4();
 
-  const children = new Y.Array();
+    const tx = node.x;
+    const ty = node.y;
+    const tw = node.width;
+    const th = node.height;
 
-  for (const child of node.children) {
-    const nodeMapper = getNodeMapperByKind(child.kind);
+    const nodeState: WeaveStateElement = {
+      key: nodeId,
+      type: "frame",
+      props: {
+        id: nodeId,
+        nodeType: "frame",
+        name: "node",
+        children: [],
+        x: origin.x + tx,
+        y: origin.y + ty,
+        frameWidth: tw,
+        frameHeight: th,
+        title: node.name,
+      },
+    };
+
+    const childrenMapped: WeaveStateElement[] = [];
+    if (node.children.length > 0) {
+      for (const actNode of node.children) {
+        const mapHandler = getNodeMapperByKind(actNode.kind);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { nodeState } = mapHandler.mapNodeToWeaveState(actNode as any, {
+          x: 0,
+          y: 0,
+        });
+        childrenMapped.push(nodeState);
+      }
+    }
+
+    nodeState.props.children = childrenMapped;
+
+    const imageSchema = WeaveFrameNode.getSchema();
+    const parsedState = imageSchema.safeParse(nodeState);
+
+    if (!parsedState.success) {
+      throw new Error(`Invalid node state for frame node ${node.id}`, {
+        cause: "InvalidFrameNodeState",
+      });
+    }
+
+    return { nodeId, nodeState };
+  }
+
+  mapNodeToYjsFormat(
+    node: FrameNode,
+    origin: Konva.Vector2d,
+  ): {
+    nodeId: string;
+    nodeState: WeaveStateElement;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { element } = nodeMapper({ x: 0, y: 0 }, child as any);
-    children.push([element]);
+    yjsElement: Y.Map<any>;
+  } {
+    const { nodeId, nodeState } = this.mapNodeToWeaveState(node, origin);
+    const { element } = WeaveStateManipulation.mapNodeToYjs(nodeState);
+
+    return {
+      nodeId,
+      nodeState,
+      yjsElement: element,
+    };
   }
-
-  frameProps.set("id", frameId);
-  frameProps.set("nodeType", "frame");
-  frameProps.set("name", "node");
-  frameProps.set("children", children);
-
-  const tx = node.x;
-  const ty = node.y;
-  const tw = node.width;
-  const th = node.height;
-
-  frameProps.set("x", origin.x + tx);
-  frameProps.set("y", origin.y + ty);
-  frameProps.set("frameWidth", tw);
-  frameProps.set("frameHeight", th);
-  frameProps.set("title", node.name);
-
-  return {
-    nodeId: frameId,
-    element: frameElement,
-  };
-};
+}

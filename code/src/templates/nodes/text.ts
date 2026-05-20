@@ -5,58 +5,128 @@
 import { v4 as uuidv4 } from "uuid";
 import * as Y from "yjs";
 import Konva from "konva";
-import { TextNode } from "../types.js";
+import {
+  TemplateExecutionNodes,
+  TemplateTextNode,
+  TemplateTextNodeExecution,
+  TextNode,
+} from "../types.js";
+import { WeaveStateElement } from "@inditextech/weave-types";
+import {
+  WeaveStateManipulation,
+  mergeExceptArrays,
+  WeaveTextNode,
+} from "@inditextech/weave-sdk";
+import { BaseNodeMapper } from "./base.js";
 
-export const textNodeToYjsFormat = (
-  origin: Konva.Vector2d,
-  node: TextNode,
-): {
-  nodeId: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  element: Y.Map<any>;
-} => {
-  if (node.kind !== "text") {
-    throw new Error("Node is not a text");
+export class TextNodeMapper implements BaseNodeMapper<
+  TemplateTextNode,
+  TextNode
+> {
+  constructor() {}
+
+  getNodeFromTemplateAndExecution(
+    node: TemplateTextNode,
+    parameters: Record<string, TemplateExecutionNodes>,
+  ): TextNode | undefined {
+    const textExecution = parameters[node.id] as TemplateTextNodeExecution;
+
+    if (!textExecution) {
+      return undefined;
+    }
+
+    return mergeExceptArrays(
+      {
+        ...node,
+        ...node.defaultProperties,
+      },
+      {
+        ...textExecution.properties,
+        kind: "text",
+      },
+    ) as TextNode;
   }
 
-  // create frame node
-  const textId = uuidv4();
-  const frameElement = new Y.Map();
-  const frameProps = new Y.Map();
+  mapNodeToWeaveState(
+    node: TextNode,
+    origin: Konva.Vector2d,
+  ): {
+    nodeId: string;
+    nodeState: WeaveStateElement;
+  } {
+    if (node.kind !== "text") {
+      throw new Error("Node is not a text");
+    }
 
-  frameElement.set("key", textId);
-  frameElement.set("type", "text");
-  frameElement.set("props", frameProps);
+    const nodeId = uuidv4();
 
-  frameProps.set("id", textId);
-  frameProps.set("nodeType", "text");
-  frameProps.set("name", "node");
-  frameProps.set("children", new Y.Array());
+    const tx = node.x;
+    const ty = node.y;
+    const tw = node.width;
+    const th = node.height;
 
-  const tx = node.x;
-  const ty = node.y;
-  const tw = node.width;
-  const th = node.height;
+    const nodeState: WeaveStateElement = {
+      key: nodeId,
+      type: "text",
+      props: {
+        id: nodeId,
+        nodeType: "text",
+        name: "node",
+        children: [],
+        x: origin.x + tx,
+        y: origin.y + ty,
+        width: tw,
+        height: th,
+        fontFamily: node.fontFamily,
+        fontSize: node.fontSize,
+        fill: node.fill,
+        align: node.align,
+        verticalAlign: node.verticalAlign,
+        text: node.text,
+        layout: node.layout,
+        fillAfterStrokeEnabled: true,
+        stroke: "#D6D6D6",
+        strokeEnabled: true,
+        strokeScaleEnabled: true,
+        strokeWidth: 2,
+      },
+    };
 
-  frameProps.set("x", origin.x + tx);
-  frameProps.set("y", origin.y + ty);
-  frameProps.set("width", tw);
-  frameProps.set("height", th);
-  frameProps.set("fontFamily", node.fontFamily);
-  frameProps.set("fontSize", node.fontSize);
-  frameProps.set("fill", node.fill);
-  frameProps.set("align", node.align);
-  frameProps.set("verticalAlign", node.verticalAlign);
-  frameProps.set("text", node.text);
-  frameProps.set("layout", node.layout);
-  frameProps.set("fillAfterStrokeEnabled", true);
-  frameProps.set("stroke", "#D6D6D6");
-  frameProps.set("strokeEnabled", true);
-  frameProps.set("strokeScaleEnabled", true);
-  frameProps.set("strokeWidth", 2);
+    const imageSchema = WeaveTextNode.getSchema();
+    const parsedState = imageSchema.safeParse(nodeState);
 
-  return {
-    nodeId: textId,
-    element: frameElement,
-  };
-};
+    if (!parsedState.success) {
+      throw new Error(`Invalid node state for text node ${node.id}`, {
+        cause: "InvalidTextNodeState",
+      });
+    }
+
+    return {
+      nodeId,
+      nodeState,
+    };
+  }
+
+  mapNodeToYjsFormat(
+    node: TextNode,
+    origin: Konva.Vector2d,
+  ): {
+    nodeId: string;
+    nodeState: WeaveStateElement;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    yjsElement: Y.Map<any>;
+  } {
+    if (node.kind !== "text") {
+      throw new Error("Node is not a text");
+    }
+
+    const { nodeId, nodeState } = this.mapNodeToWeaveState(node, origin);
+    const { element } = WeaveStateManipulation.mapNodeToYjs(nodeState);
+
+    return {
+      nodeId,
+      nodeState,
+      yjsElement: element,
+    };
+  }
+}

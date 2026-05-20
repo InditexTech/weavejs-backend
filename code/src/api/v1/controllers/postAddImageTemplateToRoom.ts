@@ -4,8 +4,11 @@
 
 import { z } from "zod";
 import { Request, Response } from "express";
-import { addJsonTemplateToRoomV1 } from "@/templates/templates.alt.js";
 import { TemplateExecutionNodes } from "@/templates/types.js";
+import { getRoom } from "@/database/controllers/room.js";
+import { getPage } from "@/database/controllers/page.js";
+import { getTemplate } from "@/database/controllers/template.js";
+import { addImageTemplateToRoom } from "@/templates/templates.images.js";
 
 const imageNodeSchema = z.object({
   nodeId: z.string(),
@@ -39,7 +42,6 @@ const nodeSchema: z.ZodType<TemplateExecutionNodes> = z.lazy(() =>
     z.object({
       nodeId: z.string(),
       kind: z.literal("frame"),
-      children: z.array(nodeSchema),
       properties: z.object({
         name: z.string(),
         width: z.number(),
@@ -52,21 +54,19 @@ const nodeSchema: z.ZodType<TemplateExecutionNodes> = z.lazy(() =>
 const payloadSchema = z.object({
   roomId: z.string(),
   pageId: z.string(),
-  debug: z.boolean().optional().default(false),
-  template: z.object({
+  templateId: z.string(),
+  target: z.object({
     id: z.string(),
-    target: z.object({
-      id: z.string(),
-      position: z.object({
-        x: z.number(),
-        y: z.number(),
-      }),
+    position: z.object({
+      x: z.number(),
+      y: z.number(),
     }),
-    nodes: z.record(z.string(), nodeSchema),
   }),
+  parameters: z.record(z.string(), nodeSchema),
+  debug: z.boolean().optional().default(false),
 });
 
-export const postAddJsonTemplateToRoomController = () => {
+export const postAddImageTemplateToRoomController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const parsedBody = payloadSchema.safeParse(req.body);
 
@@ -75,45 +75,62 @@ export const postAddJsonTemplateToRoomController = () => {
       return;
     }
 
+    const params = parsedBody.data;
+
+    const room = await getRoom({ roomId: params.roomId });
+
+    if (!room) {
+      res.status(404).json({ status: "KO", message: "Room doesn't exists" });
+      return;
+    }
+
+    const page = await getPage({
+      roomId: params.roomId,
+      pageId: params.pageId,
+    });
+
+    if (!page) {
+      res.status(404).json({ status: "KO", message: "Page doesn't exists" });
+      return;
+    }
+
+    const template = await getTemplate({
+      roomId: params.roomId,
+      templateId: params.templateId,
+    });
+
+    if (!template) {
+      res
+        .status(404)
+        .json({ status: "KO", message: "Template doesn't exists" });
+      return;
+    }
+
+    if (template.kind !== "imageTemplate") {
+      res.status(400).json({
+        status: "KO",
+        message: "The provided template kind is not 'imageTemplate'",
+      });
+      return;
+    }
+
     try {
-      const { success, skipped, failure } = await addJsonTemplateToRoomV1({
-        roomId: parsedBody.data.roomId,
-        pageId: parsedBody.data.pageId,
-        template: parsedBody.data.template,
+      await addImageTemplateToRoom({
+        page,
+        template,
+        target: params.target,
+        parameters: params.parameters,
         debug: parsedBody.data.debug,
       });
 
       res.status(200).json({
-        message: "Template processed",
-        success,
-        skipped,
-        failure,
+        message: "Template processed and added to room",
       });
     } catch (error) {
-      if (
-        error instanceof Error &&
-        [
-          "RoomNotFound",
-          "RoomPageNotFound",
-          "PageDocumentNotFound",
-          "TemplateNotFound",
-        ].includes(error.cause as string)
-      ) {
-        res.status(404).json({
-          cause:
-            error instanceof Error && error.cause
-              ? (error.cause as string)
-              : "Unknown",
-          error: error.message,
-        });
-        return;
+      if (error instanceof Error) {
+        console.error("Error processing template:", error.message, error.stack);
       }
-
       res.status(500).json({
-        cause:
-          error instanceof Error && error.cause
-            ? (error.cause as string)
-            : "Unknown",
         error: (error as Error).message,
       });
     }

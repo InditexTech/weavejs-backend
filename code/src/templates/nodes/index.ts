@@ -2,21 +2,47 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { imageNodeToYjsFormat } from "./image.js";
-import { frameNodeToYjsFormat } from "./frame.js";
-import { debugNodeToYjsFormat } from "./debug.js";
-import { textNodeToYjsFormat } from "./text.js";
+import { ImageNodeMapper } from "./image.js";
+import { TextNodeMapper } from "./text.js";
+import { FrameNodeMapper } from "./frame.js";
+import { DebugNodeMapper } from "./debug.js";
 
-export const getNodeMapperByKind = (kind: string) => {
+let imageNodeMapper: ImageNodeMapper | undefined = undefined;
+let textNodeMapper: TextNodeMapper | undefined = undefined;
+let frameNodeMapper: FrameNodeMapper | undefined = undefined;
+let debugNodeMapper: DebugNodeMapper | undefined = undefined;
+
+type NodeMapperByKind = {
+  image: ImageNodeMapper;
+  text: TextNodeMapper;
+  frame: FrameNodeMapper;
+  debug: DebugNodeMapper;
+};
+
+export const getNodeMapperByKind = <T extends keyof NodeMapperByKind>(
+  kind: T,
+): NodeMapperByKind[T] => {
   switch (kind) {
     case "image":
-      return imageNodeToYjsFormat;
+      if (!imageNodeMapper) {
+        imageNodeMapper = new ImageNodeMapper();
+      }
+      return imageNodeMapper as NodeMapperByKind[T];
     case "text":
-      return textNodeToYjsFormat;
+      if (!textNodeMapper) {
+        textNodeMapper = new TextNodeMapper();
+      }
+      return textNodeMapper as NodeMapperByKind[T];
     case "frame":
-      return frameNodeToYjsFormat;
+      if (!frameNodeMapper) {
+        frameNodeMapper = new FrameNodeMapper();
+      }
+      return frameNodeMapper as NodeMapperByKind[T];
     case "debug":
-      return debugNodeToYjsFormat;
+      if (!debugNodeMapper) {
+        debugNodeMapper = new DebugNodeMapper();
+      }
+      return debugNodeMapper as NodeMapperByKind[T];
     default:
       throw new Error(`Unsupported node kind: ${kind}`);
   }

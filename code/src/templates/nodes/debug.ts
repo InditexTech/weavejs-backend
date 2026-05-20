@@ -5,39 +5,69 @@
 import { v4 as uuidv4 } from "uuid";
 import * as Y from "yjs";
 import Konva from "konva";
-import { BaseNode } from "../types.js";
+import { BaseNode, TemplateNodeBase } from "../types.js";
+import { WeaveStateElement } from "@inditextech/weave-types";
+import { WeaveStateManipulation } from "@inditextech/weave-sdk";
+import { BaseNodeMapper } from "./base.js";
 
-export const debugNodeToYjsFormat = (
-  origin: Konva.Vector2d,
-  node: BaseNode,
-): {
-  nodeId: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  element: Y.Map<any>;
-} => {
-  // create rect debug node for template area
-  const rectId = uuidv4();
-  const rectElement = new Y.Map();
-  const rectProps = new Y.Map();
+export class DebugNodeMapper implements BaseNodeMapper<
+  TemplateNodeBase,
+  BaseNode
+> {
+  constructor() {}
 
-  rectElement.set("key", rectId);
-  rectElement.set("type", "rectangle");
-  rectElement.set("props", rectProps);
+  getNodeFromTemplateAndExecution(): BaseNode | undefined {
+    return undefined;
+  }
 
-  rectProps.set("id", rectId);
-  rectProps.set("nodeType", "rectangle");
-  rectProps.set("name", "node");
-  rectProps.set("children", new Y.Array());
+  mapNodeToWeaveState(
+    node: BaseNode,
+    origin: Konva.Vector2d,
+  ): {
+    nodeId: string;
+    nodeState: WeaveStateElement;
+  } {
+    const nodeId = uuidv4();
 
-  rectProps.set("x", origin.x + node.x);
-  rectProps.set("y", origin.y + node.y);
-  rectProps.set("width", node.width);
-  rectProps.set("height", node.height);
-  rectProps.set("fill", "transparent");
-  rectProps.set("stroke", "#FF0000");
-  rectProps.set("strokeWidth", 1);
-  rectProps.set("listening", false);
-  rectProps.set("draggable", false);
+    const nodeState: WeaveStateElement = {
+      key: nodeId,
+      type: "rectangle",
+      props: {
+        id: nodeId,
+        nodeType: "rectangle",
+        name: "node",
+        children: [],
+        x: origin.x + node.x,
+        y: origin.y + node.y,
+        width: node.width,
+        height: node.width,
+        fill: "transparent",
+        stroke: "#FF0000",
+        strokeWidth: 1,
+        listening: false,
+        draggable: false,
+      },
+    };
 
-  return { nodeId: rectId, element: rectElement };
-};
+    return { nodeId, nodeState };
+  }
+
+  mapNodeToYjsFormat = (
+    node: BaseNode,
+    origin: Konva.Vector2d,
+  ): {
+    nodeId: string;
+    nodeState: WeaveStateElement;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    yjsElement: Y.Map<any>;
+  } => {
+    const { nodeId, nodeState } = this.mapNodeToWeaveState(node, origin);
+    const { element } = WeaveStateManipulation.mapNodeToYjs(nodeState);
+
+    return {
+      nodeId,
+      nodeState,
+      yjsElement: element,
+    };
+  };
+}

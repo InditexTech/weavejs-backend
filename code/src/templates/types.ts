@@ -26,7 +26,7 @@ export type TemplateDetails = {
 
 export type ImageFit = "cover" | "contain";
 
-export type NodeKind = "image" | "text" | "frame";
+export type NodeKind = "image" | "text" | "frame" | "debug";
 
 export interface BaseNode {
   id: string;
@@ -151,7 +151,6 @@ export interface TemplateTextNodeExecution extends TemplateNodeExecutionBase {
 
 export interface TemplateFrameNodeExecution extends TemplateNodeExecutionBase {
   kind: "frame";
-  children: TemplateExecutionNodes[];
   properties: {
     name: string;
     width: number;
@@ -159,37 +158,20 @@ export interface TemplateFrameNodeExecution extends TemplateNodeExecutionBase {
   };
 }
 
-export interface TemplateExecutionBase {
-  id: string;
-}
-
 export type TemplateExecutionNodes =
   | TemplateImageNodeExecution
   | TemplateTextNodeExecution
   | TemplateFrameNodeExecution;
 
-export interface TemplateExecution extends TemplateExecutionBase {
-  target: {
-    id: string;
-    position: {
-      x: number;
-      y: number;
-    };
+export type TemplateExecutionTarget = {
+  id: string;
+  position: {
+    x: number;
+    y: number;
   };
+};
+
+export interface TemplateExecution {
+  target: TemplateExecutionTarget;
   nodes: Record<string, TemplateExecutionNodes>;
 }
-
-export type TemplateExecutionSuccess = {
-  id: string;
-  nodeId: string;
-};
-
-export type TemplateExecutionFailure = {
-  id: string;
-  cause: string;
-  message: string;
-};
-
-export type TemplateExecutionSkipped = {
-  id: string;
-};
