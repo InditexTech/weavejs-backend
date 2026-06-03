@@ -2,16 +2,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Logger } from "pino";
+import { type Logger } from "pino";
 import {
-  BlobDownloadResponseParsed,
+  type BlobDownloadResponseParsed,
+  type ContainerListBlobsOptions,
   BlobServiceClient,
   ContainerClient,
-  ContainerListBlobsOptions,
 } from "@azure/storage-blob";
 import { DefaultAzureCredential } from "@azure/identity";
-import { getLogger, setupLogger } from "@/logger/logger.js";
-import { ServiceConfig } from "@/types.js";
+import { getLogger, setupLogger } from "../logger/logger.ts";
+import { type ServiceConfig } from "../types.ts";
 
 export class ImagesPersistenceHandler {
   private _config!: ServiceConfig;

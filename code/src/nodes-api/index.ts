@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ImageNodeMapper } from "./image.js";
-import { TextNodeMapper } from "./text.js";
-import { FrameNodeMapper } from "./frame.js";
-import { DebugNodeMapper } from "./debug.js";
+import { ImageNodeMapper } from "./nodes/image.js";
+import { TextNodeMapper } from "./nodes/text.js";
+import { FrameNodeMapper } from "./nodes/frame.js";
+import { DebugNodeMapper } from "./nodes/debug.js";
 
 let imageNodeMapper: ImageNodeMapper | undefined = undefined;
 let textNodeMapper: TextNodeMapper | undefined = undefined;

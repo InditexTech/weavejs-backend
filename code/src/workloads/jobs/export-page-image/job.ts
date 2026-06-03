@@ -109,7 +109,7 @@ export class ExportPageToImageJob {
           result = await runWorker<
             ExportPageImageWorkerPayload,
             ExportToImageWorkerResult
-          >(path.join(__dirname, "./workers/exportPageToImage.js"), {
+          >(path.join(__dirname, "./workers/exportPageToImage.ts"), {
             jobId,
             roomId,
             imageId: exportedImageId,
@@ -128,7 +128,7 @@ export class ExportPageToImageJob {
           result = await runWorker<
             ExportPageImageWorkerPayload,
             ExportToImageWorkerResult
-          >(path.join(__dirname, "./workers/exportPageToImage.js"), {
+          >(path.join(__dirname, "./workers/exportPageToImage.ts"), {
             jobId,
             roomId,
             imageId: exportedImageId,

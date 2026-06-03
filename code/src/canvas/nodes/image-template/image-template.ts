@@ -8,18 +8,18 @@
 
 import {
   moveNodeToContainer,
-  WeaveImageNode,
   WeaveNode,
+  type WeaveImageNode,
 } from "@inditextech/weave-sdk/server";
 import {
   WEAVE_NODE_CUSTOM_EVENTS,
-  WeaveElementAttributes,
-  WeaveElementInstance,
-  WeaveStateElement,
+  type WeaveElementAttributes,
+  type WeaveElementInstance,
+  type WeaveStateElement,
 } from "@inditextech/weave-types";
 import Konva from "konva";
-import { ImageTemplateFit } from "./types.js";
-import { IMAGE_TEMPLATE_FIT } from "./constants.js";
+import { type ImageTemplateFit } from "./types.ts";
+import { IMAGE_TEMPLATE_FIT } from "./constants.ts";
 
 export const IMAGE_TEMPLATE_NODE_TYPE = "image-template";
 

@@ -5,10 +5,10 @@
 import * as Y from "yjs";
 import fs from "fs";
 import path from "path";
-import { AccessToken, DefaultAzureCredential } from "@azure/identity";
+import { type AccessToken, DefaultAzureCredential } from "@azure/identity";
 
 export async function streamToBuffer(
-  readableStream: NodeJS.ReadableStream
+  readableStream: NodeJS.ReadableStream,
 ): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Uint8Array[] = [];
@@ -22,14 +22,14 @@ export async function streamToBuffer(
   });
 }
 
-export const keyEscaper = (key: any) => {
+export const keyEscaper = (key: unknown) => {
   const keyString = JSON.stringify(key);
   return keyString;
 };
 
 export const saveBase64ToFile = async (
   base64String: string,
-  filePath: string
+  filePath: string,
 ): Promise<void> => {
   // Define the safe root directory: <projectRoot>/temp
   const safeRoot = path.resolve(process.cwd(), "temp") + path.sep;
@@ -86,5 +86,21 @@ export function getStateAsJson(actualState: Uint8Array<ArrayBufferLike>) {
   Y.applyUpdate(document, actualState);
   const actualStateString = JSON.stringify(document.getMap("weave").toJSON());
   const actualStateJson = JSON.parse(actualStateString);
-  return actualStateJson;
+  return { document, actualStateJson };
+}
+
+export function jsonToUint8Array(
+  json: Record<string, unknown>,
+): Uint8Array<ArrayBufferLike> {
+  const doc = new Y.Doc();
+
+  const weave = doc.getMap("weave");
+
+  Object.entries(json).forEach(([key, value]) => {
+    weave.set(key, value);
+  });
+
+  const update = Y.encodeStateAsUpdate(doc);
+
+  return Buffer.from(update);
 }

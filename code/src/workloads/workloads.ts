@@ -63,6 +63,7 @@ export const setupWorkloads = async () => {
         await initExportRoomToPdfQueue(boss);
         await initExportFramesToPdfQueue(boss);
         await initGeneratePresentationModeImagesQueue(boss);
+        await initEditFallbackImageQueue(boss);
 
         logger.info("Module ready");
       } else {
@@ -118,6 +119,7 @@ export const setupWorkloads = async () => {
         await initExportRoomToPdfQueue(boss);
         await initExportFramesToPdfQueue(boss);
         await initGeneratePresentationModeImagesQueue(boss);
+        await initEditFallbackImageQueue(boss);
 
         logger.info("Module ready");
       } else {
@@ -289,6 +291,15 @@ const initGeneratePresentationModeImagesQueue = async (boss: PgBoss) => {
     await PresentationModeImagesJob.create(boss);
   await presentationModeImagesJob.start();
   jobs["presentationModeImages"] = presentationModeImagesJob;
+};
+
+const initEditFallbackImageQueue = async (boss: PgBoss) => {
+  const { EditFallbackImageJob } =
+    await import("./jobs/edit-fallback-image/job.js");
+
+  const editFallbackImageJob = await EditFallbackImageJob.create(boss);
+  await editFallbackImageJob.start();
+  jobs["editFallbackImage"] = editFallbackImageJob;
 };
 
 export const getWorkloadsInstance = () => {

@@ -6,7 +6,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { IMAGE_TEMPLATE_FIT } from "./constants.js";
+import { IMAGE_TEMPLATE_FIT } from "./constants.ts";
 
 export type ImageTemplateFitKeys = keyof typeof IMAGE_TEMPLATE_FIT;
 export type ImageTemplateFit =

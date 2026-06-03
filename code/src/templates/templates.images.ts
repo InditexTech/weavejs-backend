@@ -4,17 +4,17 @@
 
 import { getStore } from "@/store.js";
 import * as Y from "yjs";
-import {
-  TemplateFormat,
-  TemplateExecutionNodes,
-  TemplateExecutionTarget,
-} from "./types.js";
 import { PageModel } from "@/database/models/page.js";
 import { TemplateModel } from "@/database/models/template.js";
 import Konva from "konva";
 import { WeaveStateManipulation } from "@inditextech/weave-sdk";
-import { getNodeMapperByKind } from "./nodes/index.js";
 import { persistRoomDocument } from "./utils.js";
+import { getNodeMapperByKind } from "@/nodes-api/index.js";
+import {
+  TemplateExecutionNodes,
+  TemplateExecutionTarget,
+  TemplateFormat,
+} from "@/nodes-api/types.js";
 
 export const addImageTemplateToRoom = async (params: {
   page: PageModel;

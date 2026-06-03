@@ -5,9 +5,9 @@
 import { parentPort } from "worker_threads";
 import sharp from "sharp";
 import Konva from "konva";
-import { renderWeaveRoom } from "../../../../canvas/weave.js";
-import { ImagesPersistenceHandler } from "@/images/persistence.js";
-import { ExportToImagePageWorkerPayload } from "./types.js";
+import { renderWeaveRoom } from "../../../../canvas/weave.ts";
+import { ImagesPersistenceHandler } from "../../../../images/persistence.ts";
+import { type ExportToImagePageWorkerPayload } from "./types.ts";
 
 parentPort?.on("message", async (params: ExportToImagePageWorkerPayload) => {
   const { jobId, roomId, imageId, config, roomData, options, type } = params;
@@ -63,7 +63,7 @@ parentPort?.on("message", async (params: ExportToImagePageWorkerPayload) => {
 
     logMessage("image generated");
 
-    destroy();
+    await destroy();
 
     logMessage("composing image");
 

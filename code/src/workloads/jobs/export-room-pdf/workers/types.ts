@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PageAttributes } from "@/database/models/page.js";
+import { type PageAttributes } from "../../../../database/models/page.ts";
 
 export type ExportRoomToPdfWorkerResult =
   | {

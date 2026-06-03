@@ -4,8 +4,8 @@
 
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { parentPort } from "worker_threads";
-import { ExportRoomToPdfWorkerPayload } from "./types.js";
-import { ImagesPersistenceHandler } from "@/images/persistence.js";
+import { type ExportRoomToPdfWorkerPayload } from "./types.ts";
+import { ImagesPersistenceHandler } from "../../../../images/persistence.ts";
 import { Readable } from "node:stream";
 
 async function streamToBuffer(readable: Readable): Promise<Buffer> {

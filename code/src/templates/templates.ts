@@ -4,13 +4,13 @@
 
 import { getStore } from "@/store.js";
 import * as Y from "yjs";
-import { TemplateExecutionTarget } from "./types.js";
 import { PageModel } from "@/database/models/page.js";
 import { TemplateModel } from "@/database/models/template.js";
 import Konva from "konva";
 import { WeaveStateManipulation } from "@inditextech/weave-sdk";
 import { WeaveStateElement } from "@inditextech/weave-types";
 import { persistRoomDocument } from "./utils.js";
+import { TemplateExecutionTarget } from "@/nodes-api/types.js";
 
 export const addTemplateToRoom = async (params: {
   page: PageModel;

@@ -143,7 +143,7 @@ export class PresentationModeImagesJob {
         const result = await runWorker<
           GeneratePresentationModePageImagePageWorkerPayload,
           GeneratePresentationModePageImagePageWorkerResult
-        >(path.join(__dirname, "./workers/generatePresentationModeImage.js"), {
+        >(path.join(__dirname, "./workers/generatePresentationModeImage.ts"), {
           jobId,
           pageId: page.pageId,
           instanceId: payload.presentationModeId,

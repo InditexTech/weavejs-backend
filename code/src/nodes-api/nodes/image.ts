@@ -55,17 +55,11 @@ export class ImageNodeMapper implements BaseNodeMapper<
   } {
     const nodeId = uuidv4();
 
-    const nodeState: WeaveStateElement = {
-      key: nodeId,
-      type: "image",
-      props: {
-        id: nodeId,
-        nodeType: "image",
-        name: "node",
-        children: [],
-        imageId: nodeId,
-        imageURL: node.image.source,
-      },
+    const nodeState: WeaveStateElement = WeaveImageNode.defaultState(nodeId);
+    nodeState.props = {
+      ...nodeState.props,
+      imageId: `image-${nodeId}`,
+      imageURL: node.image.source,
     };
 
     const tx = node.x;
@@ -174,9 +168,12 @@ export class ImageNodeMapper implements BaseNodeMapper<
     const parsedState = imageSchema.safeParse(nodeState);
 
     if (!parsedState.success) {
-      throw new Error(`Invalid node state for image node ${node.id}`, {
-        cause: "InvalidImageNodeState",
-      });
+      throw new Error(
+        `Invalid node state for image node ${node.id}: ${parsedState.error}`,
+        {
+          cause: "InvalidImageNodeState",
+        },
+      );
     }
 
     return { nodeId, nodeState };

@@ -22,6 +22,9 @@ import { JOB_DELETE_IMAGE_QUEUE_NAME } from "./constants.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 import { getServiceConfig } from "@/config/config.js";
 import { getDatabaseInstance } from "@/database/database.js";
+import { getJobHandler } from "@/workloads/workloads.js";
+import { EditFallbackImageJob } from "../edit-fallback-image/job.js";
+import { JOB_HANDLERS } from "@/workloads/constants.js";
 
 export class DeleteImageJob {
   private logger: ReturnType<typeof getLogger>;
@@ -145,6 +148,18 @@ export class DeleteImageJob {
     } catch (ex) {
       this.logger.error((ex as Error).message);
     }
+
+    const jobHandler = getJobHandler<EditFallbackImageJob>(
+      JOB_HANDLERS.EDIT_FALLBACK_IMAGE,
+    );
+
+    await jobHandler.startEditFallbackImageJob(
+      clientId,
+      roomId,
+      userId,
+      "delete",
+      imageId,
+    );
 
     await this.boss.complete(JOB_DELETE_IMAGE_QUEUE_NAME, jobId, {
       status: "OK",

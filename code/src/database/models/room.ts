@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Sequelize, Model, DataTypes } from "sequelize";
+import { type Sequelize, Model, DataTypes } from "sequelize";
 
 export type RoomStatus = "active" | "archived";
 

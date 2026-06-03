@@ -8,6 +8,7 @@ import {
   getLastPageRoom,
   getPage,
   getPageIndex,
+  getPagePosition,
 } from "@/database/controllers/page.js";
 import { getTemplate } from "@/database/controllers/template.js";
 import { TemplateModel } from "@/database/models/template.js";
@@ -59,11 +60,11 @@ export const postPageController = () => {
 
     let position = 1;
     if (lastPageRoom) {
-      const lastPageIndex = await getPageIndex({
+      const lastPagePosition = await getPagePosition({
         roomId,
         pageId: lastPageRoom.pageId,
       });
-      position = lastPageIndex + 1;
+      position = Number(lastPagePosition) + 1;
     }
 
     let page = undefined;

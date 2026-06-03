@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { getLogger } from "@/logger/logger.js";
-import { Worker } from "worker_threads";
+import { Worker } from "node:worker_threads";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,7 +25,9 @@ export function runWorker<P, T>(workerPath: string, workerData: P): Promise<T> {
   }
 
   return queue.add(async () => {
-    let worker: Worker | null = new Worker(workerPath);
+    let worker: Worker | null = new Worker(
+      new URL(workerPath, import.meta.url),
+    );
 
     const result = await new Promise<T>((resolve, reject) => {
       if (worker) {

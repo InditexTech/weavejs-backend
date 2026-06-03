@@ -14,9 +14,9 @@ import {
   type WeaveNodesSelectionPlugin,
   type WeaveStageZoomPluginOnZoomChangeEvent,
 } from "@inditextech/weave-sdk/server";
-import { MEASURE_NODE_DEFAULT_CONFIG, MEASURE_NODE_TYPE } from "./constants.js";
+import { MEASURE_NODE_DEFAULT_CONFIG, MEASURE_NODE_TYPE } from "./constants.ts";
 import type { Vector2d } from "konva/lib/types";
-import type { MeasureNodeParams, MeasureNodeProperties } from "./types.js";
+import type { MeasureNodeParams, MeasureNodeProperties } from "./types.ts";
 
 export class MeasureNode extends WeaveNode {
   private readonly config: MeasureNodeProperties;

@@ -3,7 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { v4 as uuidv4 } from "uuid";
-import { createChatMessage } from "@/database/controllers/chat-message.js";
+import {
+  createChatMessage,
+  getChatMessage,
+} from "@/database/controllers/chat-message.js";
 import {
   getRoomResourceChats,
   getRoomResourcesTotalChats,
@@ -44,12 +47,12 @@ export async function getChats(
   roomId: string,
   resourceId: string,
   limit = 50,
-  offset = 0
+  offset = 0,
 ): Promise<{ chats: Chat[]; total: number }> {
   try {
     const chats = await getRoomResourceChats(
       { roomId, resourceId, status: "active" },
-      { limit, offset }
+      { limit, offset },
     );
     const totalChats = await getRoomResourcesTotalChats({
       roomId,
@@ -67,7 +70,7 @@ export async function createChat(
   roomId: string,
   chatId: string,
   resourceId: string,
-  data: Partial<Chat>
+  data: Partial<Chat>,
 ) {
   try {
     return await createChatDb({
@@ -86,7 +89,7 @@ export async function createChat(
 export async function loadChat(
   roomId: string,
   chatId: string,
-  resourceId: string
+  resourceId: string,
 ): Promise<ChatData> {
   let chat = null;
 
@@ -117,7 +120,7 @@ export async function loadChat(
 export async function deleteChat(
   roomId: string,
   chatId: string,
-  resourceId: string
+  resourceId: string,
 ): Promise<boolean> {
   try {
     await deleteChatDb({ roomId, chatId, resourceId });
@@ -133,25 +136,42 @@ export async function saveChatMessages(
   chatId: string,
   resourceId: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  messages: any[]
+  messages: any[],
 ) {
   try {
-    const createdMessages = [];
     for (const msg of messages) {
       if (!msg.id || !msg.role || !msg.parts) {
         console.error("Invalid message format", JSON.stringify(msg, null, 2));
         continue;
       }
 
-      const message = await createChatMessage({
-        id: uuidv4(),
+      const withoutTransientParts = msg.parts.filter(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (part: any) =>
+          part.data?.transient === undefined || part.data?.transient === false,
+      );
+
+      const message = await getChatMessage({
         chatId,
         messageId: msg.id,
-        role: msg.role,
-        parts: msg.parts,
       });
 
-      createdMessages.push(message);
+      if (message) {
+        const messagesToUpdate = {
+          ...message,
+          role: msg.role,
+          parts: withoutTransientParts,
+        };
+        await message.update(messagesToUpdate);
+      } else {
+        await createChatMessage({
+          id: uuidv4(),
+          chatId,
+          messageId: msg.id,
+          role: msg.role,
+          parts: withoutTransientParts,
+        });
+      }
     }
 
     await updateChat({ roomId, chatId, resourceId }, {}, false);

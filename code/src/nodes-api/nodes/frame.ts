@@ -19,7 +19,7 @@ import {
   WeaveFrameNode,
 } from "@inditextech/weave-sdk";
 import { BaseNodeMapper } from "./base.js";
-import { getNodeMapperByKind } from "./index.js";
+import { getNodeMapperByKind } from "../index.js";
 
 export class FrameNodeMapper implements BaseNodeMapper<
   TemplateFrameNode,
@@ -81,20 +81,14 @@ export class FrameNodeMapper implements BaseNodeMapper<
     const tw = node.width;
     const th = node.height;
 
-    const nodeState: WeaveStateElement = {
-      key: nodeId,
-      type: "frame",
-      props: {
-        id: nodeId,
-        nodeType: "frame",
-        name: "node",
-        children: [],
-        x: origin.x + tx,
-        y: origin.y + ty,
-        frameWidth: tw,
-        frameHeight: th,
-        title: node.name,
-      },
+    const nodeState: WeaveStateElement = WeaveFrameNode.defaultState(nodeId);
+    nodeState.props = {
+      ...nodeState.props,
+      x: origin.x + tx,
+      y: origin.y + ty,
+      frameWidth: tw,
+      frameHeight: th,
+      title: node.name,
     };
 
     const childrenMapped: WeaveStateElement[] = [];
@@ -116,9 +110,12 @@ export class FrameNodeMapper implements BaseNodeMapper<
     const parsedState = imageSchema.safeParse(nodeState);
 
     if (!parsedState.success) {
-      throw new Error(`Invalid node state for frame node ${node.id}`, {
-        cause: "InvalidFrameNodeState",
-      });
+      throw new Error(
+        `Invalid node state for frame node ${node.id}: ${parsedState.error}`,
+        {
+          cause: "InvalidFrameNodeState",
+        },
+      );
     }
 
     return { nodeId, nodeState };

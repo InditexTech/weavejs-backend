@@ -65,40 +65,38 @@ export class TextNodeMapper implements BaseNodeMapper<
     const tw = node.width;
     const th = node.height;
 
-    const nodeState: WeaveStateElement = {
-      key: nodeId,
-      type: "text",
-      props: {
-        id: nodeId,
-        nodeType: "text",
-        name: "node",
-        children: [],
-        x: origin.x + tx,
-        y: origin.y + ty,
-        width: tw,
-        height: th,
-        fontFamily: node.fontFamily,
-        fontSize: node.fontSize,
-        fill: node.fill,
-        align: node.align,
-        verticalAlign: node.verticalAlign,
-        text: node.text,
-        layout: node.layout,
-        fillAfterStrokeEnabled: true,
-        stroke: "#D6D6D6",
-        strokeEnabled: true,
-        strokeScaleEnabled: true,
-        strokeWidth: 2,
-      },
+    const nodeState: WeaveStateElement = WeaveTextNode.defaultState(nodeId);
+    nodeState.props = {
+      ...nodeState.props,
+      x: origin.x + tx,
+      y: origin.y + ty,
+      width: tw,
+      height: th,
+      fontFamily: node.fontFamily,
+      fontSize: node.fontSize,
+      textDecoration: "",
+      fill: node.fill,
+      align: node.align,
+      verticalAlign: node.verticalAlign,
+      text: node.text,
+      layout: node.layout,
+      fillAfterStrokeEnabled: true,
+      stroke: "#D6D6D6",
+      strokeEnabled: true,
+      strokeScaleEnabled: true,
+      strokeWidth: 2,
     };
 
     const imageSchema = WeaveTextNode.getSchema();
     const parsedState = imageSchema.safeParse(nodeState);
 
     if (!parsedState.success) {
-      throw new Error(`Invalid node state for text node ${node.id}`, {
-        cause: "InvalidTextNodeState",
-      });
+      throw new Error(
+        `Invalid node state for text node ${node.id}: ${parsedState.error}`,
+        {
+          cause: "InvalidTextNodeState",
+        },
+      );
     }
 
     return {

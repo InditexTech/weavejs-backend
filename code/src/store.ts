@@ -51,6 +51,7 @@ export const getAzureWebPubsubServer = () => {
   return azureWebPubsubServer;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function extractImageIdFromNode(images: string[], node: any) {
   if (node.props && node.props.nodeType === "image" && node.props.imageId) {
     images.push(node.props.imageId);
@@ -85,7 +86,7 @@ export const performPersistRoom = async (
     return;
   }
 
-  const actualStateJson = getStateAsJson(actualState);
+  const { actualStateJson } = getStateAsJson(actualState);
   if (actualStateJson?.props?.children) {
     const firstLevelNodes = actualStateJson.props.children.find(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -99,10 +100,11 @@ export const performPersistRoom = async (
   }
 
   const mainLayer = actualStateJson.props?.children?.find(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (child: any) => child.key === "mainLayer",
   );
 
-  let images: string[] = [];
+  const images: string[] = [];
   if (mainLayer) {
     extractImageIdFromNode(images, mainLayer);
     // Do something with the extracted images if needed
@@ -356,6 +358,7 @@ export const setupStoreRoomsCleanup = () => {
         logger.info(
           `Performing cleanup of room <${roomId}>, has no active connections`,
         );
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const status: any = await storeSyncHandler.destroyRoomInstance(roomId);
         if (status === "destroyed") {
           logger.info(`Cleanup of room <${roomId}> performed`);

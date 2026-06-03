@@ -5,9 +5,9 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { parentPort } from "worker_threads";
 import sharp from "sharp";
-import { renderWeaveRoom } from "../../../../canvas/weave.js";
-import { ImagesPersistenceHandler } from "@/images/persistence.js";
-import { ExportFramesToPdfWorkerPayload } from "./types.js";
+import { renderWeaveRoom } from "../../../../canvas/weave.ts";
+import { ImagesPersistenceHandler } from "../../../../images/persistence.ts";
+import { type ExportFramesToPdfWorkerPayload } from "./types.ts";
 
 parentPort?.on(
   "message",
@@ -49,7 +49,7 @@ parentPort?.on(
         }
       }
 
-      destroy();
+      await destroy();
 
       // Create a new PDFDocument
       const pdfDoc = await PDFDocument.create();
