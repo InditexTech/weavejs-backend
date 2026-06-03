@@ -20,7 +20,7 @@ path = [
     "code/patches/**",
 
     # code/ directory licensing
-    "MCP-COMMANDS.md"
+    "MCP-COMMANDS.md",
     "cleanup-storage/src/whitelist.json",
     "code/config/**",
     "code/migrations/**",
