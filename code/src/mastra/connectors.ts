@@ -31,6 +31,7 @@ export const getStorage = async (): Promise<PostgresStore> => {
     }
 
     storage = new PostgresStore({
+      id: "main-postgres-store",
       host,
       port,
       database,
@@ -59,6 +60,7 @@ export const getMemory = async (): Promise<Memory> => {
 
     memory = new Memory({
       storage: new PostgresStore({
+        id: "memory-postgres-store",
         host,
         port,
         database,

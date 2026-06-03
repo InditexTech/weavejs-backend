@@ -11,6 +11,8 @@ import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 const payloadSchema = z.object({
   name: z.string().min(1).max(100),
   linkedNodeType: z.enum(["none", "frame"]).optional().default("none"),
+  kind: z.enum(["template", "imageTemplate"]).optional().default("template"),
+  imageSlots: z.number().optional().default(0),
   templateImage: z.string().min(1),
   templateData: z.string().min(1),
 });
@@ -31,6 +33,8 @@ export const postTemplateController = () => {
       templateId: uuidv4(),
       status: "completed",
       name: parsedBody.data.name,
+      kind: parsedBody.data.kind,
+      imageSlots: parsedBody.data.imageSlots,
       linkedNodeType: parsedBody.data.linkedNodeType,
       templateImage: parsedBody.data.templateImage,
       templateData: parsedBody.data.templateData,

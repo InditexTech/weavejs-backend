@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Request, Response } from "express";
-import { v4 as uuidv4 } from "uuid";
 import { imageSize } from "image-size";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import { createImage } from "../../../database/controllers/image.js";
@@ -19,12 +18,12 @@ export const postUploadImageController = () => {
     const file = req.file;
 
     const roomId = req.params.roomId as string;
+    const imageId = req.body.imageId as string;
     const mimeType = file?.mimetype ?? "application/octet-stream";
     const data = file?.buffer ?? new Uint8Array();
 
     const dimensions = imageSize(data);
 
-    const imageId = uuidv4();
     const fileName = `${roomId}/${imageId}`;
 
     if (await persistenceHandler.exists(fileName)) {

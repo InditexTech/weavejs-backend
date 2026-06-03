@@ -162,7 +162,7 @@ export class GenerateImagesJob {
     const { prompt, sampleCount } = payload;
 
     const requestBody = {
-      model: "gemini/gemini-2.5-flash-image-preview",
+      model: "gemini-3.1-flash-image-preview",
       messages: [{ role: "user", content: prompt }],
       n: sampleCount,
     };
@@ -245,7 +245,7 @@ export class GenerateImagesJob {
           imagesIds,
         });
       }
-      if (model === "gemini/gemini-2.5-flash-image-preview") {
+      if (model === "gemini-3.1-flash-image-preview") {
         await this.generateWithChatCompletionAPI({
           jobId,
           clientId,

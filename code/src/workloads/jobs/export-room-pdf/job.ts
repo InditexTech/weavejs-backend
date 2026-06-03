@@ -133,7 +133,7 @@ export class ExportRoomToPdfJob {
         const result = await runWorker<
           ExportToImagePageWorkerPayload,
           ExportToImagePageWorkerResult
-        >(path.join(__dirname, "./workers/exportPageToImage.js"), {
+        >(path.join(__dirname, "./workers/exportPageToImage.ts"), {
           ...payload,
           jobId,
           roomId,
@@ -197,7 +197,7 @@ export class ExportRoomToPdfJob {
       const result = await runWorker<
         ExportRoomToPdfWorkerPayload,
         ExportRoomToPdfWorkerResult
-      >(path.join(__dirname, "./workers/exportRoomToPDF.js"), {
+      >(path.join(__dirname, "./workers/exportRoomToPDF.ts"), {
         ...payload,
         jobId,
         roomId,

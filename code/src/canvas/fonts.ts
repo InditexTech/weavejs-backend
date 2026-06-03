@@ -5,7 +5,7 @@
 import path from "node:path";
 import { registerFont } from "canvas";
 import { FontLibrary } from "skia-canvas";
-import { CanvasFont, SkiaFont } from "./types.js";
+import type { CanvasFont, SkiaFont } from "./types.ts";
 
 let registered = false;
 
@@ -49,6 +49,8 @@ export const registerSkiaFonts = () => {
       path.resolve(process.cwd(), "fonts/inter-italic.ttf"),
       path.resolve(process.cwd(), "fonts/inter-italic-bold.ttf"),
       path.resolve(process.cwd(), "fonts/inter-regular.ttf"),
+      path.resolve(process.cwd(), "fonts/Inter_18pt-Light.ttf"),
+      path.resolve(process.cwd(), "fonts/Inter_18pt-LightItalic.ttf"),
     ],
   });
 
@@ -198,6 +200,24 @@ export const registerCanvasFonts = () => {
     fontFace: {
       family: "Inter",
       weight: "700",
+      style: "italic",
+    },
+  });
+
+  fonts.push({
+    path: path.resolve(process.cwd(), "fonts/Inter_18pt-Light.ttf"),
+    fontFace: {
+      family: "Inter",
+      weight: "100",
+      style: "italic",
+    },
+  });
+
+  fonts.push({
+    path: path.resolve(process.cwd(), "fonts/Inter_18pt-LightItalic.ttf"),
+    fontFace: {
+      family: "Inter",
+      weight: "100",
       style: "italic",
     },
   });

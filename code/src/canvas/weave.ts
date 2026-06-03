@@ -21,22 +21,22 @@ import {
   WeaveStrokeNode,
   WeaveMeasureNode,
   WeaveConnectorNode,
-  setupSkiaBackend,
   WeaveStrokeSingleNode,
+  setupSkiaBackend,
   // setupCanvasBackend,
 } from "@inditextech/weave-sdk/server";
 import { WeaveKonvaBaseRenderer } from "@inditextech/weave-renderer-konva-base/server";
 // import { WeaveKonvaReactReconcilerRenderer } from "@inditextech/weave-renderer-konva-react-reconciler/server";
-import { ColorTokenNode } from "./nodes/color-token/color-token.js";
-import { isAbsoluteUrl } from "../utils.js";
-import { ServiceConfig } from "../types.js";
+import { ColorTokenNode } from "./nodes/color-token/color-token.ts";
+import { isAbsoluteUrl } from "../utils.ts";
+import { type ServiceConfig } from "../types.ts";
 import {
   registerSkiaFonts,
   // registerCanvasFonts,
-} from "./fonts.js";
-import { ImageTemplateNode } from "./nodes/image-template/image-template.js";
-import { MeasureNode } from "./nodes/measure/measure.js";
-import { PantoneNode } from "./nodes/pantone/pantone.js";
+} from "./fonts.ts";
+import { ImageTemplateNode } from "./nodes/image-template/image-template.ts";
+import { MeasureNode } from "./nodes/measure/measure.ts";
+import { PantoneNode } from "./nodes/pantone/pantone.ts";
 
 export type RenderWeaveRoom = {
   instance: Weave;
@@ -51,9 +51,9 @@ export const renderWeaveRoom = (
 
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve) => {
-    const destroyWeaveRoom = () => {
+    const destroyWeaveRoom = async () => {
       if (weave) {
-        weave.destroy();
+        await weave.destroy();
       }
     };
 

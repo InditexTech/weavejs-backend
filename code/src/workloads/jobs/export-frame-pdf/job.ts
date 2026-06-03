@@ -107,7 +107,7 @@ export class ExportFramesToPdfJob {
       const result = await runWorker<
         ExportFramesToPdfWorkerPayload,
         ExportToIPdfWorkerResult
-      >(path.join(__dirname, "./workers/exportFramesToPDF.js"), {
+      >(path.join(__dirname, "./workers/exportFramesToPDF.ts"), {
         ...payload,
         roomId,
         pdfId: exportedPdfId,

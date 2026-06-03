@@ -20,6 +20,7 @@ path = [
     "code/patches/**",
 
     # code/ directory licensing
+    "code/MCP-COMMANDS.md",
     "cleanup-storage/src/whitelist.json",
     "code/config/**",
     "code/migrations/**",
@@ -29,6 +30,7 @@ path = [
     "code/nodemon.json",
     "code/justfile",
     "code/.tool-versions",
+    "code/vite.config.js",
     "code/tsconfig.base.json",
     "code/templates-examples.md",
 ]

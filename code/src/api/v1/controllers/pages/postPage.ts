@@ -8,14 +8,18 @@ import {
   getLastPageRoom,
   getPage,
   getPageIndex,
+  getPagePosition,
 } from "@/database/controllers/page.js";
+import { getTemplate } from "@/database/controllers/template.js";
+import { TemplateModel } from "@/database/models/template.js";
+import { addTemplateToRoom } from "@/templates/templates.js";
 import { Request, Response } from "express";
 
 export const postPageController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId as string;
 
-    const { pageId, name } = req.body;
+    const { pageId, name, templateId, target } = req.body;
 
     const pageObj = await getPage({
       roomId,
@@ -27,17 +31,40 @@ export const postPageController = () => {
       return;
     }
 
+    let template: TemplateModel | null = null;
+    if (templateId) {
+      template = await getTemplate({
+        roomId: roomId,
+        templateId: templateId,
+      });
+
+      if (!template) {
+        res
+          .status(404)
+          .json({ status: "KO", message: "Template doesn't exists" });
+        return;
+      }
+
+      if (template.kind !== "template") {
+        res.status(400).json({
+          status: "KO",
+          message: "The provided template kind is not 'template'",
+        });
+        return;
+      }
+    }
+
     const lastPageRoom = await getLastPageRoom({
       roomId,
     });
 
     let position = 1;
     if (lastPageRoom) {
-      const lastPageIndex = await getPageIndex({
+      const lastPagePosition = await getPagePosition({
         roomId,
         pageId: lastPageRoom.pageId,
       });
-      position = lastPageIndex + 1;
+      position = Number(lastPagePosition) + 1;
     }
 
     let page = undefined;
@@ -49,6 +76,14 @@ export const postPageController = () => {
         position,
         status: "active",
       });
+
+      if (template && target) {
+        await addTemplateToRoom({
+          page,
+          template,
+          target,
+        });
+      }
     } catch (error) {
       console.error("Error creating page:", error);
       page = await getPage({

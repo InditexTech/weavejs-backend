@@ -12,6 +12,8 @@ export type TemplateAttributes = {
   templateId: string;
   status: TemplateStatus;
   name: string;
+  kind: string;
+  imageSlots: number;
   linkedNodeType: string | null;
   templateImage: string;
   templateData: string;
@@ -38,6 +40,8 @@ export class TemplateModel
   declare templateId: string;
   declare status: TemplateStatus;
   declare name: string;
+  declare kind: string;
+  declare imageSlots: number;
   declare linkedNodeType: string;
   declare templateImage: string;
   declare templateData: string;
@@ -67,6 +71,16 @@ export const defineTemplateModel = async (sequelize: Sequelize) => {
       },
       name: {
         type: DataTypes.STRING,
+        allowNull: false,
+      },
+      kind: {
+        type: DataTypes.STRING,
+        defaultValue: "imageTemplate",
+        allowNull: false,
+      },
+      imageSlots: {
+        type: DataTypes.NUMBER,
+        defaultValue: "0",
         allowNull: false,
       },
       linkedNodeType: {
@@ -106,7 +120,7 @@ export const defineTemplateModel = async (sequelize: Sequelize) => {
       tableName: "weavejs_template",
       timestamps: true,
       sequelize,
-    }
+    },
   );
 
   TemplateModel.hasOne(TaskModel);

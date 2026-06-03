@@ -50,7 +50,7 @@ export const getRoomToJsonController = () => {
       const buffer = Buffer.from(cleanHex, "hex");
       const data = Uint8Array.from(buffer);
 
-      const actualStateJson = getStateAsJson(data);
+      const { actualStateJson } = getStateAsJson(data);
 
       res.status(200).json({ status: "OK", roomId, state: actualStateJson });
     } catch (ex) {

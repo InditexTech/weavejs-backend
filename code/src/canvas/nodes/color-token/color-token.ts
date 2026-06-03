@@ -5,8 +5,8 @@
 import Konva from "konva";
 import { WeaveNode } from "@inditextech/weave-sdk/server";
 import {
-  WeaveElementAttributes,
-  WeaveElementInstance,
+  type WeaveElementAttributes,
+  type WeaveElementInstance,
 } from "@inditextech/weave-types";
 
 export const COLOR_TOKEN_NODE_TYPE = "color-token";

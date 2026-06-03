@@ -105,6 +105,18 @@ export const getPage = async ({
   return page;
 };
 
+export const getPagePosition = async ({
+  roomId,
+  pageId,
+}: PageIdentifier): Promise<number> => {
+  const page = await getPage({
+    roomId,
+    pageId,
+  });
+
+  return page?.position ?? -1;
+};
+
 export const getPageIndex = async ({
   roomId,
   pageId,

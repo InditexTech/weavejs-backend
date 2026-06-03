@@ -13,9 +13,13 @@ export const getRoomTemplates = async (
   {
     roomId,
     since,
+    kind,
+    imageSlots,
   }: {
     roomId: string;
     since?: Date;
+    kind?: string;
+    imageSlots?: number;
   },
   {
     limit = 20,
@@ -23,11 +27,13 @@ export const getRoomTemplates = async (
   }: {
     limit?: number;
     offset?: number;
-  }
+  },
 ): Promise<TemplateModel[]> => {
   return TemplateModel.findAll({
     where: {
       roomId,
+      ...(kind && { kind }),
+      ...(imageSlots && { imageSlots: { [Op.gte]: imageSlots } }),
       ...(since && { updatedAt: { [Op.gte]: since } }),
     },
     order: [["updatedAt", "DESC"]],
@@ -36,6 +42,8 @@ export const getRoomTemplates = async (
       "templateId",
       "status",
       "name",
+      "kind",
+      "imageSlots",
       "linkedNodeType",
       "templateImage",
       "templateData",
@@ -53,13 +61,19 @@ export const getRoomTemplates = async (
 export const getTotalRoomTemplates = async ({
   roomId,
   since,
+  kind,
+  imageSlots,
 }: {
   roomId: string;
   since?: Date;
+  kind?: string;
+  imageSlots?: number;
 }): Promise<number> => {
   return TemplateModel.count({
     where: {
       roomId,
+      ...(kind && { kind }),
+      ...(imageSlots && { imageSlots: { [Op.gte]: imageSlots } }),
       ...(since && { updatedAt: { [Op.gte]: since } }),
     },
   });
@@ -84,6 +98,8 @@ export const getRoomFrameTemplates = async ({
       "templateId",
       "status",
       "name",
+      "kind",
+      "imageSlots",
       "linkedNodeType",
       "templateImage",
       "templateData",
@@ -102,6 +118,7 @@ export const getTotalRoomFrameTemplates = async ({
 }: {
   roomId: string;
   since?: Date;
+  kind?: string | null;
 }): Promise<number> => {
   return TemplateModel.count({
     where: {
@@ -126,6 +143,8 @@ export const getTemplate = async ({
       "templateId",
       "status",
       "name",
+      "kind",
+      "imageSlots",
       "linkedNodeType",
       "templateImage",
       "templateData",
@@ -140,7 +159,7 @@ export const getTemplate = async ({
 };
 
 export const createTemplate = async (
-  templateData: TemplateAttributes
+  templateData: TemplateAttributes,
 ): Promise<TemplateModel> => {
   const newTemplate = await TemplateModel.create(templateData);
 
@@ -149,7 +168,7 @@ export const createTemplate = async (
 
 export const updateTemplate = async (
   { roomId, templateId }: TemplateIdentifier,
-  templateData: Partial<TemplateAttributes>
+  templateData: Partial<TemplateAttributes>,
 ): Promise<number> => {
   const affected = await TemplateModel.update(templateData, {
     where: {

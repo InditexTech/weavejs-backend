@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type { MeasureNodeProperties } from "./types.js";
+import type { MeasureNodeProperties } from "./types.ts";
 
 export const MEASURE_NODE_TYPE = "custom-measure";
 

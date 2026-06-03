@@ -12,7 +12,7 @@ declare module "konva/lib/Node" {
     closeCrop(type: WeaveImageCropEndType): void;
     resetCrop(): void;
     allowedAnchors(): string[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     updatePosition(position: Vector2d): void;
     dblClick(): void;
     movedToContainer(container: Konva.Layer | Konva.Group): void;

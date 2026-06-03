@@ -4,9 +4,9 @@
 
 import { parentPort } from "worker_threads";
 import sharp from "sharp";
-import { renderWeaveRoom } from "../../../../canvas/weave.js";
-import { ImagesPersistenceHandler } from "@/images/persistence.js";
-import { GeneratePresentationModePageImagePageWorkerPayload } from "./types.js";
+import { renderWeaveRoom } from "../../../../canvas/weave.ts";
+import { ImagesPersistenceHandler } from "../../../../images/persistence.ts";
+import { type GeneratePresentationModePageImagePageWorkerPayload } from "./types.ts";
 
 parentPort?.on(
   "message",
@@ -51,7 +51,7 @@ parentPort?.on(
 
       logMessage("image generated");
 
-      destroy();
+      await destroy();
 
       logMessage("composing image");
 

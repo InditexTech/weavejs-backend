@@ -5,6 +5,7 @@
 import { PostgresStore } from "@mastra/pg";
 
 const storage = new PostgresStore({
+  id: "main-postgres-store",
   host: process.env.AZURE_DATABASE_HOST ?? "",
   port: process.env.AZURE_DATABASE_PORT
     ? Number.parseInt(process.env.AZURE_DATABASE_PORT, 10)

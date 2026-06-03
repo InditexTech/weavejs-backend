@@ -71,8 +71,8 @@ import { getTemplatesImageController } from "./controllers/templates/getTemplate
 import { getTemplatesImagesController } from "./controllers/templates/getTemplatesImages.js";
 import { postTemplatesUploadImageController } from "./controllers/templates/postTemplatesUploadImage.js";
 import { getRoomsStorageController } from "./controllers/getRoomsStorage.js";
+import { postAddImageTemplateToRoomController } from "./controllers/postAddImageTemplateToRoom.js";
 import { postAddTemplateToRoomController } from "./controllers/postAddTemplateToRoom.js";
-import { postAddJsonTemplateToRoomController } from "./controllers/postAddJsonTemplateToRoom.js";
 import { delTemplatesImageController } from "./controllers/templates/delTemplatesImage.js";
 import { getExportedImageController } from "./controllers/getExportedImage.js";
 import { getExportedPdfController } from "./controllers/getExportedPdf.js";
@@ -103,6 +103,8 @@ import { postExportRoomToPDFAsyncController } from "./controllers/postExportRoom
 import { postGeneratePresentationModeImagesAsyncController } from "./controllers/postGeneratePresentationModeImagesAsync.js";
 import { getPresentationImageController } from "./controllers/getPresentationImage.js";
 import { getAllPagesController } from "./controllers/pages/getAllPages.js";
+import { getRoomImageFallbackController } from "./controllers/getRoomImageFallback.js";
+import { postUploadRoomImageFallbackController } from "./controllers/postUploadRoomImageFallback.js";
 
 const router: Router = Router();
 
@@ -155,6 +157,21 @@ export function setupApiV1Router(app: Application) {
     getRoomStorageController(),
   );
   router.get(
+    `/${hubName}/rooms/:roomId/pages/:pageId/image-fallback`,
+    cors,
+    session,
+    auth,
+    getRoomImageFallbackController(),
+  );
+  router.post(
+    `/${hubName}/rooms/:roomId/pages/:pageId/image-fallback`,
+    cors,
+    session,
+    auth,
+    raw({ type: "*/*", limit: "20mb" }),
+    postUploadRoomImageFallbackController(),
+  );
+  router.get(
     `/${hubName}/rooms/:roomId/json`,
     cors,
     session,
@@ -164,8 +181,6 @@ export function setupApiV1Router(app: Application) {
   router.post(
     `/${hubName}/rooms/:roomId/upload`,
     cors,
-    session,
-    auth,
     upload.single("file"),
     postUploadRoomController(),
   );
@@ -634,6 +649,13 @@ export function setupApiV1Router(app: Application) {
   );
 
   // AI chat
+  router.get(
+    `/${hubName}/rooms/:roomId/ai/chats/:chatId/stream`,
+    cors,
+    session,
+    auth,
+    getChatController(),
+  );
   router.post(
     `/${hubName}/rooms/:roomId/ai/chats/:chatId/message`,
     cors,
@@ -645,19 +667,19 @@ export function setupApiV1Router(app: Application) {
   // Templates API
 
   router.post(
-    `/${hubName}/templates/add-template-to-room`,
+    `/${hubName}/templates/add-image-template-to-room`,
     cors,
     session,
     auth,
-    postAddTemplateToRoomController(),
+    postAddImageTemplateToRoomController(),
   );
 
   router.post(
-    `/${hubName}/templates/create`,
+    `/${hubName}/templates/add-template-to-room`,
     cors,
     // session,
     // auth,
-    postAddJsonTemplateToRoomController(),
+    postAddTemplateToRoomController(),
   );
 
   // Rooms API

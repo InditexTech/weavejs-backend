@@ -16,6 +16,13 @@ import { getServiceConfig } from "./config/config.js";
 import { setupCommBus } from "./comm-bus/comm-bus.js";
 import { setupWorkers } from "./workers/workers.js";
 import { setupAuth } from "@/lib/auth.js";
+import { setupMcpServer } from "./mcp/index.js";
+import {
+  addNodeState,
+  createNodeTypeDefaultState,
+  getAvailableNodes,
+  updateNodeState,
+} from "./weave-mcp.setup.js";
 
 const start = async () => {
   try {
@@ -54,6 +61,13 @@ const start = async () => {
 
     // Init application
     const app = setupApp();
+
+    await setupMcpServer(app, {
+      getAvailableNodes,
+      createNodeTypeDefaultState,
+      addNodeState,
+      updateNodeState,
+    });
 
     if (process.env.PRINT_MEMORY_USAGE === "true") {
       const printInterval = parseInt(

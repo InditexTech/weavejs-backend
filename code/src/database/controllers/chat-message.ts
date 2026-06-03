@@ -19,7 +19,7 @@ export const getChatMessages = async (
   }: {
     limit?: number;
     offset?: number;
-  }
+  },
 ): Promise<ChatMessageModel[]> => {
   return ChatMessageModel.findAll({
     where: {
@@ -27,6 +27,7 @@ export const getChatMessages = async (
     },
     order: [["updatedAt", "ASC"]],
     attributes: [
+      "id",
       "chatId",
       "messageId",
       "role",
@@ -51,9 +52,53 @@ export const getChatMessagesTotal = async ({
   });
 };
 
+export const getChatMessage = async ({
+  chatId,
+  messageId,
+}: {
+  chatId: string;
+  messageId: string;
+}): Promise<ChatMessageModel | null> => {
+  return ChatMessageModel.findOne({
+    where: {
+      chatId,
+      messageId,
+    },
+    attributes: [
+      "id",
+      "chatId",
+      "messageId",
+      "role",
+      "parts",
+      "createdAt",
+      "updatedAt",
+    ],
+  });
+};
+
 export const createChatMessage = async (
-  chatMessageData: ChatMessageAttributes
+  chatMessageData: ChatMessageAttributes,
 ): Promise<ChatMessageModel> => {
   const newChatMessage = await ChatMessageModel.create(chatMessageData);
   return newChatMessage;
+};
+
+export const editChatMessage = async (
+  {
+    chatId,
+    messageId,
+  }: {
+    chatId: string;
+    messageId: string;
+  },
+  updateData: Partial<ChatMessageAttributes>,
+): Promise<number> => {
+  const affected = await ChatMessageModel.update(updateData, {
+    where: {
+      chatId,
+      messageId,
+    },
+  });
+
+  return affected[0];
 };

@@ -1,10 +1,8 @@
 'use strict';
 
-const { DataTypes } = require('sequelize');
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface) {
+  async up (queryInterface, Sequelize) {
     const transaction = await queryInterface.sequelize.transaction();
 
     try {
@@ -15,7 +13,7 @@ module.exports = {
       }
 
       await queryInterface.addColumn('weavejs_task', 'TemplateModelRoomId', {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: true,
       })
 
@@ -27,37 +25,37 @@ module.exports = {
 
       await queryInterface.createTable('weavejs_template', {
         roomId: {
-          type: DataTypes.STRING,
+          type: Sequelize.STRING,
           allowNull: false,
           primaryKey: true,
         },
         templateId: {
-          type: DataTypes.STRING,
+          type: Sequelize.STRING,
           allowNull: false,
           primaryKey: true,
         },
         status: {
-          type: DataTypes.STRING,
+          type: Sequelize.STRING,
           allowNull: false,
         },
         name: {
-          type: DataTypes.STRING,
+          type: Sequelize.STRING,
           allowNull: false,
         },
         linkedNodeType: {
-          type: DataTypes.STRING,
+          type: Sequelize.STRING,
           allowNull: false,
         },
         templateImage: {
-          type: DataTypes.TEXT,
+          type: Sequelize.TEXT,
           allowNull: true,
         },
         templateData: {
-          type: DataTypes.JSON,
+          type: Sequelize.JSON,
           allowNull: false,
         },
         jobId: {
-          type: DataTypes.STRING,
+          type: Sequelize.STRING,
           allowNull: true,
           references: {
             model: 'weavejs_task',
@@ -67,7 +65,7 @@ module.exports = {
           onDelete: 'CASCADE', // deletes posts if user is deleted
         },
         removalJobId: {
-          type: DataTypes.STRING,
+          type: Sequelize.STRING,
           allowNull: true,
           references: {
             model: 'weavejs_task',
@@ -77,18 +75,18 @@ module.exports = {
           onDelete: 'CASCADE', // deletes posts if user is deleted
         },
         removalStatus: {
-          type: DataTypes.STRING,
+          type: Sequelize.STRING,
           allowNull: true,
         },
         createdAt: {
           allowNull: false,
-          type: DataTypes.DATE,
-          defaultValue: DataTypes.NOW,
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.NOW,
         },
         updatedAt: {
           allowNull: false,
-          type: DataTypes.DATE,
-          defaultValue: DataTypes.NOW,
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.NOW,
         },
       });
 
@@ -98,7 +96,4 @@ module.exports = {
       throw err;
     }
   },
-
-  async down (queryInterface) {
-  }
 };
