@@ -20,6 +20,14 @@ export const postAiChatMessageController = () => {
 
     const resourceId: string = (req.headers["x-weave-user-id"] as string) ?? "";
 
+    if (process.env.AI_SERVICES !== "true") {
+      res.status(503).json({
+        status: "KO",
+        message: "AI services are disabled",
+      });
+      return;
+    }
+
     try {
       if (!resourceId || resourceId === "") {
         res.status(400).json({

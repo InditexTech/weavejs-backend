@@ -105,6 +105,7 @@ import { getPresentationImageController } from "./controllers/getPresentationIma
 import { getAllPagesController } from "./controllers/pages/getAllPages.js";
 import { getRoomImageFallbackController } from "./controllers/getRoomImageFallback.js";
 import { postUploadRoomImageFallbackController } from "./controllers/postUploadRoomImageFallback.js";
+import { getLogger } from "@/logger/logger.js";
 
 const router: Router = Router();
 
@@ -114,6 +115,8 @@ export function getApiV1Router() {
 
 export function setupApiV1Router(app: Application) {
   const config = getServiceConfig();
+
+  const logger = getLogger().child({ module: "api-v1-router" });
 
   const {
     pubsub: { hubName },
@@ -656,13 +659,20 @@ export function setupApiV1Router(app: Application) {
     auth,
     getChatController(),
   );
-  router.post(
-    `/${hubName}/rooms/:roomId/ai/chats/:chatId/message`,
-    cors,
-    session,
-    auth,
-    postAiChatMessageController(),
-  );
+  if (process.env.AI_SERVICES === "true") {
+    logger.info("AI services enabled: registering AI chat message endpoint");
+    router.post(
+      `/${hubName}/rooms/:roomId/ai/chats/:chatId/message`,
+      cors,
+      session,
+      auth,
+      postAiChatMessageController(),
+    );
+  } else {
+    logger.warn(
+      "AI services are disabled: AI chat message endpoint will not be registered",
+    );
+  }
 
   // Templates API
 
