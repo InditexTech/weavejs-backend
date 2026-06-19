@@ -4,12 +4,22 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { z } from "zod";
 import { Request, Response } from "express";
 import mimeTypes from "mime-types";
 import { removeBackground } from "@imgly/background-removal-node";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import { saveBase64ToFile } from "../../../utils.js";
 import { getServiceConfig } from "@/config/config.js";
+
+const IMAGE_BASE64_MAX = 15 * 1024 * 1024; // 15 MB of base64 chars ≈ ~11 MB decoded
+
+const payloadSchema = z.object({
+  image: z.object({
+    dataBase64: z.string().max(IMAGE_BASE64_MAX),
+    contentType: z.string().max(100),
+  }),
+});
 
 async function myBlobToUIntDemo(blob: Blob) {
   const arrayBuffer = await blob.arrayBuffer();
@@ -36,9 +46,12 @@ export const postRemoveBackgroundController = () => {
         .json({ status: "KO", message: "Invalid roomId or imageId." });
       return;
     }
-    const {
-      image: { dataBase64, contentType },
-    } = req.body;
+    const parsedBody = payloadSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      res.status(400).json({ errors: parsedBody.error.issues });
+      return;
+    }
+    const { dataBase64, contentType } = parsedBody.data.image;
 
     const extension = mimeTypes.extension(contentType) || "png";
     const fileName = `${roomId}/${imageId}.${extension}`;

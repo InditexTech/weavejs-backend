@@ -16,6 +16,7 @@ export const getTaskController = () => {
 
   return async (req: Request, res: Response): Promise<void> => {
     const jobId = req.params.taskId as string;
+    const roomId = req.params.roomId as string;
 
     const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
 
@@ -29,16 +30,25 @@ export const getTaskController = () => {
 
     const task = await getTask({
       jobId,
+      roomId,
     });
 
     if (task) {
       const taskJson = task.toJSON();
-      const queue = TASK_TYPE_QUEUE_MAP[taskJson.type];
 
+      if (taskJson.userId !== userId) {
+        res.status(404).json({
+          status: "KO",
+          message: "Task not found",
+        });
+        return;
+      }
+
+      const queue = TASK_TYPE_QUEUE_MAP[taskJson.type];
       const realTask = await boss?.getJobById(queue, jobId);
 
       if (realTask) {
-        res.status(200).json({ task: taskJson, internal: realTask });
+        res.status(200).json({ task: taskJson });
         return;
       }
     }

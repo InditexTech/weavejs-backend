@@ -74,6 +74,16 @@ export const getRoomImageFallbackController =
         return;
       }
 
+      const MAX_FALLBACK_SIZE = 50 * 1024 * 1024; // 50 MB
+      const properties = await blockBlobClient.getProperties();
+      if ((properties.contentLength ?? 0) > MAX_FALLBACK_SIZE) {
+        res.status(413).json({
+          status: "KO",
+          message: "Room image fallback too large",
+        });
+        return;
+      }
+
       try {
         const buffer = await blockBlobClient.downloadToBuffer();
         res.json(JSON.parse(buffer.toString("utf8")));

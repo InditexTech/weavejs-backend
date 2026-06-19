@@ -14,12 +14,12 @@ const payloadSchema = z.object({
   area: z.object({
     x: z.number(),
     y: z.number(),
-    width: z.number(),
-    height: z.number(),
+    width: z.number().min(0).max(20000),
+    height: z.number().min(0).max(20000),
   }),
   options: z.object({
-    padding: z.number().min(0).optional().default(20),
-    pixelRatio: z.number().min(1).optional().default(1),
+    padding: z.number().min(0).max(500).optional().default(20),
+    pixelRatio: z.number().min(1).max(4).optional().default(1),
   }),
   responseType: z.enum(["base64", "blob", "zip"]).optional().default("blob"),
 });

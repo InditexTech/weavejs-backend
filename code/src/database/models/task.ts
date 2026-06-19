@@ -22,7 +22,7 @@ export type TaskAttributes = {
   metadata: unknown;
 };
 
-export type TaskIdentifier = Pick<TaskAttributes, "jobId">;
+export type TaskIdentifier = Pick<TaskAttributes, "jobId" | "roomId">;
 
 export type TaskCreationAttributes = Omit<TaskAttributes, "jobId">;
 

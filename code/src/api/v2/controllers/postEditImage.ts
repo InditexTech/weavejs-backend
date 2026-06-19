@@ -4,6 +4,7 @@
 
 import { Request, Response } from "express";
 import { getServiceConfig } from "../../../config/config.js";
+import { verifyAIPassword } from "../../../lib/aiPassword.js";
 
 const DATA_URL_REGEX = /^data:([a-z]+\/[a-z0-9.+-]+)?(;base64)?,/i;
 
@@ -55,7 +56,7 @@ export const postEditImageController = () => {
     } = req.body;
     const password = req.headers["x-ai-password"];
 
-    if (password !== config.ai.password) {
+    if (!verifyAIPassword(password, config.ai.password)) {
       res.status(401).json({ status: "KO", message: "Not enabled" });
       return;
     }

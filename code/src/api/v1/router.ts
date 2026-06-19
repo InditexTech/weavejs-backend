@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Application, Router, raw } from "express";
+import { Application, Router, raw, json } from "express";
 import multer from "multer";
 import { getServiceConfig } from "../../config/config.js";
 import { getRoomConnectController } from "./controllers/getRoomConnect.js";
@@ -16,6 +16,7 @@ import { postRemoveBackgroundController } from "./controllers/postRemoveBackgrou
 import { getAzureWebPubsubServer } from "../../store.js";
 import { getCorsMiddleware } from "../../middlewares/cors.js";
 import { postValidateAIPassword } from "./controllers/postValidateIAPassword.js";
+import { aiPasswordRateLimit } from "../../middlewares/ai-password-rate-limit.js";
 import { getThreadsController } from "./controllers/getThreads.js";
 import { getThreadController } from "./controllers/getThread.js";
 import { postThreadController } from "./controllers/postThread.js";
@@ -247,6 +248,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    json({ limit: "15mb" }),
     postRemoveBackgroundController(),
   );
   router.post(
@@ -254,6 +256,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    json({ limit: "15mb" }),
     postNegateImageController(),
   );
   router.post(
@@ -261,6 +264,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    json({ limit: "15mb" }),
     postFlipImageController(),
   );
   router.post(
@@ -268,6 +272,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    json({ limit: "15mb" }),
     postGrayscaleImageController(),
   );
   router.post(
@@ -275,6 +280,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    aiPasswordRateLimit,
     postValidateAIPassword(),
   );
   router.post(
@@ -507,6 +513,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      json({ limit: "50mb" }),
       postExportPageToImageAsyncController(),
     );
     router.get(
@@ -528,6 +535,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      json({ limit: "50mb" }),
       postExportFramesToPDFAsyncController(),
     );
   }
@@ -831,6 +839,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    json({ limit: "1mb" }),
     postGeneratePresentationModeImagesAsyncController(),
   );
 

@@ -4,6 +4,7 @@
 
 import { Request, Response } from "express";
 import { getServiceConfig } from "../../../config/config.js";
+import { verifyAIPassword } from "../../../lib/aiPassword.js";
 
 export const postValidateAIPassword = () => {
   const config = getServiceConfig();
@@ -11,7 +12,7 @@ export const postValidateAIPassword = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const password = req.headers["x-ai-password"];
 
-    if (password === config.ai.password) {
+    if (verifyAIPassword(password, config.ai.password)) {
       res.status(200).json({ status: "OK" });
     } else {
       res.status(401).json({ status: "KO", message: "Not valid" });

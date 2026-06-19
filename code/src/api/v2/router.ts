@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Express, Router } from "express";
+import { Express, Router, json } from "express";
 import multer from "multer";
 import { getServiceConfig } from "../../config/config.js";
 import { getCorsMiddleware } from "../../middlewares/cors.js";
@@ -45,11 +45,13 @@ export function setupApiV2Router(app: Express) {
   router.post(
     `/${hubName}/rooms/:roomId/images/generate`,
     cors,
+    json({ limit: "5mb" }),
     postGenerateImageController()
   );
   router.post(
     `/${hubName}/rooms/:roomId/images/edit`,
     cors,
+    json({ limit: "100mb" }),
     postEditImageController()
   );
   router.get(`/${hubName}/rooms/:roomId/images`, cors, getImagesController());
@@ -72,6 +74,7 @@ export function setupApiV2Router(app: Express) {
   router.post(
     `/${hubName}/rooms/:roomId/images/:imageId/remove-background`,
     cors,
+    json({ limit: "15mb" }),
     postRemoveBackgroundController()
   );
 

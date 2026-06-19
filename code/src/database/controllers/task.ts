@@ -112,10 +112,12 @@ export const getTasksRoomAndUserNotOpened = async ({
 
 export const getTask = async ({
   jobId,
+  roomId,
 }: TaskIdentifier): Promise<TaskModel | null> => {
   const task = await TaskModel.findOne({
     where: {
       jobId,
+      roomId,
     },
     attributes: [
       "jobId",

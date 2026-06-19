@@ -9,15 +9,21 @@ import { JOB_HANDLERS } from "@/workloads/constants.js";
 import { ExportFramesToPdfJob } from "@/workloads/jobs/export-frame-pdf/job.js";
 
 const payloadSchema = z.object({
-  roomData: z.string().base64(),
+  roomData: z.string().base64().max(50 * 1024 * 1024),
   pages: z
-    .array(z.object({ title: z.string(), nodes: z.array(z.string()) }))
+    .array(
+      z.object({
+        title: z.string().max(500),
+        nodes: z.array(z.string().max(256)).max(1000),
+      }),
+    )
+    .max(100)
     .optional()
     .default([]),
   options: z.object({
-    backgroundColor: z.string().optional().default("transparent"),
-    padding: z.number().min(0).optional().default(20),
-    pixelRatio: z.number().min(1).optional().default(1),
+    backgroundColor: z.string().max(50).optional().default("transparent"),
+    padding: z.number().min(0).max(500).optional().default(20),
+    pixelRatio: z.number().min(1).max(4).optional().default(1),
   }),
   responseType: z.enum(["base64", "blob", "zip"]).optional().default("blob"),
 });

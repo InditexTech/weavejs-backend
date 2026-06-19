@@ -16,32 +16,32 @@ const WeaveExportFormatsSchema: z.ZodType<WeaveExportFormats> = z.enum([
 
 const payloadSchema = z.discriminatedUnion("type", [
   z.object({
-    roomData: z.string().base64(),
+    roomData: z.string().base64().max(50 * 1024 * 1024),
     type: z.literal("nodes"),
-    nodes: z.array(z.string()),
+    nodes: z.array(z.string().max(256)).max(1000),
     options: z.object({
       format: WeaveExportFormatsSchema.optional().default("image/png"),
-      backgroundColor: z.string().optional().default("transparent"),
-      padding: z.number().min(0).optional().default(20),
-      pixelRatio: z.number().min(1).optional().default(1),
+      backgroundColor: z.string().max(50).optional().default("transparent"),
+      padding: z.number().min(0).max(500).optional().default(20),
+      pixelRatio: z.number().min(1).max(4).optional().default(1),
       quality: z.number().min(0).max(1).optional().default(1),
     }),
     responseType: z.enum(["base64", "blob", "zip"]).optional().default("blob"),
   }),
   z.object({
-    roomData: z.string().base64(),
+    roomData: z.string().base64().max(50 * 1024 * 1024),
     type: z.literal("area"),
     area: z.object({
       x: z.number(),
       y: z.number(),
-      width: z.number(),
-      height: z.number(),
+      width: z.number().min(0).max(20000),
+      height: z.number().min(0).max(20000),
     }),
     options: z.object({
       format: WeaveExportFormatsSchema.optional().default("image/png"),
-      backgroundColor: z.string().optional().default("transparent"),
-      padding: z.number().min(0).optional().default(20),
-      pixelRatio: z.number().min(1).optional().default(1),
+      backgroundColor: z.string().max(50).optional().default("transparent"),
+      padding: z.number().min(0).max(500).optional().default(20),
+      pixelRatio: z.number().min(1).max(4).optional().default(1),
       quality: z.number().min(0).max(1).optional().default(1),
     }),
     responseType: z.enum(["base64", "blob", "zip"]).optional().default("blob"),
