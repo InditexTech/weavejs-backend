@@ -6,6 +6,7 @@ import { Request, Response } from "express";
 import { pipeline } from "stream/promises";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import { getServiceConfig } from "@/config/config.js";
+import { getTaskByPresentationModeIdAndRoomId } from "@/database/controllers/task.js";
 
 export const getPresentationImageController = () => {
   const config = getServiceConfig();
@@ -15,8 +16,21 @@ export const getPresentationImageController = () => {
   );
 
   return async (req: Request, res: Response): Promise<void> => {
+    const roomId = req.params.roomId as string;
     const presentationId = req.params.presentationId as string;
     const pageId = req.params.pageId as string;
+
+    const task = await getTaskByPresentationModeIdAndRoomId({
+      presentationModeId: presentationId,
+      roomId,
+    });
+
+    if (!task) {
+      res
+        .status(404)
+        .json({ status: "KO", message: "Presentation image doesn't exists" });
+      return;
+    }
 
     const fileName = `${presentationId}/${pageId}`;
 

@@ -8,6 +8,7 @@ import {
   TaskIdentifier,
   TaskModel,
 } from "../models/task.js";
+import { Op } from "sequelize";
 
 export const getTasksRoomAndUser = async (
   {
@@ -153,6 +154,25 @@ export const updateTask = async (
   });
 
   return affected[0];
+};
+
+export const getTaskByPresentationModeIdAndRoomId = async ({
+  presentationModeId,
+  roomId,
+}: {
+  presentationModeId: string;
+  roomId: string;
+}): Promise<TaskModel | null> => {
+  return TaskModel.findOne({
+    where: {
+      roomId,
+      type: "presentationMode",
+      metadata: {
+        [Op.contains]: { presentationModeId },
+      },
+    },
+    attributes: ["jobId", "roomId", "userId", "type", "status", "metadata"],
+  });
 };
 
 export const deleteTask = async ({

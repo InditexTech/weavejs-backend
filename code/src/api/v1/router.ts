@@ -746,6 +746,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getAllPagesController(),
   );
 
@@ -754,6 +755,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getPagesController(),
   );
 
@@ -762,6 +764,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getPageByIndexController(),
   );
 
@@ -770,6 +773,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getPageController(),
   );
 
@@ -778,6 +782,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     postPageController(),
   );
 
@@ -786,6 +791,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     putPageController(),
   );
 
@@ -794,6 +800,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getRoomThumbnailController(),
   );
 
@@ -802,6 +809,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getPageThumbnailController(),
   );
 
@@ -810,6 +818,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     raw({ type: "*/*", limit: "2mb" }),
     putPageThumbnailController(),
   );
@@ -819,6 +828,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     delPageController(),
   );
 
@@ -853,6 +863,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getPresentationImageController(),
   );
 
@@ -861,6 +872,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     json({ limit: "1mb" }),
     postGeneratePresentationModeImagesAsyncController(),
   );
