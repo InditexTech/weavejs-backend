@@ -12,13 +12,14 @@ import { createRoom } from "@/database/controllers/room.js";
 import { createRoomUser } from "@/database/controllers/room-user.js";
 import { createPage } from "@/database/controllers/page.js";
 import { getStateAsJson } from "@/utils.js";
+import { getDatabaseInstance } from "@/database/database.js";
 
 export const postUploadRoomController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const file = req.file;
     const name = req.params.roomId;
     const type = req.body.type;
-    const userId = req.body.userId;
+    const userId = req.session.user.id;
 
     if (!type || !["base64", "hex"].includes(type) || !file) {
       res.status(400).json({ status: "KO", message: "Missing parameters" });
@@ -27,30 +28,40 @@ export const postUploadRoomController = () => {
 
     const data = file?.buffer ?? new Uint8Array();
 
-    const roomId = uuidv4();
-    const room = await createRoom({
-      roomId,
-      status: "active",
-      name: `${name}`,
-      kind: "showcase",
-    });
+    let room, roomUser, page, docName: string;
 
-    const roomUser = await createRoomUser({
-      roomId,
-      userId,
-      role: "owner",
-    });
+    try {
+      await getDatabaseInstance().transaction(async () => {
+        const roomId = uuidv4();
+        room = await createRoom({
+          roomId,
+          status: "active",
+          name: `${name}`,
+          kind: "showcase",
+        });
 
-    const pageId = uuidv4();
-    const page = await createPage({
-      roomId,
-      pageId,
-      name: "New Page",
-      position: 1,
-      status: "active",
-    });
+        roomUser = await createRoomUser({
+          roomId,
+          userId,
+          role: "owner",
+        });
 
-    const docName = `${pageId}`;
+        const pageId = uuidv4();
+        page = await createPage({
+          roomId,
+          pageId,
+          name: "New Page",
+          position: 1,
+          status: "active",
+        });
+
+        docName = `${pageId}`;
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ status: "KO", message: "Error creating room" });
+      return;
+    }
 
     try {
       const containerClient = getContainerClient();
@@ -85,19 +96,19 @@ export const postUploadRoomController = () => {
         removeImageFallbacksAndEncode(document);
 
       const blockBlobClientFallbacks = containerClient.getBlockBlobClient(
-        `${docName}-image-fallback`,
+        `${docName!}-image-fallback`,
       );
       await blockBlobClientFallbacks.upload(
         JSON.stringify(imageFallback),
         Buffer.byteLength(JSON.stringify(imageFallback)),
       );
 
-      const blockBlobClient = containerClient.getBlockBlobClient(docName);
+      const blockBlobClient = containerClient.getBlockBlobClient(docName!);
       await blockBlobClient.upload(documentUpdated, documentUpdated.length);
 
       res
         .status(201)
-        .json({ status: "Room created OK", room, roomUser, page, docName });
+        .json({ status: "Room created OK", room, roomUser, page, docName: docName! });
     } catch (error) {
       console.error(error);
       res.status(500).json({ status: "KO", message: "Error creating room" });

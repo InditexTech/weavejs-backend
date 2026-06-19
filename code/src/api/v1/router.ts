@@ -184,6 +184,8 @@ export function setupApiV1Router(app: Application) {
   router.post(
     `/${hubName}/rooms/:roomId/upload`,
     cors,
+    session,
+    auth,
     upload.single("file"),
     postUploadRoomController(),
   );
