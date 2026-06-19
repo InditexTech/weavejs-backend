@@ -13,11 +13,14 @@ export const getStandaloneImagesController = () => {
     "standalone-images",
   );
 
+  const MAX_PAGE_SIZE = 100;
+
   return async (req: Request, res: Response): Promise<void> => {
     const instanceId = req.params.instanceId as string;
 
-    const pageSize = parseInt(
-      (req.query.pageSize as string | undefined) ?? "20",
+    const pageSize = Math.min(
+      Math.max(1, parseInt((req.query.pageSize as string | undefined) ?? "20")),
+      MAX_PAGE_SIZE,
     );
     const continuationToken = req.query.continuationToken as string | undefined;
 

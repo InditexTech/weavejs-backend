@@ -158,6 +158,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getRoomStorageController(),
   );
   router.get(
@@ -239,6 +240,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getImagesController(),
   );
   router.get(
@@ -517,6 +519,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       getExportedImageController(),
     );
     router.post(
@@ -532,6 +535,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       getExportedPdfController(),
     );
     router.post(

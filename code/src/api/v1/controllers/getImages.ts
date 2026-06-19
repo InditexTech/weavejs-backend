@@ -10,11 +10,14 @@ export const getImagesController = () => {
   const config = getServiceConfig();
   const persistenceHandler = new ImagesPersistenceHandler(config);
 
+  const MAX_PAGE_SIZE = 100;
+
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId as string;
 
-    const pageSize = parseInt(
-      (req.query.pageSize as string | undefined) ?? "20",
+    const pageSize = Math.min(
+      Math.max(1, parseInt((req.query.pageSize as string | undefined) ?? "20")),
+      MAX_PAGE_SIZE,
     );
     const continuationToken = req.query.continuationToken as string | undefined;
 

@@ -65,6 +65,8 @@ export const isStorageInitialized = () => storageInitialized;
 export const getBlobServiceClient = () => blobServiceClient;
 export const getContainerClient = () => containerClient;
 
+const MAX_PAGE_SIZE = 100;
+
 export const listRooms = async (
   prefix: string,
   pageSize: number,
@@ -80,15 +82,21 @@ export const listRooms = async (
     return { rooms: [], continuationToken: undefined };
   }
 
+  // Append trailing "/" to prevent prefix "room1" from matching "room10/..."
+  const safePrefix =
+    prefix && !prefix.endsWith("/") ? `${prefix}/` : prefix;
+
   const listOptions: ContainerListBlobsOptions = {
     includeMetadata: true,
-    prefix,
+    prefix: safePrefix,
   };
+
+  const safePage = Math.min(Math.max(1, pageSize), MAX_PAGE_SIZE);
 
   const rooms: string[] = [];
   const iterator = await containerClient.listBlobsFlat(listOptions).byPage({
     continuationToken,
-    maxPageSize: pageSize,
+    maxPageSize: safePage,
   });
 
   const response = await iterator.next();

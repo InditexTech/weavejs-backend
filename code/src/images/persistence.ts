@@ -78,6 +78,8 @@ export class ImagesPersistenceHandler {
     this._initialized = true;
   }
 
+  private static readonly MAX_PAGE_SIZE = 100;
+
   async list(
     prefix: string,
     pageSize: number = 20,
@@ -87,17 +89,25 @@ export class ImagesPersistenceHandler {
       if (!this._initialized) {
         await this.setup();
       }
+      // Append trailing "/" to prevent prefix "room1" from matching "room10/..."
+      const safePrefix =
+        prefix && !prefix.endsWith("/") ? `${prefix}/` : prefix;
       const listOptions: ContainerListBlobsOptions = {
         includeMetadata: true,
-        prefix,
+        prefix: safePrefix,
       };
+
+      const safePage = Math.min(
+        Math.max(1, pageSize),
+        ImagesPersistenceHandler.MAX_PAGE_SIZE,
+      );
 
       const images: string[] = [];
       const iterator = await this._containerClient
         .listBlobsFlat(listOptions)
         .byPage({
           continuationToken,
-          maxPageSize: pageSize,
+          maxPageSize: safePage,
         });
 
       const response = await iterator.next();
