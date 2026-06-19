@@ -250,6 +250,7 @@ export class DeleteTemplateJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         roomId,
@@ -280,6 +281,7 @@ export class DeleteTemplateJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "completed",
@@ -319,6 +321,7 @@ export class DeleteTemplateJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "failed",

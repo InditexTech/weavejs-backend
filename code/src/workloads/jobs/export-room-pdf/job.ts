@@ -335,6 +335,7 @@ export class ExportRoomToPdfJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         roomId,
@@ -362,6 +363,7 @@ export class ExportRoomToPdfJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "completed",
@@ -391,6 +393,7 @@ export class ExportRoomToPdfJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "failed",

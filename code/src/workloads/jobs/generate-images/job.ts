@@ -403,6 +403,7 @@ export class GenerateImagesJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         roomId,
@@ -440,6 +441,7 @@ export class GenerateImagesJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "completed",
@@ -475,6 +477,7 @@ export class GenerateImagesJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "failed",

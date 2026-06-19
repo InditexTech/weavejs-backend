@@ -331,6 +331,7 @@ export class PresentationModeImagesJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         roomId,
@@ -358,6 +359,7 @@ export class PresentationModeImagesJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "completed",
@@ -386,6 +388,7 @@ export class PresentationModeImagesJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "failed",

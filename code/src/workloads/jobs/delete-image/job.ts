@@ -280,6 +280,7 @@ export class DeleteImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         roomId,
@@ -310,6 +311,7 @@ export class DeleteImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "completed",
@@ -349,6 +351,7 @@ export class DeleteImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "failed",

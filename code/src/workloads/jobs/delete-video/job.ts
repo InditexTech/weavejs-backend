@@ -271,6 +271,7 @@ export class DeleteVideoJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         roomId,
@@ -301,6 +302,7 @@ export class DeleteVideoJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "completed",
@@ -340,6 +342,7 @@ export class DeleteVideoJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "failed",

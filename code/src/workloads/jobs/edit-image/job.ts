@@ -355,6 +355,7 @@ export class EditImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         roomId,
@@ -390,6 +391,7 @@ export class EditImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "completed",
@@ -423,6 +425,7 @@ export class EditImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "failed",

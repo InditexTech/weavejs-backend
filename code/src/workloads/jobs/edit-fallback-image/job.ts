@@ -311,6 +311,7 @@ export class EditFallbackImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         roomId,
@@ -336,6 +337,7 @@ export class EditFallbackImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "completed",
@@ -361,6 +363,7 @@ export class EditFallbackImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "failed",

@@ -305,6 +305,7 @@ export class GrayscaleImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         roomId,
@@ -345,6 +346,7 @@ export class GrayscaleImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "completed",
@@ -387,6 +389,7 @@ export class GrayscaleImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "failed",

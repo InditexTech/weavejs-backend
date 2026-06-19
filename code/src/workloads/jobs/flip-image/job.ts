@@ -316,6 +316,7 @@ export class FlipImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         roomId,
@@ -354,6 +355,7 @@ export class FlipImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "completed",
@@ -396,6 +398,7 @@ export class FlipImageJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "failed",

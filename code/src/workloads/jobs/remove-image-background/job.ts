@@ -307,6 +307,7 @@ export class RemoveImageBackgroundJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         roomId,
@@ -347,6 +348,7 @@ export class RemoveImageBackgroundJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "completed",
@@ -389,6 +391,7 @@ export class RemoveImageBackgroundJob {
     await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         status: "failed",
