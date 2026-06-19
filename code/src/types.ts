@@ -7,6 +7,7 @@ export type ServiceConfig = {
     hostname: string;
     port: number;
   };
+  internalToken: string;
   pubsub: {
     endpoint: string;
     key?: string;

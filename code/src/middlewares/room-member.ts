@@ -10,6 +10,10 @@ export async function roomMember(
   res: Response,
   next: NextFunction,
 ) {
+  if (req.isInternalRequest) {
+    return next();
+  }
+
   const roomId = req.params.roomId as string;
   const userId = req.session!.user.id;
 

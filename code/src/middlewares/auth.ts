@@ -5,6 +5,9 @@
 import { Request, Response, NextFunction } from "express";
 
 export async function auth(req: Request, res: Response, next: NextFunction) {
+  if (req.isInternalRequest) {
+    return next();
+  }
   if (!req.session) {
     return res.status(401).json({ error: "Unauthorized" });
   }

@@ -56,11 +56,7 @@ export const broadcastToGlobal = async (message: any) => {
   const group = `weavejsGlobal.commbus`;
 
   try {
-    const existGroup = await serviceClient.groupExists(group);
-
-    if (existGroup) {
-      await serviceClient.group(group).sendToAll(message);
-    }
+    await serviceClient.group(group).sendToAll(message);
   } catch (error) {
     logger.error({ roomId: group, error }, "Error broadcasting to room");
   }
@@ -74,12 +70,7 @@ export const broadcastToRoom = async (roomId: string, message: any) => {
 
   try {
     const group = `${roomId}.commbus`;
-
-    const existGroup = await serviceClient.groupExists(group);
-
-    if (existGroup) {
-      await serviceClient.group(group).sendToAll(message);
-    }
+    await serviceClient.group(group).sendToAll(message);
   } catch (error) {
     logger.error({ roomId, error }, "Error broadcasting to room");
   }

@@ -91,6 +91,7 @@ import { session } from "@/middlewares/session.js";
 import { roomMember } from "@/middlewares/room-member.js";
 import { pageMember } from "@/middlewares/page-member.js";
 import { instanceMember } from "@/middlewares/instance-member.js";
+import { internalToken } from "@/middlewares/internal-token.js";
 import { getRoomController } from "./controllers/rooms/getRoom.js";
 import { putRoomController } from "./controllers/rooms/putRoom.js";
 import { delRoomController } from "./controllers/rooms/delRoom.js";
@@ -199,6 +200,7 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/rooms/:roomId/chats/:chatId/images/:imageId`,
     cors,
+    internalToken,
     session,
     auth,
     roomMember,
@@ -252,6 +254,7 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/rooms/:roomId/images/:imageId`,
     cors,
+    internalToken,
     session,
     auth,
     roomMember,
@@ -330,6 +333,7 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/rooms/:roomId/videos/:videoId`,
     cors,
+    internalToken,
     session,
     auth,
     roomMember,
@@ -338,6 +342,7 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/rooms/:roomId/videos/:videoId/placeholder`,
     cors,
+    internalToken,
     session,
     auth,
     roomMember,

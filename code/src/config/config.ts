@@ -3,8 +3,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { z } from "zod";
+import { randomUUID } from "crypto";
 import { ServiceConfig } from "../types.js";
 import { DEFAULT_PORT } from "../constants.js";
+
+// Stable per-process secret used by the export worker to bypass user auth on
+// internal image/video fetch requests. Rotates on every server restart.
+const INTERNAL_SERVICE_TOKEN = randomUUID();
 
 const databaseWithConnectionStringSchema = z.object({
   kind: z.literal("connection_string"),
@@ -358,5 +363,8 @@ export function getServiceConfig(): ServiceConfig {
     database,
   };
 
-  return serviceConfigSchema.parse(serviceConfig);
+  return {
+    ...serviceConfigSchema.parse(serviceConfig),
+    internalToken: INTERNAL_SERVICE_TOKEN,
+  };
 }

@@ -21,6 +21,7 @@ import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
 import { session } from "../../middlewares/session.js";
 import { auth } from "../../middlewares/auth.js";
 import { roomMember } from "../../middlewares/room-member.js";
+import { internalToken } from "../../middlewares/internal-token.js";
 
 const router: Router = Router();
 
@@ -53,7 +54,7 @@ export function setupApiV2Router(app: Express) {
     auth,
     roomMember,
     json({ limit: "5mb" }),
-    postGenerateImageController()
+    postGenerateImageController(),
   );
   router.post(
     `/${hubName}/rooms/:roomId/images/edit`,
@@ -62,7 +63,7 @@ export function setupApiV2Router(app: Express) {
     auth,
     roomMember,
     json({ limit: "100mb" }),
-    postEditImageController()
+    postEditImageController(),
   );
   router.get(
     `/${hubName}/rooms/:roomId/images`,
@@ -70,15 +71,16 @@ export function setupApiV2Router(app: Express) {
     session,
     auth,
     roomMember,
-    getImagesController()
+    getImagesController(),
   );
   router.get(
     `/${hubName}/rooms/:roomId/images/:imageId`,
     cors,
+    internalToken,
     session,
     auth,
     roomMember,
-    getImageController()
+    getImageController(),
   );
   router.post(
     `/${hubName}/rooms/:roomId/images`,
@@ -87,7 +89,7 @@ export function setupApiV2Router(app: Express) {
     auth,
     roomMember,
     upload.single("file"),
-    postUploadImageController()
+    postUploadImageController(),
   );
   router.delete(
     `/${hubName}/rooms/:roomId/images/:imageId`,
@@ -95,7 +97,7 @@ export function setupApiV2Router(app: Express) {
     session,
     auth,
     roomMember,
-    delImageController()
+    delImageController(),
   );
   router.post(
     `/${hubName}/rooms/:roomId/images/:imageId/remove-background`,
@@ -104,7 +106,7 @@ export function setupApiV2Router(app: Express) {
     auth,
     roomMember,
     json({ limit: "15mb" }),
-    postRemoveBackgroundController()
+    postRemoveBackgroundController(),
   );
 
   if (config.features.workloads) {
@@ -115,7 +117,7 @@ export function setupApiV2Router(app: Express) {
       session,
       auth,
       roomMember,
-      getTasksController()
+      getTasksController(),
     );
     router.get(
       `/${hubName}/rooms/:roomId/tasks/not-opened`,
@@ -123,7 +125,7 @@ export function setupApiV2Router(app: Express) {
       session,
       auth,
       roomMember,
-      getTasksNotOpenedController()
+      getTasksNotOpenedController(),
     );
     router.get(
       `/${hubName}/rooms/:roomId/tasks/:taskId`,
@@ -131,7 +133,7 @@ export function setupApiV2Router(app: Express) {
       session,
       auth,
       roomMember,
-      getTaskController()
+      getTaskController(),
     );
     router.put(
       `/${hubName}/rooms/:roomId/tasks/:taskId`,
@@ -140,7 +142,7 @@ export function setupApiV2Router(app: Express) {
       auth,
       roomMember,
       json(),
-      putTaskController()
+      putTaskController(),
     );
   }
 
