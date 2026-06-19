@@ -12,13 +12,14 @@ import {
 } from "ai";
 import { WeaveRuntimeContext } from "@/mastra/types.js";
 import { saveChatMessages } from "@/mastra/manager/chat.js";
+import { getRoomUser } from "@/database/controllers/room-user.js";
 
 export const postAiChatMessageController = () => {
   return async (req: Request, res: Response) => {
     const roomId = req.params.roomId as string;
     const chatId = req.params.chatId as string;
 
-    const resourceId: string = (req.headers["x-weave-user-id"] as string) ?? "";
+    const resourceId: string = req.session.user.id;
 
     if (process.env.AI_SERVICES !== "true") {
       res.status(503).json({
@@ -29,10 +30,11 @@ export const postAiChatMessageController = () => {
     }
 
     try {
-      if (!resourceId || resourceId === "") {
-        res.status(400).json({
+      const roomUserObj = await getRoomUser({ roomId, userId: resourceId });
+      if (!roomUserObj) {
+        res.status(403).json({
           status: "KO",
-          message: "Missing required fields",
+          message: "You don't have access to this room",
         });
         return;
       }

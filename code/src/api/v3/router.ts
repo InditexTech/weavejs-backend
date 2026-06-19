@@ -8,6 +8,8 @@ import { getCorsMiddleware } from "../../middlewares/cors.js";
 import { postGenerateImageControllerV2 } from "./controllers/postGenerateImage.js";
 import { postEditImageControllerV2 } from "./controllers/postEditImage.js";
 import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
+import { session } from "@/middlewares/session.js";
+import { auth } from "@/middlewares/auth.js";
 
 const router: Router = Router();
 
@@ -33,12 +35,16 @@ export function setupApiV3Router(app: Express) {
   router.post(
     `/${hubName}/rooms/:roomId/images/generate`,
     cors,
+    session,
+    auth,
     json({ limit: "5mb" }),
     postGenerateImageControllerV2()
   );
   router.post(
     `/${hubName}/rooms/:roomId/images/edit`,
     cors,
+    session,
+    auth,
     json({ limit: "100mb" }),
     postEditImageControllerV2()
   );

@@ -10,6 +10,7 @@ import { EditImageJob } from "../../../workloads/jobs/edit-image/job.js";
 import { getJobHandler } from "../../../workloads/workloads.js";
 import { JOB_HANDLERS } from "../../../workloads/constants.js";
 import { EditImageParameters } from "../../../workloads/jobs/edit-image/types.js";
+import { getRoomUser } from "../../../database/controllers/room-user.js";
 
 const IMAGE_BASE64_MAX = 50 * 1024 * 1024; // 50 MB base64 chars
 
@@ -44,6 +45,18 @@ export const postEditImageControllerV2 = () => {
       return;
     }
 
+    const userId: string = req.session.user.id;
+    const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";
+
+    const roomUserObj = await getRoomUser({ roomId, userId });
+    if (!roomUserObj) {
+      res.status(403).json({
+        status: "KO",
+        message: "You don't have access to this room",
+      });
+      return;
+    }
+
     const parsedBody = payloadSchema.safeParse(req.body);
     if (!parsedBody.success) {
       res.status(400).json({ errors: parsedBody.error.issues });
@@ -60,9 +73,6 @@ export const postEditImageControllerV2 = () => {
       quality,
       moderation,
     } = parsedBody.data;
-
-    const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
-    const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";
 
     const jobHandler = getJobHandler<EditImageJob>(JOB_HANDLERS.EDIT_IMAGE);
 

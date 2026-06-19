@@ -9,6 +9,7 @@ import { verifyAIPassword } from "../../../lib/aiPassword.js";
 import { GenerateImagesJob } from "../../../workloads/jobs/generate-images/job.js";
 import { getJobHandler } from "../../../workloads/workloads.js";
 import { JOB_HANDLERS } from "../../../workloads/constants.js";
+import { getRoomUser } from "../../../database/controllers/room-user.js";
 
 const payloadSchema = z.object({
   prompt: z.string().max(4000),
@@ -38,6 +39,18 @@ export const postGenerateImageControllerV2 = () => {
       return;
     }
 
+    const userId: string = req.session.user.id;
+    const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";
+
+    const roomUserObj = await getRoomUser({ roomId, userId });
+    if (!roomUserObj) {
+      res.status(403).json({
+        status: "KO",
+        message: "You don't have access to this room",
+      });
+      return;
+    }
+
     const parsedBody = payloadSchema.safeParse(req.body);
     if (!parsedBody.success) {
       res.status(400).json({ errors: parsedBody.error.issues });
@@ -47,9 +60,6 @@ export const postGenerateImageControllerV2 = () => {
     const { prompt, sample_count, size, quality, moderation, model } =
       parsedBody.data;
     const modelToUse = model ?? "openai/gpt-image-1";
-
-    const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
-    const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";
 
     const jobHandler = getJobHandler<GenerateImagesJob>(
       JOB_HANDLERS.GENERATE_IMAGES
