@@ -17,16 +17,7 @@ export const getTaskController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const jobId = req.params.taskId as string;
     const roomId = req.params.roomId as string;
-
-    const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
-
-    if (!userId || userId === "") {
-      res.status(400).json({
-        status: "KO",
-        message: "Missing required parameters",
-      });
-      return;
-    }
+    const userId = req.session!.user.id;
 
     const task = await getTask({
       jobId,

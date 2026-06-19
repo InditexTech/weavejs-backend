@@ -12,10 +12,10 @@ export const delImageController = () => {
     const roomId = req.params.roomId as string;
     const imageId = req.params.imageId as string;
 
-    const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
+    const userId = req.session!.user.id;
     const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";
 
-    if (!clientId || clientId === "" || !userId || userId === "") {
+    if (!clientId || clientId === "") {
       res.status(400).json({
         status: "KO",
         message: "Missing required fields",

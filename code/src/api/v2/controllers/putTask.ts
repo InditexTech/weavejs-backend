@@ -7,11 +7,12 @@ import { getTask, updateTask } from "../../../database/controllers/task.js";
 
 export const putTaskController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
+    const userId = req.session!.user.id;
+    const roomId = req.params.roomId as string;
+    const jobId = req.params.taskId as string;
+    const { opened } = req.body;
 
-    const { jobId, opened } = req.body;
-
-    if (!userId || userId === "" || !jobId || jobId === "") {
+    if (!jobId || jobId === "") {
       res.status(400).json({
         status: "KO",
         message: "Missing required parameters",
@@ -19,9 +20,20 @@ export const putTaskController = () => {
       return;
     }
 
+    const existingTask = await getTask({ jobId, roomId });
+
+    if (!existingTask || existingTask.toJSON().userId !== userId) {
+      res.status(404).json({
+        status: "KO",
+        message: "Task not found",
+      });
+      return;
+    }
+
     const updated = await updateTask(
       {
         jobId,
+        roomId,
       },
       {
         opened,
@@ -31,6 +43,7 @@ export const putTaskController = () => {
     if (updated === 1) {
       const taskModel = await getTask({
         jobId,
+        roomId,
       });
 
       if (taskModel) {

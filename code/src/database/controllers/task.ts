@@ -144,12 +144,13 @@ export const createTask = async (
 };
 
 export const updateTask = async (
-  { jobId }: TaskIdentifier,
+  { jobId, roomId }: TaskIdentifier,
   taskData: Partial<TaskCreationAttributes>
 ): Promise<number> => {
   const affected = await TaskModel.update(taskData, {
     where: {
       jobId,
+      roomId,
     },
   });
 

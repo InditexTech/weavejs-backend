@@ -12,6 +12,7 @@ import { postRemoveBackgroundController } from "./controllers/postRemoveBackgrou
 import { getTasksController } from "./controllers/getTasks.js";
 import { getTasksNotOpenedController } from "./controllers/getTasksNotOpened.js";
 import { getTaskController } from "./controllers/getTask.js";
+import { putTaskController } from "./controllers/putTask.js";
 import { getImagesController } from "./controllers/getImages.js";
 import { getImageController } from "./controllers/getImage.js";
 import { postUploadImageController } from "./controllers/postUploadImage.js";
@@ -108,16 +109,38 @@ export function setupApiV2Router(app: Express) {
 
   if (config.features.workloads) {
     // Tasks API
-    router.get(`/${hubName}/rooms/:roomId/tasks`, cors, getTasksController());
+    router.get(
+      `/${hubName}/rooms/:roomId/tasks`,
+      cors,
+      session,
+      auth,
+      roomMember,
+      getTasksController()
+    );
     router.get(
       `/${hubName}/rooms/:roomId/tasks/not-opened`,
       cors,
+      session,
+      auth,
+      roomMember,
       getTasksNotOpenedController()
     );
     router.get(
       `/${hubName}/rooms/:roomId/tasks/:taskId`,
       cors,
+      session,
+      auth,
+      roomMember,
       getTaskController()
+    );
+    router.put(
+      `/${hubName}/rooms/:roomId/tasks/:taskId`,
+      cors,
+      session,
+      auth,
+      roomMember,
+      json(),
+      putTaskController()
     );
   }
 

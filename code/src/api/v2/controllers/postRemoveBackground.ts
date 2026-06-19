@@ -15,14 +15,12 @@ export const postRemoveBackgroundController = () => {
       image: { replaceImage, dataBase64, contentType },
     } = req.body;
 
-    const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
+    const userId = req.session!.user.id;
     const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";
 
     if (
       !clientId ||
       clientId === "" ||
-      !userId ||
-      userId === "" ||
       !roomId ||
       !imageId ||
       !dataBase64 ||

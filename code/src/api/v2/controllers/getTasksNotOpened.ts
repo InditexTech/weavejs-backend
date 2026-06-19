@@ -8,16 +8,7 @@ import { getTasksRoomAndUserNotOpened } from "../../../database/controllers/task
 export const getTasksNotOpenedController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId as string;
-
-    const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
-
-    if (!userId || userId === "") {
-      res.status(400).json({
-        status: "KO",
-        message: "Missing required parameters",
-      });
-      return;
-    }
+    const userId = req.session!.user.id;
 
     const userTasks = await getTasksRoomAndUserNotOpened({
       roomId,
