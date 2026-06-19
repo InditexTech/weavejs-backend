@@ -10,7 +10,7 @@ export const getRoomBusNegotiateController = () => {
     const serviceClient = getCommBus();
 
     const roomId = req.params.roomId as string;
-    const userId = req.params.userId as string;
+    const userId = req.session!.user.id;
 
     if (!serviceClient) {
       res.status(500).json({ error: "Azure Web PubSub bus not found" });

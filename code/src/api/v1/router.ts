@@ -142,6 +142,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getRoomConnectController(),
   );
 
@@ -513,6 +514,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       getRoomBusNegotiateController(),
     );
     router.post(
@@ -520,6 +522,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       postRoomBusJoinController(),
     );
 
