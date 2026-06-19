@@ -81,6 +81,19 @@ export const getTotalRoomPages = async ({
   });
 };
 
+export const getPageByPageId = async ({
+  pageId,
+}: {
+  pageId: string;
+}): Promise<PageModel | null> => {
+  return PageModel.findOne({
+    where: {
+      pageId,
+    },
+    attributes: ["roomId", "pageId", "name", "status", "position"],
+  });
+};
+
 export const getPage = async ({
   roomId,
   pageId,

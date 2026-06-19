@@ -89,6 +89,7 @@ import { postRoomController } from "./controllers/rooms/postRoom.js";
 import { auth } from "@/middlewares/auth.js";
 import { session } from "@/middlewares/session.js";
 import { roomMember } from "@/middlewares/room-member.js";
+import { pageMember } from "@/middlewares/page-member.js";
 import { instanceMember } from "@/middlewares/instance-member.js";
 import { getRoomController } from "./controllers/rooms/getRoom.js";
 import { putRoomController } from "./controllers/rooms/putRoom.js";
@@ -143,7 +144,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
-    roomMember,
+    pageMember,
     getRoomConnectController(),
   );
 
@@ -160,7 +161,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
-    roomMember,
+    pageMember,
     getRoomStorageController(),
   );
   router.get(
@@ -527,7 +528,6 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
-      roomMember,
       getRoomBusNegotiateController(),
     );
     router.post(
@@ -535,7 +535,6 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
-      roomMember,
       postRoomBusJoinController(),
     );
 
