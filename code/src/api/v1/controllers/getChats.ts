@@ -14,13 +14,7 @@ export const getChatsController = () => {
     const limit: string = (req.query.limit as string) ?? "50";
     const offset: string = (req.query.offset as string) ?? "0";
 
-    const resourceId: string =
-      (req.headers["x-weave-user-id"] as string) ?? "undefined";
-
-    if (!resourceId || resourceId === "undefined") {
-      res.status(400).json({ error: "Missing or invalid resourceId" });
-      return;
-    }
+    const resourceId: string = req.session!.user.id;
 
     const total = await getRoomResourcesTotalChats({
       roomId,

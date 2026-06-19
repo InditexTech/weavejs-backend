@@ -15,7 +15,7 @@ export const postChatController = () => {
 
     const { chatId, status, title } = req.body;
 
-    const resourceId: string = (req.headers["x-weave-user-id"] as string) ?? "";
+    const resourceId: string = req.session!.user.id;
 
     if (!resourceId || resourceId === "" || !chatId || !status || !title) {
       res.status(400).json({

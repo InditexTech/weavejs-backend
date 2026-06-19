@@ -10,7 +10,7 @@ export const putChatController = () => {
     const roomId = req.params.roomId as string;
     const chatId = req.params.chatId as string;
 
-    const resourceId: string = (req.headers["x-weave-user-id"] as string) ?? "";
+    const resourceId: string = req.session!.user.id;
 
     if (!resourceId) {
       res.status(400).json({
