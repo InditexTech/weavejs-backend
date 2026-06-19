@@ -63,6 +63,55 @@ export function isAbsoluteUrl(url: string): boolean {
   return /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(url);
 }
 
+/**
+ * Throws if the given URL is unsafe to fetch server-side (SSRF guard).
+ * Blocks non-http/https schemes and private/reserved IP ranges including
+ * loopback, RFC 1918 ranges, link-local (169.254.x.x / AWS IMDS), and
+ * carrier-grade NAT (100.64.x.x).
+ */
+export function assertSafeUrl(urlString: string): void {
+  let url: URL;
+  try {
+    url = new URL(urlString);
+  } catch {
+    throw new Error(`Invalid URL: ${urlString}`);
+  }
+
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new Error(`Blocked URL scheme: ${url.protocol}`);
+  }
+
+  const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, ""); // strip IPv6 brackets
+
+  // Loopback / localhost
+  if (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "::1" ||
+    hostname.startsWith("127.")
+  ) {
+    throw new Error(`Blocked loopback address: ${hostname}`);
+  }
+
+  // Private/reserved IPv4 ranges
+  const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(hostname);
+  if (ipv4) {
+    const [a, b] = [Number(ipv4[1]), Number(ipv4[2])];
+    const isPrivate =
+      a === 0 || // 0.0.0.0/8
+      a === 10 || // 10.0.0.0/8 RFC 1918
+      (a === 100 && b >= 64 && b <= 127) || // 100.64.0.0/10 CGNAT
+      (a === 169 && b === 254) || // 169.254.0.0/16 link-local / AWS IMDS
+      (a === 172 && b >= 16 && b <= 31) || // 172.16.0.0/12 RFC 1918
+      (a === 192 && b === 168) || // 192.168.0.0/16 RFC 1918
+      a >= 240; // 240.0.0.0/4 reserved
+
+    if (isPrivate) {
+      throw new Error(`Blocked private/reserved IP address: ${hostname}`);
+    }
+  }
+}
+
 export function stripOrigin(url: string): string {
   const parsedUrl = new URL(url);
   return parsedUrl.pathname + parsedUrl.search + parsedUrl.hash;

@@ -44,6 +44,15 @@ export const postAiChatMessageController = () => {
       let index = 1;
       for (const part of latestMessage.parts) {
         if (part.type === "file") {
+          // Only data URLs are accepted as reference images to prevent server-side
+          // request forgery (SSRF) if a remote URL were supplied instead.
+          if (typeof part.url !== "string" || !part.url.startsWith("data:")) {
+            res.status(400).json({
+              status: "KO",
+              message: "Reference image URLs must be data URLs",
+            });
+            return;
+          }
           referenceImages.push({
             index: index,
             name: `image ${index}`,

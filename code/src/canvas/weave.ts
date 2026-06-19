@@ -29,7 +29,7 @@ import {
 import { WeaveKonvaBaseRenderer } from "@inditextech/weave-renderer-konva-base/server";
 // import { WeaveKonvaReactReconcilerRenderer } from "@inditextech/weave-renderer-konva-react-reconciler/server";
 import { ColorTokenNode } from "./nodes/color-token/color-token.ts";
-import { isAbsoluteUrl } from "../utils.ts";
+import { isAbsoluteUrl, assertSafeUrl } from "../utils.ts";
 import { type ServiceConfig } from "../types.ts";
 import {
   registerSkiaFonts,
@@ -185,6 +185,14 @@ const getNodes = (config: ServiceConfig) => {
             return `http://localhost:${config.service.port}${transformedUrl}`;
           }
 
+          if (isAbsolute) {
+            try {
+              assertSafeUrl(url);
+            } catch {
+              return "";
+            }
+          }
+
           return url;
         },
       },
@@ -197,6 +205,14 @@ const getNodes = (config: ServiceConfig) => {
           if (!isAbsolute && url.startsWith("/weavebff")) {
             const transformedUrl = url.replace("/weavebff", "");
             return `http://localhost:${config.service.port}${transformedUrl}`;
+          }
+
+          if (isAbsolute) {
+            try {
+              assertSafeUrl(url);
+            } catch {
+              return "";
+            }
           }
 
           return url;

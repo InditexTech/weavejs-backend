@@ -5,6 +5,7 @@
 import sharp from "sharp";
 import { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
+import { assertSafeUrl } from "@/utils.js";
 
 export const registerTool = (server: McpServer) => {
   server.registerTool(
@@ -81,6 +82,7 @@ export async function getImageMetadata(input: string) {
   // REMOTE URL
   //
   else {
+    assertSafeUrl(input);
     const response = await fetch(input);
 
     if (!response.ok) {
