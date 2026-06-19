@@ -604,6 +604,8 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/standalone/:instanceId/images/:imageId/data`,
     cors,
+    session,
+    auth,
     getStandaloneInstanceImageController(),
   );
   router.get(

@@ -11,15 +11,7 @@ export const putStandaloneThreadController = () => {
     const imageId = req.params.imageId as string;
     const threadId = req.params.threadId as string;
 
-    const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
-
-    if (!userId || userId === "") {
-      res.status(400).json({
-        status: "KO",
-        message: "Missing required fields",
-      });
-      return;
-    }
+    const userId: string = req.session!.user.id;
 
     const thread = await getThread({
       threadId,

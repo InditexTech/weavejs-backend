@@ -13,9 +13,9 @@ export const postStandaloneThreadController = () => {
 
     const { userMetadata, x, y, content } = req.body;
 
-    const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
+    const userId: string = req.session!.user.id;
 
-    if (!userId || userId === "" || !userMetadata || !x || !y || !content) {
+    if (!userMetadata || !x || !y || !content) {
       res.status(400).json({
         status: "KO",
         message: "Missing required fields",
