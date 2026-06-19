@@ -35,24 +35,15 @@ export const getChatController = () => {
       return;
     }
 
-    const chatMessages = await getChatMessages(
-      {
-        chatId,
-      },
-      {
-        limit: 50,
-        offset: 0,
-      }
-    );
-
-    const chatMessagesTotal = await getChatMessagesTotal({
-      chatId,
-    });
+    const [chatMessages, total] = await Promise.all([
+      getChatMessages({ chatId }, { limit: 50, offset: 0 }),
+      getChatMessagesTotal({ chatId }),
+    ]);
 
     res.status(200).json({
       chat,
       messages: chatMessages,
-      total: chatMessagesTotal,
+      total,
     });
   };
 };

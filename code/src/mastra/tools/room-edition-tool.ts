@@ -61,9 +61,10 @@ export const roomEditionTool = createTool({
           referenceNodes: referenceNodes.map(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (node: any) => ({
-            nodeId: node.sourceId,
-            nodeType: node.mediaType,
-          })),
+              nodeId: node.sourceId,
+              nodeType: node.mediaType,
+            }),
+          ),
         },
         initialState: {
           originalMessage: params.prompt,

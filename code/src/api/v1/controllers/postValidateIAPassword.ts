@@ -9,7 +9,7 @@ export const postValidateAIPassword = () => {
   const config = getServiceConfig();
 
   return async (req: Request, res: Response): Promise<void> => {
-    const password = req.query.password;
+    const password = req.headers["x-ai-password"];
 
     if (password === config.ai.password) {
       res.status(200).json({ status: "OK" });

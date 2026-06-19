@@ -67,6 +67,7 @@ export const generateImages = async (
 const generateImagesFromGemini = async ({
   prompt,
   params,
+  imageGenerationUpdate,
 }: {
   prompt: string;
   params: {
@@ -147,6 +148,13 @@ const generateImagesFromGemini = async ({
         responseModalities: ["Image"],
       },
     });
+
+    console.log(
+      `Image ${actualImage.imageId} generation usage`,
+      response.usageMetadata,
+    );
+
+    console.log(response.usageMetadata);
 
     if (!response.candidates) {
       actualImage.status = "failed";

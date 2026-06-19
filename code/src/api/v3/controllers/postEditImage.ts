@@ -24,7 +24,7 @@ export const postEditImageControllerV2 = () => {
       quality,
       moderation,
     } = req.body;
-    const password = req.query.password;
+    const password = req.headers["x-ai-password"];
 
     if (password !== config.ai.password) {
       res.status(401).json({ status: "KO", message: "Not enabled" });

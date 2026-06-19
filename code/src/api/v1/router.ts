@@ -59,7 +59,6 @@ import { getFrameTemplatesController } from "./controllers/getFrameTemplates.js"
 import { postChatController } from "./controllers/postChat.js";
 import { delChatController } from "./controllers/delChat.js";
 import { getChatController } from "./controllers/getChat.js";
-import { postChatMessageController } from "./controllers/postChatMessage.js";
 import { putChatController } from "./controllers/putChat.js";
 import { getStandaloneImagesController } from "./controllers/standalone/getStandaloneImages.js";
 import { postStandaloneUploadImageController } from "./controllers/standalone/postStandaloneUploadImage.js";
@@ -221,13 +220,6 @@ export function setupApiV1Router(app: Application) {
     session,
     auth,
     postChatController(),
-  );
-  router.post(
-    `/${hubName}/rooms/:roomId/chats/:chatId/messages`,
-    cors,
-    session,
-    auth,
-    postChatMessageController(),
   );
   router.delete(
     `/${hubName}/rooms/:roomId/chats/:chatId`,

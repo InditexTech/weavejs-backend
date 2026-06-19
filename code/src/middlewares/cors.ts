@@ -12,6 +12,12 @@ export function getCorsMiddleware(path: string) {
   const corsOptions = {
     origin: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: [
+      "Content-Type",
+      "X-AI-Password",
+      "x-weave-user-id",
+      "x-weave-client-id",
+    ],
     credentials: true,
   };
 

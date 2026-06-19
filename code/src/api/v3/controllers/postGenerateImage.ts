@@ -14,7 +14,7 @@ export const postGenerateImageControllerV2 = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId as string;
     const { model, prompt, sample_count, size, quality, moderation } = req.body;
-    const password = req.query.password;
+    const password = req.headers["x-ai-password"];
 
     const modelToUse = model ?? "openai/gpt-image-1";
 

@@ -9,6 +9,7 @@ import { createImage } from "../../../database/controllers/image.js";
 import { ImageModel } from "../../../database/models/image.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 import { getServiceConfig } from "@/config/config.js";
+// import { sleep } from "@/utils.js";
 
 export const postUploadImageController = () => {
   const config = getServiceConfig();
@@ -38,6 +39,10 @@ export const postUploadImageController = () => {
           data,
         );
 
+        // await sleep(15000);
+
+        console.log("Image persisted successfully:", fileName);
+
         const imageModel = await createImage({
           roomId,
           imageId,
@@ -65,8 +70,7 @@ export const postUploadImageController = () => {
       } else {
         res.status(500).json({ status: "KO", message: "Error creating image" });
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch {
       res.status(500).json({ status: "KO", message: "Error creating image" });
     }
   };

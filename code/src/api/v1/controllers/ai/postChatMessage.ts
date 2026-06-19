@@ -10,8 +10,8 @@ import {
   convertToModelMessages,
   pipeUIMessageStreamToResponse,
 } from "ai";
-import { saveChatMessages } from "@/mastra/manager/chat.js";
 import { WeaveRuntimeContext } from "@/mastra/types.js";
+import { saveChatMessages } from "@/mastra/manager/chat.js";
 
 export const postAiChatMessageController = () => {
   return async (req: Request, res: Response) => {
@@ -135,8 +135,10 @@ export const postAiChatMessageController = () => {
             writer.write(part);
           }
         },
-        onFinish: ({ messages }) => {
-          saveChatMessages(roomId, chatId, resourceId, messages);
+        onFinish: async ({ messages }) => {
+          const usage = await stream.usage?.catch(() => undefined);
+          console.log("usage", usage);
+          await saveChatMessages(roomId, chatId, resourceId, messages);
         },
       });
 
