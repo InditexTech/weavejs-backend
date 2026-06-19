@@ -353,6 +353,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       getThreadsController(),
     );
     router.get(
@@ -360,6 +361,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       getThreadController(),
     );
     router.post(
@@ -367,6 +369,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       postThreadController(),
     );
     router.put(
@@ -374,6 +377,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       putThreadController(),
     );
     router.delete(
@@ -381,6 +385,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       delThreadController(),
     );
 
@@ -391,6 +396,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       getThreadAnswersController(),
     );
     router.get(
@@ -398,6 +404,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       getThreadAnswerController(),
     );
     router.post(
@@ -405,6 +412,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       postThreadAnswerController(),
     );
     router.put(
@@ -412,6 +420,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       putThreadAnswerController(),
     );
     router.delete(
@@ -419,6 +428,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       delThreadAnswerController(),
     );
 

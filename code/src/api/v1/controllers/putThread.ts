@@ -14,10 +14,9 @@ export const putThreadController = () => {
     const roomId = req.params.roomId as string;
     const threadId = req.params.threadId as string;
 
-    const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
-    const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";
+    const userId: string = req.session!.user.id;
 
-    if (!clientId || clientId === "" || !userId || userId === "" || !roomId) {
+    if (!roomId) {
       res.status(400).json({
         status: "KO",
         message: "Missing required fields",
@@ -43,7 +42,7 @@ export const putThreadController = () => {
 
     if (thread.userId !== userId && req.body.content) {
       res
-        .status(404)
+        .status(403)
         .json({ status: "KO", message: "Thread doesn't belong to this user" });
       return;
     }

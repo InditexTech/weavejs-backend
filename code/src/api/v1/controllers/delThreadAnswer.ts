@@ -15,16 +15,7 @@ export const delThreadAnswerController = () => {
     const roomId = req.params.roomId as string;
     const answerId = req.params.answerId as string;
 
-    const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
-    const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";
-
-    if (!clientId || clientId === "" || !userId || userId === "") {
-      res.status(400).json({
-        status: "KO",
-        message: "Missing required fields",
-      });
-      return;
-    }
+    const userId: string = req.session!.user.id;
 
     const threadAnswer = await getThreadAnswer({
       answerId,
@@ -45,6 +36,13 @@ export const delThreadAnswerController = () => {
       res
         .status(404)
         .json({ status: "KO", message: "Thread doesn't belong to this room" });
+      return;
+    }
+
+    if (threadAnswer.userId !== userId) {
+      res
+        .status(403)
+        .json({ status: "KO", message: "Thread answer doesn't belong to this user" });
       return;
     }
 

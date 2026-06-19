@@ -15,14 +15,9 @@ export const postThreadAnswerController = () => {
 
     const { userMetadata, content } = req.body;
 
-    const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
-    const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";
+    const userId: string = req.session!.user.id;
 
     if (
-      !clientId ||
-      clientId === "" ||
-      !userId ||
-      userId === "" ||
       !userMetadata ||
       !content
     ) {
