@@ -89,6 +89,7 @@ import { postRoomController } from "./controllers/rooms/postRoom.js";
 import { auth } from "@/middlewares/auth.js";
 import { session } from "@/middlewares/session.js";
 import { roomMember } from "@/middlewares/room-member.js";
+import { instanceMember } from "@/middlewares/instance-member.js";
 import { getRoomController } from "./controllers/rooms/getRoom.js";
 import { putRoomController } from "./controllers/rooms/putRoom.js";
 import { delRoomController } from "./controllers/rooms/delRoom.js";
@@ -661,6 +662,9 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/templates/:instanceId/images/:imageId`,
     cors,
+    session,
+    auth,
+    instanceMember,
     getTemplatesImageController(),
   );
   router.get(
@@ -668,6 +672,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    instanceMember,
     getTemplatesImagesController(),
   );
   router.delete(
@@ -675,6 +680,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    instanceMember,
     delTemplatesImageController(),
   );
   router.post(
@@ -682,6 +688,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    instanceMember,
     upload.single("file"),
     postTemplatesUploadImageController(),
   );
