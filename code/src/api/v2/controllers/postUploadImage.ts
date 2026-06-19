@@ -11,6 +11,9 @@ import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 import { getServiceConfig } from "@/config/config.js";
 // import { sleep } from "@/utils.js";
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export const postUploadImageController = () => {
   const config = getServiceConfig();
   const persistenceHandler = new ImagesPersistenceHandler(config);
@@ -20,6 +23,14 @@ export const postUploadImageController = () => {
 
     const roomId = req.params.roomId as string;
     const imageId = req.body.imageId as string;
+
+    if (!imageId || !UUID_REGEX.test(imageId)) {
+      res
+        .status(400)
+        .json({ status: "KO", message: "imageId must be a valid UUID" });
+      return;
+    }
+
     const mimeType = file?.mimetype ?? "application/octet-stream";
     const data = file?.buffer ?? new Uint8Array();
 
@@ -29,6 +40,7 @@ export const postUploadImageController = () => {
 
     if (await persistenceHandler.exists(fileName)) {
       res.status(500).json({ status: "KO", message: "Image already exists" });
+      return;
     }
 
     try {

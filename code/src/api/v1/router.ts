@@ -88,6 +88,7 @@ import { getRoomsController } from "./controllers/rooms/getRooms.js";
 import { postRoomController } from "./controllers/rooms/postRoom.js";
 import { auth } from "@/middlewares/auth.js";
 import { session } from "@/middlewares/session.js";
+import { roomMember } from "@/middlewares/room-member.js";
 import { getRoomController } from "./controllers/rooms/getRoom.js";
 import { putRoomController } from "./controllers/rooms/putRoom.js";
 import { delRoomController } from "./controllers/rooms/delRoom.js";
@@ -250,6 +251,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     json({ limit: "15mb" }),
     postRemoveBackgroundController(),
   );
@@ -258,6 +260,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     json({ limit: "15mb" }),
     postNegateImageController(),
   );
@@ -266,6 +269,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     json({ limit: "15mb" }),
     postFlipImageController(),
   );
@@ -274,6 +278,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     json({ limit: "15mb" }),
     postGrayscaleImageController(),
   );
@@ -290,6 +295,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     upload.single("file"),
     postUploadImageController(),
   );
@@ -298,6 +304,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     delImageController(),
   );
 
@@ -324,6 +331,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     upload.single("file"),
     postUploadVideoController(),
   );
@@ -332,6 +340,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     delVideoController(),
   );
 

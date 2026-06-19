@@ -22,6 +22,7 @@ export const postUploadImageController = () => {
 
     if (await persistenceHandler.exists(fileName)) {
       res.status(500).json({ status: "KO", message: "Image already exists" });
+      return;
     }
 
     try {

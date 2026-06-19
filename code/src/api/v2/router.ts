@@ -17,6 +17,9 @@ import { getImageController } from "./controllers/getImage.js";
 import { postUploadImageController } from "./controllers/postUploadImage.js";
 import { delImageController } from "./controllers/delImage.js";
 import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
+import { session } from "../../middlewares/session.js";
+import { auth } from "../../middlewares/auth.js";
+import { roomMember } from "../../middlewares/room-member.js";
 
 const router: Router = Router();
 
@@ -63,17 +66,26 @@ export function setupApiV2Router(app: Express) {
   router.post(
     `/${hubName}/rooms/:roomId/images`,
     cors,
+    session,
+    auth,
+    roomMember,
     upload.single("file"),
     postUploadImageController()
   );
   router.delete(
     `/${hubName}/rooms/:roomId/images/:imageId`,
     cors,
+    session,
+    auth,
+    roomMember,
     delImageController()
   );
   router.post(
     `/${hubName}/rooms/:roomId/images/:imageId/remove-background`,
     cors,
+    session,
+    auth,
+    roomMember,
     json({ limit: "15mb" }),
     postRemoveBackgroundController()
   );
