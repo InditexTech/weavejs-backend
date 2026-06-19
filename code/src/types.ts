@@ -40,6 +40,9 @@ export type ServiceConfig = {
     apiKey: string;
     timeoutSecs: number;
   };
+  cors: {
+    allowedOrigins: string[];
+  };
   features: {
     workloads: boolean;
     threads: boolean;

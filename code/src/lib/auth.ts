@@ -75,17 +75,10 @@ export const setupAuth = async () => {
       },
     } = config;
 
-    let finalConnectionString = connectionString;
-    if (connectionString.indexOf("?") === -1) {
-      finalConnectionString = `${connectionString}?sslmode=no-verify`;
-    } else {
-      finalConnectionString = `${connectionString}$sslmode=no-verify`;
-    }
-
     auth = betterAuth({
       ...authConfig,
       database: new Pool({
-        connectionString: finalConnectionString,
+        connectionString,
         max: 3,
         min: 0,
         idleTimeoutMillis: 10000,
@@ -122,7 +115,7 @@ export const setupAuth = async () => {
         database: db,
         ...(ssl && {
           ssl: {
-            rejectUnauthorized: false,
+            rejectUnauthorized: true,
           },
         }),
         max: 3,

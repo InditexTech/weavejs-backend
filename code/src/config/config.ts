@@ -164,6 +164,9 @@ const serviceConfigSchema = z.object({
       })
       .int({ message: "The timeout must be an integer" }),
   }),
+  cors: z.object({
+    allowedOrigins: z.array(z.string().min(1)),
+  }),
   features: z.object({
     workloads: z.boolean().default(false),
     threads: z.boolean().default(false),
@@ -317,6 +320,11 @@ export function getServiceConfig(): ServiceConfig {
   const featureWorkloads = process.env.FEATURE_WORKLOADS === "true";
   const featureThreads = process.env.FEATURE_THREADS === "true";
 
+  const rawCorsOrigins = process.env.CORS_ALLOWED_ORIGINS;
+  const corsAllowedOrigins: string[] = rawCorsOrigins
+    ? rawCorsOrigins.split(",").map((o) => o.trim()).filter(Boolean)
+    : [process.env.BETTER_AUTH_URL ?? ""].filter(Boolean);
+
   const liteLLMEndpoint = process.env.LITELLM_ENDPOINT;
   const liteLLMApiKey = process.env.LITELLM_API_KEY;
   let liteLLMTimeoutSecs = 60;
@@ -340,6 +348,9 @@ export function getServiceConfig(): ServiceConfig {
     ai,
     liteLLM,
     azureCsClient,
+    cors: {
+      allowedOrigins: corsAllowedOrigins,
+    },
     features: {
       workloads: featureWorkloads,
       threads: featureThreads,
