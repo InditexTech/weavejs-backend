@@ -48,19 +48,35 @@ export function setupApiV2Router(app: Express) {
   router.post(
     `/${hubName}/rooms/:roomId/images/generate`,
     cors,
+    session,
+    auth,
+    roomMember,
     json({ limit: "5mb" }),
     postGenerateImageController()
   );
   router.post(
     `/${hubName}/rooms/:roomId/images/edit`,
     cors,
+    session,
+    auth,
+    roomMember,
     json({ limit: "100mb" }),
     postEditImageController()
   );
-  router.get(`/${hubName}/rooms/:roomId/images`, cors, getImagesController());
+  router.get(
+    `/${hubName}/rooms/:roomId/images`,
+    cors,
+    session,
+    auth,
+    roomMember,
+    getImagesController()
+  );
   router.get(
     `/${hubName}/rooms/:roomId/images/:imageId`,
     cors,
+    session,
+    auth,
+    roomMember,
     getImageController()
   );
   router.post(

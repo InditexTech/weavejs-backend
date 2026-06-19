@@ -198,6 +198,9 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/rooms/:roomId/chats/:chatId/images/:imageId`,
     cors,
+    session,
+    auth,
+    roomMember,
     getChatImageController(),
   );
   router.get(
@@ -248,6 +251,9 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/rooms/:roomId/images/:imageId`,
     cors,
+    session,
+    auth,
+    roomMember,
     getImageController(),
   );
   router.post(
@@ -323,11 +329,17 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/rooms/:roomId/videos/:videoId`,
     cors,
+    session,
+    auth,
+    roomMember,
     getVideoController(),
   );
   router.get(
     `/${hubName}/rooms/:roomId/videos/:videoId/placeholder`,
     cors,
+    session,
+    auth,
+    roomMember,
     getVideoPlaceholderController(),
   );
   router.post(
