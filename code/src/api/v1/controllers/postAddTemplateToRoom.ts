@@ -7,6 +7,7 @@ import { Request, Response } from "express";
 import { getRoom } from "@/database/controllers/room.js";
 import { getPage } from "@/database/controllers/page.js";
 import { getTemplate } from "@/database/controllers/template.js";
+import { getRoomUser } from "@/database/controllers/room-user.js";
 import { addTemplateToRoom } from "@/templates/templates.js";
 
 const payloadSchema = z.object({
@@ -37,6 +38,16 @@ export const postAddTemplateToRoomController = () => {
 
     if (!room) {
       res.status(404).json({ status: "KO", message: "Room doesn't exists" });
+      return;
+    }
+
+    const member = await getRoomUser({
+      roomId: params.roomId,
+      userId: req.session!.user.id,
+    });
+
+    if (!member) {
+      res.status(403).json({ status: "KO", message: "You don't have access to this room" });
       return;
     }
 

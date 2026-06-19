@@ -570,6 +570,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getTemplatesController(),
   );
   router.get(
@@ -577,6 +578,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getFrameTemplatesController(),
   );
   router.get(
@@ -584,6 +586,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getTemplateController(),
   );
   router.post(
@@ -591,6 +594,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     postTemplateController(),
   );
   router.delete(
@@ -598,6 +602,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     delTemplateController(),
   );
 
@@ -704,8 +709,8 @@ export function setupApiV1Router(app: Application) {
   router.post(
     `/${hubName}/templates/add-template-to-room`,
     cors,
-    // session,
-    // auth,
+    session,
+    auth,
     postAddTemplateToRoomController(),
   );
 

@@ -8,6 +8,7 @@ import { TemplateExecutionNodes } from "@/templates/types.js";
 import { getRoom } from "@/database/controllers/room.js";
 import { getPage } from "@/database/controllers/page.js";
 import { getTemplate } from "@/database/controllers/template.js";
+import { getRoomUser } from "@/database/controllers/room-user.js";
 import { addImageTemplateToRoom } from "@/templates/templates.images.js";
 
 const imageNodeSchema = z.object({
@@ -81,6 +82,16 @@ export const postAddImageTemplateToRoomController = () => {
 
     if (!room) {
       res.status(404).json({ status: "KO", message: "Room doesn't exists" });
+      return;
+    }
+
+    const member = await getRoomUser({
+      roomId: params.roomId,
+      userId: req.session!.user.id,
+    });
+
+    if (!member) {
+      res.status(403).json({ status: "KO", message: "You don't have access to this room" });
       return;
     }
 
