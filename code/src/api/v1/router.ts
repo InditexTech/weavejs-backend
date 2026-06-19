@@ -368,7 +368,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
-      roomMember,
+      pageMember,
       getThreadsController(),
     );
     router.get(
@@ -376,7 +376,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
-      roomMember,
+      pageMember,
       getThreadController(),
     );
     router.post(
@@ -384,7 +384,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
-      roomMember,
+      pageMember,
       postThreadController(),
     );
     router.put(
@@ -392,7 +392,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
-      roomMember,
+      pageMember,
       putThreadController(),
     );
     router.delete(
@@ -400,7 +400,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
-      roomMember,
+      pageMember,
       delThreadController(),
     );
 
@@ -411,7 +411,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
-      roomMember,
+      pageMember,
       getThreadAnswersController(),
     );
     router.get(
@@ -419,7 +419,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
-      roomMember,
+      pageMember,
       getThreadAnswerController(),
     );
     router.post(
@@ -427,7 +427,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
-      roomMember,
+      pageMember,
       postThreadAnswerController(),
     );
     router.put(
@@ -435,7 +435,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
-      roomMember,
+      pageMember,
       putThreadAnswerController(),
     );
     router.delete(
@@ -443,7 +443,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
-      roomMember,
+      pageMember,
       delThreadAnswerController(),
     );
 
