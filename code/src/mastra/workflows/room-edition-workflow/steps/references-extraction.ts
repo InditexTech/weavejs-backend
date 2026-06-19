@@ -291,6 +291,12 @@ export const createReferencesExtractionStep = async (
             },
           });
 
+          if (!image.url.startsWith("data:")) {
+            throw new Error(
+              `Expected a data URL for reference image "${image.name}"`,
+            );
+          }
+
           const imageInformation = await getImageMetadata(image.url);
 
           const imageBuffer = dataUrlToUint8Array(image.url);
