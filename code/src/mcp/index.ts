@@ -8,6 +8,7 @@ import { isInitializeRequest, McpServer } from "@modelcontextprotocol/server";
 import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { registerTool as registerToolGenerateUuid } from "./tools/generate-uuid.js";
 import { registerTool as registerToolMeasureStyledText } from "./tools/measure-styled-text.js";
+import { mcpRateLimit } from "@/middlewares/mcp-rate-limit.js";
 import { registerTool as registerToolGetNodeTypeSchema } from "./tools/get-node-type-schema.js";
 import { registerTool as registerToolGetAvailableNodeTypes } from "./tools/get-available-node-types.js";
 import { registerTool as registerToolGetNode } from "./tools/get-node.js";
@@ -17,6 +18,10 @@ import { registerTool as registerToolDeleteNode } from "./tools/delete-node.js";
 import { registerTool as registerToolGetImageMetadata } from "./tools/get-image-metadata.js";
 import express, { Application, Router, Request, Response } from "express";
 import { getCorsMiddleware } from "@/middlewares/cors.js";
+import {
+  setupSkiaBackend,
+} from "@inditextech/weave-sdk/server";
+import { registerSkiaFonts } from "@/canvas/fonts.js";
 import {
   WeaveElementAttributes,
   WeaveStateElement,
@@ -93,15 +98,19 @@ export const setupMcpServer = async (
 
   logger.info("Setting up");
 
+  // Initialise Skia rendering backend once at startup rather than per-call.
+  registerSkiaFonts();
+  await setupSkiaBackend();
+
   const mcpBasePath = "/ai/v1";
   const router: Router = Router();
 
   const cors = getCorsMiddleware(mcpBasePath);
 
-  router.use(express.json({ limit: "100mb" }));
+  router.use(express.json({ limit: "1mb" }));
   router.options("*", cors);
 
-  router.post("/mcp", cors, async (req, res) => {
+  router.post("/mcp", cors, mcpRateLimit, async (req, res) => {
     const sessionIdHeader = req.headers["mcp-session-id"] as string | undefined;
     let sessionEntry = null;
 

@@ -5,11 +5,6 @@
 import { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import Konva from "konva";
-import {
-  setupSkiaBackend,
-  // setupCanvasBackend,
-} from "@inditextech/weave-sdk/server";
-import { registerSkiaFonts } from "@/canvas/fonts.js";
 
 export const registerTool = (server: McpServer) => {
   server.registerTool(
@@ -83,9 +78,6 @@ export const registerTool = (server: McpServer) => {
     async ({ text, style }) => {
       let width = 0;
       let height = 0;
-
-      registerSkiaFonts();
-      await setupSkiaBackend();
 
       const textNode = new Konva.Text({
         text: text,
