@@ -12,7 +12,13 @@ import { v4 as uuidv4 } from "uuid";
 
 export const postRoomAccessController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const { roomId, validForSeconds } = req.body;
+    const MAX_VALID_FOR_SECONDS = 30 * 24 * 60 * 60; // 30 days
+
+    const { roomId, validForSeconds: requestedSeconds } = req.body;
+    const validForSeconds = Math.min(
+      Math.max(1, Number(requestedSeconds)),
+      MAX_VALID_FOR_SECONDS,
+    );
 
     const roomObj = await getRoom({
       roomId,

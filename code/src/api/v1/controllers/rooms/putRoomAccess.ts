@@ -37,6 +37,14 @@ export const putRoomAccessController = () => {
       return;
     }
 
+    if (new Date() > new Date(roomAccessObj.validUntilUTC)) {
+      res.status(403).json({
+        status: "KO",
+        message: "Room access link has expired",
+      });
+      return;
+    }
+
     const roomObj = await getRoom({
       roomId: roomAccessObj.roomId,
     });

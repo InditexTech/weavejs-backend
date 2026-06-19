@@ -24,6 +24,14 @@ export const delRoomController = () => {
       return;
     }
 
+    if (roomUserObj.role !== "owner") {
+      res.status(403).json({
+        status: "KO",
+        message: "Only the room owner can delete this room",
+      });
+      return;
+    }
+
     const roomObj = await getRoom({
       roomId,
     });

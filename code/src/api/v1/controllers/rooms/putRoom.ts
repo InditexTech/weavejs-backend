@@ -26,6 +26,14 @@ export const putRoomController = () => {
       return;
     }
 
+    if (roomUserObj.role !== "owner") {
+      res.status(403).json({
+        status: "KO",
+        message: "Only the room owner can update this room",
+      });
+      return;
+    }
+
     const roomObj = await getRoom({
       roomId,
     });
