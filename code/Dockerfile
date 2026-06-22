@@ -15,7 +15,7 @@ WORKDIR /app
 COPY /patches ./patches
 COPY package*.json ./
 RUN npm pkg delete scripts.prepare
-RUN npm install
+RUN npm ci
 
 # Build step
 FROM base AS builder
