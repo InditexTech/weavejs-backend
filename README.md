@@ -103,29 +103,8 @@ This backend is designed to demonstrate how Weave.js can be integrated into a fu
 You can locally launch the backend showcase by:
 
 - Install dependencies with: `npm install`
-- Create a `.env` file on the folder `/code`, and setup the necessary configuration (including PostgreSQL variables):
-
-  ```
-  HOSTNAME=0.0.0.0
-  PORT=8081
-  LOG_LEVEL=debug
-
-  DATABASE_HOST=localhost
-  DATABASE_PORT=5434
-  DATABASE_NAME=weavejs
-  DATABASE_USERNAME=weave_dbuser
-  DATABASE_PASSWORD=weave_password
-  DATABASE_SSL=false
-
-  AZURE_WEB_PUBSUB_ENDPOINT=<azure-web-pubsub-endpoint>
-  AZURE_WEB_PUBSUB_KEY=<key>
-  AZURE_WEB_PUBSUB_HUB_NAME=weavejs
-  PERSIST_FREQUENCY_SEG=10
-
-  AZURE_STORAGE_CONNECTION_STRING=<azure-storage-connection-string>
-  AZURE_STORAGE_ROOMS_CONTAINER_NAME=rooms
-  AZURE_STORAGE_IMAGES_CONTAINER_NAME=images
-  ```
+- Create your local environment file from the template (from `/code`): `cp .env.example .env`
+- Update `/code/.env` with the required values (including PostgreSQL and Azure variables).
 
 - Start PostgreSQL with the provided compose file: `docker compose -f code/docker-compose.yml up -d db`
 - Run database migrations (from `/code`): `cd code && npm run db:migrate:dev`
