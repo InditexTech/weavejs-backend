@@ -127,9 +127,9 @@ You can locally launch the backend showcase by:
   AZURE_STORAGE_IMAGES_CONTAINER_NAME=images
   ```
 
-- Start PostgreSQL with the provided compose file: `docker compose up -d db`
-- Run database migrations: `npm run db:migrate:dev`
-- Run the backend: `npm run dev`
+- Start PostgreSQL with the provided compose file: `docker compose -f code/docker-compose.yml up -d db`
+- Run database migrations (from `/code`): `cd code && npm run db:migrate:dev`
+- Run the backend (from `/code`): `cd code && npm run dev`
 
 You'll need access to a:
 

@@ -13,10 +13,10 @@ module.exports = {
           "id" text NOT NULL PRIMARY KEY,
           "name" text NOT NULL,
           "email" text NOT NULL UNIQUE,
-          "emailVerified" boolean NOT NULL,
+          "emailVerified" boolean NOT NULL DEFAULT false,
           "image" text,
-          "createdAt" timestamptz NOT NULL,
-          "updatedAt" timestamptz NOT NULL
+          "createdAt" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
       `, { transaction });
 
@@ -28,8 +28,8 @@ module.exports = {
           "expiresAt" timestamptz NOT NULL,
           "ipAddress" text,
           "userAgent" text,
-          "createdAt" timestamptz NOT NULL,
-          "updatedAt" timestamptz NOT NULL,
+          "createdAt" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY ("userId") REFERENCES auth."user" ("id") ON DELETE CASCADE
         );
       `, { transaction });
@@ -47,8 +47,8 @@ module.exports = {
           "scope" text,
           "idToken" text,
           "password" text,
-          "createdAt" timestamptz NOT NULL,
-          "updatedAt" timestamptz NOT NULL,
+          "createdAt" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY ("userId") REFERENCES auth."user" ("id") ON DELETE CASCADE
         );
       `, { transaction });
@@ -59,8 +59,8 @@ module.exports = {
           "identifier" text NOT NULL,
           "value" text NOT NULL,
           "expiresAt" timestamptz NOT NULL,
-          "createdAt" timestamptz NOT NULL,
-          "updatedAt" timestamptz NOT NULL
+          "createdAt" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
       `, { transaction });
 
