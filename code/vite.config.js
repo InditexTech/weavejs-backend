@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => {
         WEAVEJS_REPO_PATH,
         "renderer-konva-react-reconciler/src",
       ),
-      "@inditextech/weave-sdk/server": path.resolve(WEAVEJS_REPO_PATH, "sdk/src/"),
+      "@inditextech/weave-sdk/server": path.resolve(WEAVEJS_REPO_PATH, "sdk/src/index.node.ts"),
       "@inditextech/weave-sdk": path.resolve(WEAVEJS_REPO_PATH, "sdk/src"),
       "@inditextech/weave-store-azure-web-pubsub/client": path.resolve(
         WEAVEJS_REPO_PATH,

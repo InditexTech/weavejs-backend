@@ -28,6 +28,7 @@ vite.config.ts*
 
 *.pem
 .env*
+!.env.example
 .npmrc
 
 temp
