@@ -4,7 +4,7 @@
 
 import { z } from "zod";
 import { Request, Response } from "express";
-import { TemplateExecutionNodes } from "@/templates/types.js";
+import { TemplateExecutionNodes } from "@/nodes-api/types.js";
 import { getRoom } from "@/database/controllers/room.js";
 import { getPage } from "@/database/controllers/page.js";
 import { getTemplate } from "@/database/controllers/template.js";

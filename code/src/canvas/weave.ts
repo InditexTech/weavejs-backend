@@ -244,7 +244,7 @@ const getNodes = (config: ServiceConfig) => {
     new WeaveTextNode(),
     new WeaveImageNode({
       config: {
-        useFallbackImage: false,
+        imageFallback: { enabled: false },
         urlTransformer: (url: string) => {
           return transformMediaUrl(url, config);
         },
