@@ -89,11 +89,18 @@ export const postAiChatMessageController = () => {
 
       const mastra = await getMastra();
 
-      const context = [];
+      // Not typed against `ModelMessage` from "ai" on purpose: @mastra/core
+      // bundles its own internal copy of that type, and cross-importing the
+      // "ai" package's version here creates a nominal type mismatch even
+      // though the shapes are structurally identical. `role: "system" as
+      // const` keeps each entry's role as a literal instead of widening to
+      // `string`, which is what orchestratorAgent.stream's `context` param
+      // structurally needs.
+      const context: { role: "system"; content: string }[] = [];
 
       if (!isApproval) {
         context.push({
-          role: "system",
+          role: "system" as const,
           content: `
               Never ask the user for a Room Id, use the following Room Id: ${pageId}.
 
@@ -111,7 +118,7 @@ export const postAiChatMessageController = () => {
 
       if (isApproval) {
         context.push({
-          role: "system",
+          role: "system" as const,
           content: `
             The workflow context to resume is:
 
