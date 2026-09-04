@@ -8,8 +8,8 @@ FROM node:24 AS base
 FROM base AS deps
 
 RUN apt-get update -y
-RUN apt-get install -y bash g++ make python3
-RUN apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libtool autoconf automake
+RUN apt-get install -y --no-install-recommends bash g++ make python3
+RUN apt-get install -y --no-install-recommends build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libtool autoconf automake
 
 WORKDIR /app
 COPY /patches ./patches
@@ -30,7 +30,7 @@ RUN npm run build
 FROM base AS runner
 
 RUN apt-get update -y
-RUN apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libtool autoconf automake
+RUN apt-get install -y --no-install-recommends build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libtool autoconf automake
 
 WORKDIR /app
 ENV NODE_ENV=production
@@ -42,7 +42,8 @@ COPY --from=builder --chown=service:nodejs /app/dist ./
 COPY --chown=service:nodejs .env ./
 COPY --chown=service:nodejs package.json ./
 RUN mkdir -p /usr/share/fonts /tmp/fontconfig && \
-    chmod -R 777 /usr/share/fonts /tmp/fontconfig
+    chown -R service:nodejs /tmp/fontconfig && \
+    chmod -R 700 /tmp/fontconfig
 ENV XDG_CACHE_HOME=/tmp/fontconfig
 USER service
 EXPOSE 8080

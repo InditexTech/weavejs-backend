@@ -110,6 +110,11 @@ import { getAllPagesController } from "./controllers/pages/getAllPages.js";
 import { getRoomImageFallbackController } from "./controllers/getRoomImageFallback.js";
 import { postUploadRoomImageFallbackController } from "./controllers/postUploadRoomImageFallback.js";
 import { getLogger } from "@/logger/logger.js";
+import {
+  aiImageOperationRateLimit,
+  roomImageUploadRateLimit,
+  roomVideoUploadRateLimit,
+} from "@/middlewares/api-rate-limit.js";
 
 const router: Router = Router();
 
@@ -265,6 +270,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    aiImageOperationRateLimit,
     roomMember,
     json({ limit: "15mb" }),
     postRemoveBackgroundController(),
@@ -309,6 +315,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomImageUploadRateLimit,
     roomMember,
     upload.single("file"),
     postUploadImageController(),
@@ -353,6 +360,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomVideoUploadRateLimit,
     roomMember,
     upload.single("file"),
     postUploadVideoController(),

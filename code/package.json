@@ -86,6 +86,7 @@
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-rate-limit": "^8.6.2",
     "fast-glob": "^3.3.3",
     "ffmpeg-ffprobe-static": "^6.1.2-rc.1",
     "ffmpeg-static": "^5.2.0",

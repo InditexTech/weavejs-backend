@@ -10,6 +10,7 @@ import { postEditImageControllerV2 } from "./controllers/postEditImage.js";
 import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
 import { session } from "@/middlewares/session.js";
 import { auth } from "@/middlewares/auth.js";
+import { aiImageOperationRateLimit } from "@/middlewares/api-rate-limit.js";
 
 const router: Router = Router();
 
@@ -37,16 +38,18 @@ export function setupApiV3Router(app: Express) {
     cors,
     session,
     auth,
+    aiImageOperationRateLimit,
     json({ limit: "5mb" }),
-    postGenerateImageControllerV2()
+    postGenerateImageControllerV2(),
   );
   router.post(
     `/${hubName}/rooms/:roomId/images/edit`,
     cors,
     session,
     auth,
+    aiImageOperationRateLimit,
     json({ limit: "100mb" }),
-    postEditImageControllerV2()
+    postEditImageControllerV2(),
   );
 
   app.use(routerBasePath, router);
