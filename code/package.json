@@ -55,8 +55,12 @@
     "yjs": "13.6.27",
     "zod": "4.3.6",
     "qs": "^6.16.0",
+    "sharp": "^0.35.4",
     "sequelize": {
       "uuid": "^11.1.1"
+    },
+    "@imgly/background-removal-node": {
+      "lodash": "^4.18.1"
     }
   },
   "dependencies": {
