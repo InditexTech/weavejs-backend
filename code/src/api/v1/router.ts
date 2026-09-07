@@ -135,7 +135,7 @@ export function setupApiV1Router(app: Application) {
   const routerBasePath = "/api/v1";
 
   // Setup multer to upload files
-  const upload = multer();
+  const upload = multer({ limits: { fileSize: 100 * 1024 * 1024 } });
 
   // Setup cors
   const cors = getCorsMiddleware(routerBasePath);
