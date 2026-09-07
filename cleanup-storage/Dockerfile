@@ -9,7 +9,7 @@ FROM base AS deps
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci --ignore-scripts
 
 # Build step
 FROM base AS builder

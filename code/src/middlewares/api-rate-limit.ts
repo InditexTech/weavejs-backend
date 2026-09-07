@@ -48,3 +48,11 @@ export const roomVideoUploadRateLimit = createApiRateLimit({
   max: 10,
   message: "Too many video upload requests. Please try again later.",
 });
+
+// Guards against online brute-force guessing of the shared AI password:
+// at most 10 attempts per 15-minute window.
+export const aiPasswordRateLimit = createApiRateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: "Too many attempts. Please try again later.",
+});

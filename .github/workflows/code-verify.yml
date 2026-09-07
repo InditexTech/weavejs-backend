@@ -65,5 +65,4 @@ jobs:
       - name: NPM / Verify
         working-directory: code
         run: |
-          npm ci --force
           npm run verify

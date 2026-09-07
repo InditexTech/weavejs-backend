@@ -15,7 +15,10 @@ WORKDIR /app
 COPY /patches ./patches
 COPY package*.json ./
 RUN npm pkg delete scripts.prepare
-RUN npm ci --force
+RUN npm ci --force --ignore-scripts
+RUN npm rebuild canvas sharp
+RUN npm run copy:assets
+RUN npm run apply:patches
 
 # Build step
 FROM base AS builder
