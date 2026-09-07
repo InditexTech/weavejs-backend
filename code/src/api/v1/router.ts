@@ -16,7 +16,6 @@ import { postRemoveBackgroundController } from "./controllers/postRemoveBackgrou
 import { getAzureWebPubsubServer } from "../../store.js";
 import { getCorsMiddleware } from "../../middlewares/cors.js";
 import { postValidateAIPassword } from "./controllers/postValidateIAPassword.js";
-import { aiPasswordRateLimit } from "../../middlewares/ai-password-rate-limit.js";
 import { getThreadsController } from "./controllers/getThreads.js";
 import { getThreadController } from "./controllers/getThread.js";
 import { postThreadController } from "./controllers/postThread.js";
@@ -112,6 +111,7 @@ import { postUploadRoomImageFallbackController } from "./controllers/postUploadR
 import { getLogger } from "@/logger/logger.js";
 import {
   aiImageOperationRateLimit,
+  aiPasswordRateLimit,
   roomImageUploadRateLimit,
   roomVideoUploadRateLimit,
 } from "@/middlewares/api-rate-limit.js";
