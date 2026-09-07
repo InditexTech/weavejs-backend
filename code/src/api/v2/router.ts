@@ -41,7 +41,7 @@ export function setupApiV2Router(app: Express) {
   const routerBasePath = "/api/v2";
 
   // Setup multer to upload files
-  const upload = multer();
+  const upload = multer({ limits: { fileSize: 100 * 1024 * 1024 } });
 
   // Setup cors
   const cors = getCorsMiddleware(routerBasePath);
