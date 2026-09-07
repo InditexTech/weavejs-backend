@@ -53,7 +53,15 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "yjs": "13.6.27",
-    "zod": "4.3.6"
+    "zod": "4.3.6",
+    "qs": "^6.16.0",
+    "sharp": "^0.35.4",
+    "sequelize": {
+      "uuid": "^11.1.1"
+    },
+    "@imgly/background-removal-node": {
+      "lodash": "^4.18.1"
+    }
   },
   "dependencies": {
     "@azure/identity": "^4.10.2",
@@ -62,12 +70,12 @@
     "@cfworker/json-schema": "^4.1.1",
     "@google/genai": "^1.32.0",
     "@imgly/background-removal-node": "^1.4.5",
-    "@inditextech/weave-renderer-konva-base": "5.2.1",
-    "@inditextech/weave-renderer-konva-react-reconciler": "5.2.1",
-    "@inditextech/weave-sdk": "5.2.1",
-    "@inditextech/weave-store-azure-web-pubsub": "5.2.1",
-    "@inditextech/weave-store-standalone": "5.2.1",
-    "@inditextech/weave-types": "5.2.1",
+    "@inditextech/weave-renderer-konva-base": "5.2.2",
+    "@inditextech/weave-renderer-konva-react-reconciler": "5.2.2",
+    "@inditextech/weave-sdk": "5.2.2",
+    "@inditextech/weave-store-azure-web-pubsub": "5.2.2",
+    "@inditextech/weave-store-standalone": "5.2.2",
+    "@inditextech/weave-types": "5.2.2",
     "@mastra/ai-sdk": "1.4.3",
     "@mastra/core": "1.36.0",
     "@mastra/libsql": "1.11.1",
@@ -115,7 +123,7 @@
     "pino-http": "^10.4.0",
     "pino-pretty": "^13.0.0",
     "sequelize": "^6.37.7",
-    "sharp": "^0.34.3",
+    "sharp": "^0.35.4",
     "skia-canvas": "3.0.8",
     "uuid": "^11.1.0",
     "yjs": "13.6.27",
@@ -146,7 +154,7 @@
     "npkill": "^0.12.2",
     "patch-package": "^8.0.1",
     "prettier": "^3.5.3",
-    "prettier-eslint": "^16.3.0",
+    "prettier-eslint": "^17.1.2",
     "sequelize-cli": "^6.6.3",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
