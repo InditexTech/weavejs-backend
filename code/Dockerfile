@@ -16,7 +16,7 @@ COPY /patches ./patches
 COPY package*.json ./
 RUN npm pkg delete scripts.prepare
 RUN npm ci --force --ignore-scripts
-RUN npm rebuild canvas sharp
+RUN npm rebuild canvas sharp skia-canvas
 RUN npm run copy:assets
 RUN npm run apply:patches
 
