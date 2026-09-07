@@ -5,7 +5,6 @@
 import { v4 as uuidv4 } from "uuid";
 import fs from "node:fs";
 import path from "node:path";
-import { imageSize } from "image-size";
 import pgBoss from "pg-boss";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import {
@@ -20,6 +19,7 @@ import { JOB_REMOVE_IMAGE_BACKGROUND_QUEUE_NAME } from "./constants.js";
 import { getLogger } from "../../../logger/logger.js";
 import { saveBase64ToFile } from "../../../utils.js";
 import { removeBackground } from "@imgly/background-removal-node";
+import sharp from "sharp";
 import { createTask, updateTask } from "../../../database/controllers/task.js";
 import {
   createImage,
@@ -254,7 +254,7 @@ export class RemoveImageBackgroundJob {
     const imageBuffer = Buffer.from(image.dataBase64, "base64");
 
     if (imageBuffer) {
-      const dimensions = imageSize(imageBuffer);
+      const dimensions = await sharp(imageBuffer).metadata();
 
       const fileName = `${roomId}/${newImageId}`;
 

@@ -5,7 +5,6 @@
 import { v4 as uuidv4 } from "uuid";
 import fs from "node:fs";
 import path from "node:path";
-import { imageSize } from "image-size";
 import pgBoss from "pg-boss";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import {
@@ -252,7 +251,7 @@ export class GrayscaleImageJob {
     const imageBuffer = Buffer.from(image.dataBase64, "base64");
 
     if (imageBuffer) {
-      const dimensions = imageSize(imageBuffer);
+      const dimensions = await sharp(imageBuffer).metadata();
 
       const fileName = `${roomId}/${newImageId}`;
 

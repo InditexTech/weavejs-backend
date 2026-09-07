@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Request, Response } from "express";
-import { imageSize } from "image-size";
+import sharp from "sharp";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import { createImage } from "../../../database/controllers/image.js";
 import { ImageModel } from "../../../database/models/image.js";
@@ -34,8 +34,6 @@ export const postUploadImageController = () => {
     const mimeType = file?.mimetype ?? "application/octet-stream";
     const data = file?.buffer ?? new Uint8Array();
 
-    const dimensions = imageSize(data);
-
     const fileName = `${roomId}/${imageId}`;
 
     if (await persistenceHandler.exists(fileName)) {
@@ -45,6 +43,8 @@ export const postUploadImageController = () => {
 
     try {
       if (file) {
+        const dimensions = await sharp(data).metadata();
+
         await persistenceHandler.persist(
           fileName,
           { size: file.size, mimeType },
