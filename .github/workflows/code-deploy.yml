@@ -73,9 +73,16 @@ jobs:
       GOOGLE_CLIENT_SECRET: ${{ secrets.SOCIAL_GOOGLE_CLIENT_SECRET }}
     steps:
       - name: Get input parameters
+        env:
+          BASELINE: ${{ github.event.inputs.BASELINE || 'main' }}
         run: |
-          BASELINE_BRANCH=${{ github.event.inputs.BASELINE || 'main' }}
-          echo "BASELINE_BRANCH=${BASELINE_BRANCH#refs/heads/}" >> "$GITHUB_ENV"
+          if [[ "$BASELINE" =~ ^[A-Za-z0-9][A-Za-z0-9._/{}-]*$ ]]; then
+            BASELINE_BRANCH="${BASELINE#refs/heads/}"
+            echo "BASELINE_BRANCH=$BASELINE_BRANCH" >> "$GITHUB_ENV"
+          else
+            echo "::error::invalid BASELINE branch: must contain only letters, digits, or one of . _ / { } -" >&2
+            exit 1
+          fi
 
       - name: Checkout merge commit
         uses: actions/checkout@v4
