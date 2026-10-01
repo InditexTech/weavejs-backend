@@ -1,0 +1,19 @@
+.github/workflows/code-deploy.yml
+  s_f27af37fa6d819::t_cd43f9d5c7afe7 76-77,79-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4a13e2cab0e7b7e93bbb6426bd9aed8b87435849",
+  "prompts": {},
+  "sessions": {
+    "s_f27af37fa6d819": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "s_f27af37fa6d819",
+        "model": "unknown"
+      },
+      "human_author": "Ivan Alvarez Sabin <ivanasabi@ext.inditex.com>"
+    }
+  }
+}
