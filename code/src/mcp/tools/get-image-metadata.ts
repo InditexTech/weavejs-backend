@@ -5,7 +5,7 @@
 import sharp from "sharp";
 import { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
-import { assertSafeUrl } from "@/utils.js";
+import { safeFetchBuffer } from "@/utils/ssrf.js";
 
 export const registerTool = (server: McpServer) => {
   server.registerTool(
@@ -84,41 +84,11 @@ export async function getImageMetadata(input: string) {
   else {
     const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10 MB
 
-    assertSafeUrl(input);
-    const response = await fetch(input, { redirect: "error" });
+    const buffer = await safeFetchBuffer(input, {
+      maxBytes: MAX_IMAGE_BYTES,
+    });
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.status}`);
-    }
-
-    const contentLength = response.headers.get("content-length");
-    if (contentLength !== null && Number(contentLength) > MAX_IMAGE_BYTES) {
-      throw new Error(
-        `Image response too large: ${contentLength} bytes (max ${MAX_IMAGE_BYTES})`,
-      );
-    }
-
-    if (!response.body) {
-      throw new Error("Image response has no body");
-    }
-
-    const chunks: Uint8Array[] = [];
-    let totalBytes = 0;
-    const reader = response.body.getReader();
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      totalBytes += value.length;
-      if (totalBytes > MAX_IMAGE_BYTES) {
-        await reader.cancel();
-        throw new Error(
-          `Image response exceeds size limit of ${MAX_IMAGE_BYTES} bytes`,
-        );
-      }
-      chunks.push(value);
-    }
-
-    image = sharp(Buffer.concat(chunks));
+    image = sharp(buffer);
   }
 
   const metadata = await image.metadata();
