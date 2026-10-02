@@ -53,7 +53,7 @@ Each subsystem follows the **singleton pattern**: a `setupX()` function initiali
 | `src/api/v1/`, `v2/`, `v3/` | Versioned REST API routers; v3 requires `FEATURE_WORKLOADS=true` |
 | `src/comm-bus/` | Azure Web PubSub service client for broadcasting messages to rooms |
 | `src/mastra/` | Mastra AI agents/workflows (orchestrator, room editor, image gen) |
-| `src/mcp/` | MCP server exposed at `/ai/v1/mcp` (HTTP transport) |
+| `src/mcp/` | MCP server: public `/ai/v1/mcp`, authenticated `/ai/v1/mcp-rooms` (HTTP transport) |
 | `src/lib/auth.ts` | better-auth setup (GitHub + Google OAuth, PostgreSQL-backed sessions) |
 | `src/workers/` | Node.js worker threads |
 | `src/workloads/` | Async job processing (enabled by `FEATURE_WORKLOADS`) |
@@ -159,7 +159,12 @@ Controllers follow `<verb><Resource>Controller` and live under `src/api/vN/contr
 
 ### MCP server
 
-Exposed at `http://localhost:8081/ai/v1/mcp` (HTTP transport). Test with:
+Two HTTP-transport endpoints:
+
+- `http://localhost:8081/ai/v1/mcp` — public, stateless tools only (no room access).
+- `http://localhost:8081/ai/v1/mcp-rooms` — requires a user session or the internal token (`x-internal-token` header); adds the room-bound tools (`get-node`, `add-node`, `update-node`, `delete-node`), which take `roomId` + `pageId` and check room membership on every call.
+
+Test the public endpoint with:
 
 ```bash
 npx @modelcontextprotocol/inspector --cli http://localhost:8081/ai/v1/mcp --transport http --method tools/call --tool-name get-available-node-types

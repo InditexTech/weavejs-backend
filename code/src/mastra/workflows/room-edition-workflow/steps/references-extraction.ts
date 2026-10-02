@@ -131,7 +131,7 @@ export const createReferencesExtractionStep = async (
             },
             {
               role: "user",
-              content: `The room to edit is: ${pageId}`,
+              content: `The room to edit has roomId "${roomId}" and pageId "${pageId}". Always pass both to the tools that require them.`,
             },
           ],
           {

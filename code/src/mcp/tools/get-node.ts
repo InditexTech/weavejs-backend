@@ -6,6 +6,7 @@ import * as Y from "yjs";
 import { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import { getStore } from "@/store.js";
+import { authorizeRoomPage, roomAccessErrorResult } from "../authorize.js";
 import { WeaveStateManipulation } from "@inditextech/weave-sdk/server";
 import { WeaveStateElement } from "@inditextech/weave-types";
 
@@ -18,6 +19,11 @@ export const registerTool = (server: McpServer) => {
         "Finds a node instance in a room by its id and returns its information",
       inputSchema: z.object({
         roomId: z.string(),
+        pageId: z
+          .string()
+          .describe(
+            "The id of the page of the room that contains the node (document to operate on).",
+          ),
         nodeId: z.string(),
       }),
       outputSchema: z.union([
@@ -39,24 +45,16 @@ export const registerTool = (server: McpServer) => {
         openWorldHint: true,
       },
     },
-    async ({ roomId, nodeId }) => {
+    async ({ roomId, pageId, nodeId }, ctx) => {
       let roomDocument: Y.Doc | undefined = undefined;
 
-      roomDocument = await getStore().getRoomDocument(roomId);
+      const authorized = await authorizeRoomPage(ctx, roomId, pageId);
 
-      if (!roomDocument) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: "Error: Room ${roomId} not found.",
-            },
-          ],
-          structuredContent: {
-            error: `Room ${roomId} not found.`,
-          },
-        };
+      if (!authorized) {
+        return roomAccessErrorResult();
       }
+
+      roomDocument = await getStore().getRoomDocument(authorized.docId);
 
       const node = WeaveStateManipulation.getYjsElement(roomDocument, nodeId);
 

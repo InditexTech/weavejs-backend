@@ -30,6 +30,7 @@ export const createExecutionStep = async (
       execution: z.string(),
     }),
     stateSchema: z.object({
+      roomId: z.string(),
       pageId: z.string(),
       originalMessage: z.string(),
       referenceNodesInformation: z.array(z.any()),
@@ -90,7 +91,7 @@ export const createExecutionStep = async (
           },
           {
             role: "user",
-            content: `The room to edit is: ${state.pageId}`,
+            content: `The room to edit has roomId "${state.roomId}" and pageId "${state.pageId}". Always pass both to the tools that require them.`,
           },
           {
             role: "user",

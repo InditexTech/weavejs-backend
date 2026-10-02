@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import { getStore } from "@/store.js";
+import { authorizeRoomPage, roomAccessErrorResult } from "../authorize.js";
 import { WeaveStateManipulation } from "@inditextech/weave-sdk/server";
 import {
   WeaveElementAttributes,
@@ -20,6 +21,11 @@ const inputBaseSchema = (nodeTypes: string[]) =>
     roomId: z
       .string()
       .describe("The id of the room where the node will be added"),
+    pageId: z
+      .string()
+      .describe(
+        "The id of the page of the room that contains the node (document to operate on).",
+      ),
     containerId: z
       .string()
       .optional()
@@ -61,24 +67,16 @@ export const registerTool = (
         openWorldHint: true,
       },
     },
-    async ({ roomId, containerId, type, node }) => {
+    async ({ roomId, pageId, containerId, type, node }, ctx) => {
       let roomDocument: Y.Doc | undefined = undefined;
 
-      roomDocument = await getStore().getRoomDocument(roomId);
+      const authorized = await authorizeRoomPage(ctx, roomId, pageId);
 
-      if (!roomDocument) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: "Error: Room ${roomId} not found.",
-            },
-          ],
-          structuredContent: {
-            error: `Room ${roomId} not found.`,
-          },
-        };
+      if (!authorized) {
+        return roomAccessErrorResult();
       }
+
+      roomDocument = await getStore().getRoomDocument(authorized.docId);
 
       const container = WeaveStateManipulation.getYjsElement(
         roomDocument,
@@ -137,7 +135,7 @@ export const registerTool = (
       const { element } = WeaveStateManipulation.mapNodeToYjs(nodeState);
       WeaveStateManipulation.addElements(container, [element]);
 
-      await persistRoomDocument(roomId, roomDocument);
+      await persistRoomDocument(authorized.docId, roomDocument);
 
       const NODE_ADDED = {
         nodeId,
