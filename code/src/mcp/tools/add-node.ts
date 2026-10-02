@@ -8,6 +8,7 @@ import { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import { getStore } from "@/store.js";
 import { authorizeRoomPage, roomAccessErrorResult } from "../authorize.js";
+import { toolErrorResult } from "../tool-result.js";
 import { WeaveStateManipulation } from "@inditextech/weave-sdk/server";
 import {
   WeaveElementAttributes,
@@ -84,17 +85,9 @@ export const registerTool = (
       );
 
       if (!container) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error: Container ${containerId} not found in room ${roomId}.`,
-            },
-          ],
-          structuredContent: {
-            error: `Container ${containerId} not found in room ${roomId}.`,
-          },
-        };
+        return toolErrorResult(
+          `Container ${containerId} not found in room ${roomId}.`,
+        );
       }
 
       const nodeId = uuidv4();
@@ -102,34 +95,14 @@ export const registerTool = (
       const nodeDefaultState = createNodeTypeDefaultState(nodeId, type);
 
       if (!nodeDefaultState) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error: Node type ${type} not found.`,
-            },
-          ],
-          structuredContent: {
-            error: `Node type ${type} not found.`,
-          },
-        };
+        return toolErrorResult(`Node type ${type} not found.`);
       }
 
       const nodeProps = node.props as WeaveElementAttributes;
       const nodeState = addNodeState(nodeDefaultState!, nodeProps);
 
       if (!nodeState) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error: Unsupported node type ${type}.`,
-            },
-          ],
-          structuredContent: {
-            error: `Unsupported node type ${type}.`,
-          },
-        };
+        return toolErrorResult(`Unsupported node type ${type}.`);
       }
 
       const { element } = WeaveStateManipulation.mapNodeToYjs(nodeState);
