@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { MCPClient } from "@mastra/mcp";
+import { createInternalMcpClient } from "../mcp-client.js";
 import { Agent } from "@mastra/core/agent";
 import { getMemory } from "../connectors.js";
 import { ANALYSIS_MODEL_PRO } from "../index.js";
@@ -10,14 +10,7 @@ import { ANALYSIS_MODEL_PRO } from "../index.js";
 export const getRoomEditorExecutorAgent = async () => {
   const memory = await getMemory();
 
-  const testMcpClient = new MCPClient({
-    id: "weavejs-mcp-client",
-    servers: {
-      weavejsLocal: {
-        url: new URL(`http://localhost:8081/ai/v1/mcp`),
-      },
-    },
-  });
+  const testMcpClient = createInternalMcpClient();
 
   return new Agent({
     id: "room-editor-executor-agent",

@@ -16,11 +16,18 @@ import { registerTool as registerToolAddNode } from "./tools/add-node.js";
 import { registerTool as registerToolUpdateNode } from "./tools/update-node.js";
 import { registerTool as registerToolDeleteNode } from "./tools/delete-node.js";
 import { registerTool as registerToolGetImageMetadata } from "./tools/get-image-metadata.js";
-import express, { Application, Router, Request, Response } from "express";
+import express, {
+  Application,
+  Router,
+  Request,
+  RequestHandler,
+  Response,
+} from "express";
+import { internalToken } from "@/middlewares/internal-token.js";
+import { session } from "@/middlewares/session.js";
+import { auth } from "@/middlewares/auth.js";
 import { getCorsMiddleware } from "@/middlewares/cors.js";
-import {
-  setupSkiaBackend,
-} from "@inditextech/weave-sdk/server";
+import { setupSkiaBackend } from "@inditextech/weave-sdk/server";
 import { registerSkiaFonts } from "@/canvas/fonts.js";
 import {
   WeaveElementAttributes,
@@ -29,10 +36,10 @@ import {
 import { NodeTypeInformation } from "./types.js";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sessions: any = {};
 
-const createMcpServer = (config: {
+type McpScope = "public" | "rooms";
+
+type McpConfig = {
   getAvailableNodes: () => NodeTypeInformation[];
   createNodeTypeDefaultState: (
     nodeId: string,
@@ -46,7 +53,9 @@ const createMcpServer = (config: {
     prevNodeState: WeaveStateElement,
     nextProps: WeaveElementAttributes,
   ) => WeaveStateElement | undefined;
-}) => {
+};
+
+const createMcpServer = (config: McpConfig, scope: McpScope) => {
   const server = new McpServer({
     name: "weavejs",
     title: "WeaveJS MCP Server",
@@ -59,41 +68,164 @@ const createMcpServer = (config: {
   registerToolGetNodeTypeSchema(server, config.getAvailableNodes);
   registerToolGetAvailableNodeTypes(server, config.getAvailableNodes);
   registerToolGetImageMetadata(server);
-  registerToolGetNode(server);
-  registerToolAddNode(
-    server,
-    config.getAvailableNodes,
-    config.createNodeTypeDefaultState,
-    config.addNodeState,
-  );
-  registerToolUpdateNode(
-    server,
-    config.getAvailableNodes,
-    config.updateNodeState,
-  );
-  registerToolDeleteNode(server);
+
+  // Room-bound tools are only available on the authenticated endpoint.
+  if (scope === "rooms") {
+    registerToolGetNode(server);
+    registerToolAddNode(
+      server,
+      config.getAvailableNodes,
+      config.createNodeTypeDefaultState,
+      config.addNodeState,
+    );
+    registerToolUpdateNode(
+      server,
+      config.getAvailableNodes,
+      config.updateNodeState,
+    );
+    registerToolDeleteNode(server);
+  }
 
   return server;
 };
 
-export const setupMcpServer = async (
-  app: Application,
-  config: {
-    getAvailableNodes: () => NodeTypeInformation[];
-    createNodeTypeDefaultState: (
-      nodeId: string,
-      nodeType: string,
-    ) => WeaveStateElement | undefined;
-    addNodeState: (
-      defaultNodeState: WeaveStateElement,
-      props: WeaveElementAttributes,
-    ) => WeaveStateElement | undefined;
-    updateNodeState: (
-      prevNodeState: WeaveStateElement,
-      nextProps: WeaveElementAttributes,
-    ) => WeaveStateElement | undefined;
-  },
+const getSessionOwner = (req: Request, scope: McpScope) => {
+  if (scope === "public") {
+    return "public";
+  }
+  if (req.isInternalRequest) {
+    return "internal";
+  }
+  return req.session?.user?.id ? `user:${req.session.user.id}` : undefined;
+};
+
+const mountMcpEndpoint = (
+  router: Router,
+  path: string,
+  scope: McpScope,
+  config: McpConfig,
+  cors: RequestHandler,
+  guards: RequestHandler[],
 ) => {
+  // Sessions are per endpoint and bound to the identity that created them.
+  const sessions = new Map<
+    string,
+    {
+      server: McpServer;
+      transport: NodeStreamableHTTPServerTransport;
+      owner: string;
+    }
+  >();
+
+  // Exposes the caller identity to tool handlers (ctx.http.authInfo).
+  const attachAuthInfo = (req: Request, owner: string) => {
+    Object.assign(req, {
+      auth: {
+        token: "",
+        clientId: "weavejs",
+        scopes: [],
+        extra: {
+          internal: owner === "internal",
+          userId: req.session?.user?.id,
+        },
+      },
+    });
+  };
+
+  const handleSessionRequest = async (req: Request, res: Response) => {
+    const owner = getSessionOwner(req, scope);
+    const sessionIdHeader = req.headers["mcp-session-id"] as string | undefined;
+    const entry = sessionIdHeader ? sessions.get(sessionIdHeader) : undefined;
+    if (!entry || !owner) {
+      res.status(400).send("Invalid or missing session ID");
+      return;
+    }
+    if (entry.owner !== owner) {
+      res.status(403).send("Session does not belong to the caller");
+      return;
+    }
+    attachAuthInfo(req, owner);
+    await entry.transport.handleRequest(req, res);
+  };
+
+  router.post(
+    path,
+    cors,
+    mcpRateLimit,
+    ...guards,
+    async (req: Request, res: Response) => {
+      const owner = getSessionOwner(req, scope);
+      const sessionIdHeader = req.headers["mcp-session-id"] as
+        string | undefined;
+      let sessionEntry = null;
+
+      if (!owner) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
+      // Case 1: Existing session found
+      if (sessionIdHeader && sessions.has(sessionIdHeader)) {
+        sessionEntry = sessions.get(sessionIdHeader)!;
+
+        if (sessionEntry.owner !== owner) {
+          res.status(403).json({
+            jsonrpc: "2.0",
+            error: {
+              code: -32000,
+              message: "Forbidden: session does not belong to the caller",
+            },
+            id: null,
+          });
+          return;
+        }
+
+        // Case 2: Initialization request -> create new transport + server
+      } else if (!sessionIdHeader && isInitializeRequest(req.body)) {
+        const newSessionId = uuidv4();
+
+        const transport = new NodeStreamableHTTPServerTransport({
+          sessionIdGenerator: () => newSessionId,
+          onsessioninitialized: (sid) => {
+            sessions.set(sid, { server, transport, owner });
+          },
+        });
+
+        // When this transport closes, clean up the session entry
+        transport.onclose = () => {
+          if (transport.sessionId) {
+            sessions.delete(transport.sessionId);
+          }
+        };
+
+        const server = createMcpServer(config, scope);
+        await server.connect(transport);
+
+        sessions.set(newSessionId, { server, transport, owner });
+        sessionEntry = sessions.get(newSessionId)!;
+      } else {
+        // Neither a valid session nor an initialize request -> return error
+        res.status(400).json({
+          jsonrpc: "2.0",
+          error: {
+            code: -32000,
+            message: "Bad Request: No valid session ID provided",
+          },
+          id: null,
+        });
+        return;
+      }
+
+      attachAuthInfo(req, owner);
+      await sessionEntry.transport.handleRequest(req, res, req.body);
+    },
+  );
+
+  router.get(path, cors, ...guards, handleSessionRequest);
+  router.delete(path, cors, ...guards, handleSessionRequest);
+};
+
+export const setupMcpServer = async (app: Application, config: McpConfig) => {
   logger = getLogger().child({ module: "mcp" });
 
   logger.info("Setting up");
@@ -110,70 +242,15 @@ export const setupMcpServer = async (
   router.use(express.json({ limit: "1mb" }));
   router.options("*", cors);
 
-  router.post("/mcp", cors, mcpRateLimit, async (req, res) => {
-    const sessionIdHeader = req.headers["mcp-session-id"] as string | undefined;
-    let sessionEntry = null;
+  // Public endpoint: stateless tools only, no caller identity.
+  mountMcpEndpoint(router, "/mcp", "public", config, cors, []);
 
-    // Case 1: Existing session found
-    if (sessionIdHeader && sessions[sessionIdHeader]) {
-      sessionEntry = sessions[sessionIdHeader]; // :contentReference[oaicite:11]{index=11}
-
-      // Case 2: Initialization request → create new transport + server
-    } else if (!sessionIdHeader && isInitializeRequest(req.body)) {
-      const newSessionId = uuidv4();
-
-      // Create a new transport for this session
-      const transport = new NodeStreamableHTTPServerTransport({
-        sessionIdGenerator: () => newSessionId,
-        onsessioninitialized: (sid) => {
-          sessions[sid] = { server, transport };
-        },
-      });
-
-      // When this transport closes, clean up the session entry
-      transport.onclose = () => {
-        if (transport.sessionId && sessions[transport.sessionId]) {
-          delete sessions[transport.sessionId];
-        }
-      };
-
-      // Create and configure the new McpServer
-      const server = createMcpServer(config);
-      await server.connect(transport);
-
-      // After `onsessioninitialized` fires, `sessions[newSessionId]` is set.
-      // But we can also assign it here for immediate access.
-      sessions[newSessionId] = { server, transport };
-      sessionEntry = sessions[newSessionId];
-    } else {
-      // Neither a valid session nor an initialize request → return error
-      res.status(400).json({
-        jsonrpc: "2.0",
-        error: {
-          code: -32000,
-          message: "Bad Request: No valid session ID provided",
-        },
-        id: null,
-      });
-      return;
-    }
-
-    // Forward the request to the transport of the retrieved/created session
-    await sessionEntry.transport.handleRequest(req, res, req.body);
-  });
-
-  async function handleSessionRequest(req: Request, res: Response) {
-    const sessionIdHeader = req.headers["mcp-session-id"] as string | undefined;
-    if (!sessionIdHeader || !sessions[sessionIdHeader]) {
-      res.status(400).send("Invalid or missing session ID");
-      return;
-    }
-    const { transport } = sessions[sessionIdHeader];
-    await transport.handleRequest(req, res);
-  }
-
-  router.get("/mcp", handleSessionRequest);
-  router.delete("/mcp", handleSessionRequest);
+  // Protected endpoint: room-bound tools, requires a session or internal trust.
+  mountMcpEndpoint(router, "/mcp-rooms", "rooms", config, cors, [
+    internalToken,
+    session,
+    auth,
+  ]);
 
   app.use(mcpBasePath, router);
 

@@ -5,7 +5,10 @@
 import { Express } from "express";
 import { pinoHttp } from "pino-http";
 import { getLogger } from "../logger/logger.js";
-import { LevelWithSilent } from "pino";
+import { LevelWithSilent, stdSerializers } from "pino";
+
+const stripInternalToken = (url: string) =>
+  url.replace(/([?&])_token=[^&]*(&|$)/, (_m, p1, p2) => (p2 ? p1 : ""));
 
 export function setupHttpLoggerMiddleware(app: Express) {
   const logger = getLogger().child({
@@ -22,6 +25,13 @@ export function setupHttpLoggerMiddleware(app: Express) {
   const httpLogger = pinoHttp({
     logger: getLogger(),
     useLevel: httpLogLevel,
+    redact: ['req.headers["x-internal-token"]'],
+    serializers: {
+      req: (req) => {
+        const serialized = stdSerializers.req(req);
+        return { ...serialized, url: stripInternalToken(serialized.url) };
+      },
+    },
   });
   app.use(httpLogger);
 }
