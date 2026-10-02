@@ -7,6 +7,7 @@ import { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import { getStore } from "@/store.js";
 import { authorizeRoomPage, roomAccessErrorResult } from "../authorize.js";
+import { toolErrorResult } from "../tool-result.js";
 import { WeaveStateManipulation } from "@inditextech/weave-sdk/server";
 import { WeaveStateElement } from "@inditextech/weave-types";
 
@@ -59,17 +60,7 @@ export const registerTool = (server: McpServer) => {
       const node = WeaveStateManipulation.getYjsElement(roomDocument, nodeId);
 
       if (!node) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error: Node ${nodeId} not found in room ${roomId}.`,
-            },
-          ],
-          structuredContent: {
-            error: `Node ${nodeId} not found in room ${roomId}.`,
-          },
-        };
+        return toolErrorResult(`Node ${nodeId} not found in room ${roomId}.`);
       }
 
       const nodeJSON: WeaveStateElement = JSON.parse(JSON.stringify(node));
