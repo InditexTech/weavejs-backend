@@ -6,6 +6,8 @@ import * as Y from "yjs";
 import { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import { getStore } from "@/store.js";
+import { authorizeRoomPage, roomAccessErrorResult } from "../authorize.js";
+import { toolErrorResult } from "../tool-result.js";
 import { WeaveStateManipulation } from "@inditextech/weave-sdk/server";
 import { persistRoomDocument } from "@/templates/utils.js";
 
@@ -20,6 +22,11 @@ export const registerTool = (server: McpServer) => {
         roomId: z
           .string()
           .describe("The id of the room where the node will be deleted"),
+        pageId: z
+          .string()
+          .describe(
+            "The id of the page of the room that contains the node (document to operate on).",
+          ),
         nodeId: z.string().describe("The id of the node to delete"),
       }),
       outputSchema: z.object({ nodeId: z.string() }),
@@ -30,24 +37,16 @@ export const registerTool = (server: McpServer) => {
         openWorldHint: true,
       },
     },
-    async ({ roomId, nodeId }) => {
+    async ({ roomId, pageId, nodeId }, ctx) => {
       let roomDocument: Y.Doc | undefined = undefined;
 
-      roomDocument = await getStore().getRoomDocument(roomId);
+      const authorized = await authorizeRoomPage(ctx, roomId, pageId);
 
-      if (!roomDocument) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: "Error: Room ${roomId} not found.",
-            },
-          ],
-          structuredContent: {
-            error: `Room ${roomId} not found.`,
-          },
-        };
+      if (!authorized) {
+        return roomAccessErrorResult();
       }
+
+      roomDocument = await getStore().getRoomDocument(authorized.docId);
 
       const containerId = "mainLayer";
       const container = WeaveStateManipulation.getYjsElement(
@@ -56,38 +55,20 @@ export const registerTool = (server: McpServer) => {
       );
 
       if (!container) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error: Container ${containerId} not found in room ${roomId}.`,
-            },
-          ],
-          structuredContent: {
-            error: `Container ${containerId} not found in room ${roomId}.`,
-          },
-        };
+        return toolErrorResult(
+          `Container ${containerId} not found in room ${roomId}.`,
+        );
       }
 
       const node = WeaveStateManipulation.getYjsElement(roomDocument, nodeId);
 
       if (!node) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error: Node ${nodeId} not found in room ${roomId}.`,
-            },
-          ],
-          structuredContent: {
-            error: `Node ${nodeId} not found in room ${roomId}.`,
-          },
-        };
+        return toolErrorResult(`Node ${nodeId} not found in room ${roomId}.`);
       }
 
       WeaveStateManipulation.deleteElements(container, [nodeId]);
 
-      await persistRoomDocument(roomId, roomDocument);
+      await persistRoomDocument(authorized.docId, roomDocument);
 
       const NODE_DELETED = {
         nodeId,
