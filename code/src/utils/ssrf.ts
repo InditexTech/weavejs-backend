@@ -5,8 +5,11 @@
 import dns from "node:dns";
 import http from "node:http";
 import https from "node:https";
+import zlib from "node:zlib";
 import { BlockList, isIP } from "node:net";
 import type { LookupFunction } from "node:net";
+import type { IncomingMessage } from "node:http";
+import type { Readable } from "node:stream";
 
 export const DESTINATION_NOT_ALLOWED = "Destination not allowed";
 
@@ -37,7 +40,7 @@ const BLOCKED_V6: [number[], number][] = [
   [[0x64, 0xff9b], 96], // NAT64
   [[0x64, 0xff9b, 1], 48], // local-use NAT64
   [[0x100], 64], // discard-only
-  [[0x2001], 32], // Teredo (embeds an IPv4 address)
+  [[0x2001], 23], // IETF assignments: Teredo, benchmarking, ORCHID
   [[0x2001, 0xdb8], 32], // documentation
   [[0x2002], 16], // 6to4 (embeds an IPv4 address)
   [[0xfc00], 7], // unique-local
@@ -45,6 +48,10 @@ const BLOCKED_V6: [number[], number][] = [
   [[0xfec0], 10], // site-local (deprecated)
   [[0xff00], 8], // multicast
 ];
+
+// Only global unicast (2000::/3) can be public; everything else is denied.
+const globalUnicastV6 = new BlockList();
+globalUnicastV6.addSubnet("2000::", 3, "ipv6");
 
 for (const [octets, prefix] of BLOCKED_V4) {
   blockList.addSubnet(octets.join("."), prefix, "ipv4");
@@ -76,7 +83,11 @@ export function isBlockedIp(address: string): boolean {
   }
 
   if (family === 6) {
-    return isMappedV6(ip) || blockList.check(ip, "ipv6");
+    return (
+      isMappedV6(ip) ||
+      !globalUnicastV6.check(ip, "ipv6") ||
+      blockList.check(ip, "ipv6")
+    );
   }
 
   return blockList.check(ip, "ipv4");
@@ -131,6 +142,22 @@ const validatingLookup: LookupFunction = (hostname, options, callback) => {
   });
 };
 
+const createDecoder = (encoding: string | undefined) => {
+  switch ((encoding ?? "identity").toLowerCase().trim()) {
+    case "identity":
+      return null;
+    case "gzip":
+    case "x-gzip":
+      return zlib.createGunzip();
+    case "deflate":
+      return zlib.createInflate();
+    case "br":
+      return zlib.createBrotliDecompress();
+    default:
+      return undefined;
+  }
+};
+
 /**
  * Fetches a user-supplied URL without following redirects, connecting only to
  * validated public addresses, with a size cap and timeout.
@@ -157,6 +184,7 @@ export function safeFetchBuffer(
         port: url.port || undefined,
         path: `${url.pathname}${url.search}`,
         method: "GET",
+        headers: { "accept-encoding": "gzip, deflate, br" },
         lookup: validatingLookup,
       },
       (res) => {
@@ -179,13 +207,31 @@ export function safeFetchBuffer(
           return;
         }
 
+        const decoder = createDecoder(res.headers["content-encoding"]);
+        if (decoder === undefined) {
+          req.destroy();
+          reject(new Error("Unsupported content encoding"));
+          return;
+        }
+
+        // The size cap applies to the decoded bytes (decompression bombs).
+        let body: Readable = res;
+        if (decoder) {
+          decoder.on("error", (err) => {
+            req.destroy();
+            reject(err);
+          });
+          body = res.pipe(decoder);
+        }
+
         const chunks: Buffer[] = [];
         let total = 0;
 
-        res.on("data", (chunk: Buffer) => {
+        body.on("data", (chunk: Buffer) => {
           total += chunk.length;
           if (total > maxBytes) {
-            req.destroy(
+            req.destroy();
+            reject(
               new Error(
                 `Image response exceeds size limit of ${maxBytes} bytes`,
               ),
@@ -194,10 +240,16 @@ export function safeFetchBuffer(
           }
           chunks.push(chunk);
         });
-        res.on("end", () => resolve(Buffer.concat(chunks)));
+        body.on("end", () => resolve(Buffer.concat(chunks)));
         res.on("error", reject);
       },
     );
+
+    // Protocol upgrades bypass the response callback and would hang.
+    req.on("upgrade", (res: IncomingMessage, socket) => {
+      socket.destroy();
+      reject(new Error("Unexpected protocol upgrade"));
+    });
 
     // Total deadline (DNS, connect and body), not just socket inactivity.
     const deadline = setTimeout(() => {
