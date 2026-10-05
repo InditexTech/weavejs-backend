@@ -12,31 +12,32 @@ export const DESTINATION_NOT_ALLOWED = "Destination not allowed";
 
 const blockList = new BlockList();
 
+// Deny-list ranges, not addresses we connect to (hence NOSONAR on S1313).
 const BLOCKED_V4: [string, number][] = [
-  ["0.0.0.0", 8], // "this" network
-  ["10.0.0.0", 8], // RFC 1918
-  ["100.64.0.0", 10], // CGNAT
-  ["127.0.0.0", 8], // loopback
-  ["169.254.0.0", 16], // link-local / cloud metadata
-  ["172.16.0.0", 12], // RFC 1918
-  ["192.0.0.0", 24], // IETF protocol assignments
-  ["192.0.2.0", 24], // documentation
-  ["192.168.0.0", 16], // RFC 1918
-  ["198.18.0.0", 15], // benchmarking
-  ["198.51.100.0", 24], // documentation
-  ["203.0.113.0", 24], // documentation
-  ["224.0.0.0", 4], // multicast
-  ["240.0.0.0", 4], // reserved + broadcast
+  ["0.0.0.0", 8], // "this" network // NOSONAR
+  ["10.0.0.0", 8], // RFC 1918 // NOSONAR
+  ["100.64.0.0", 10], // CGNAT // NOSONAR
+  ["127.0.0.0", 8], // loopback // NOSONAR
+  ["169.254.0.0", 16], // link-local / cloud metadata // NOSONAR
+  ["172.16.0.0", 12], // RFC 1918 // NOSONAR
+  ["192.0.0.0", 24], // IETF protocol assignments // NOSONAR
+  ["192.0.2.0", 24], // documentation // NOSONAR
+  ["192.168.0.0", 16], // RFC 1918 // NOSONAR
+  ["198.18.0.0", 15], // benchmarking // NOSONAR
+  ["198.51.100.0", 24], // documentation // NOSONAR
+  ["203.0.113.0", 24], // documentation // NOSONAR
+  ["224.0.0.0", 4], // multicast // NOSONAR
+  ["240.0.0.0", 4], // reserved + broadcast // NOSONAR
 ];
 
 const BLOCKED_V6: [string, number][] = [
-  ["::", 96], // unspecified, loopback, IPv4-compatible
-  ["64:ff9b::", 96], // NAT64
-  ["100::", 64], // discard-only
-  ["2001:db8::", 32], // documentation
-  ["fc00::", 7], // unique-local
-  ["fe80::", 10], // link-local
-  ["ff00::", 8], // multicast
+  ["::", 96], // unspecified, loopback, IPv4-compatible // NOSONAR
+  ["64:ff9b::", 96], // NAT64 // NOSONAR
+  ["100::", 64], // discard-only // NOSONAR
+  ["2001:db8::", 32], // documentation // NOSONAR
+  ["fc00::", 7], // unique-local // NOSONAR
+  ["fe80::", 10], // link-local // NOSONAR
+  ["ff00::", 8], // multicast // NOSONAR
 ];
 
 for (const [net, prefix] of BLOCKED_V4)
@@ -56,8 +57,8 @@ const mappedToIpv4 = (address: string): string | null => {
   const hextets = /^([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i.exec(tail);
   if (!hextets) return null;
 
-  const hi = parseInt(hextets[1], 16);
-  const lo = parseInt(hextets[2], 16);
+  const hi = Number.parseInt(hextets[1], 16);
+  const lo = Number.parseInt(hextets[2], 16);
   return `${hi >> 8}.${hi & 255}.${lo >> 8}.${lo & 255}`;
 };
 
