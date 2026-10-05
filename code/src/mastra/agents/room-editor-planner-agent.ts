@@ -2,15 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { createInternalMcpClient } from "../mcp-client.js";
+import { listBoundRoomTools } from "../mcp-client.js";
 import { Agent } from "@mastra/core/agent";
 import { getMemory } from "../connectors.js";
 import { ANALYSIS_MODEL_PRO } from "../index.js";
 
 export const getRoomEditorPlannerAgent = async () => {
   const memory = await getMemory();
-
-  const testMcpClient = createInternalMcpClient();
 
   return new Agent({
     id: "room-editor-planer-agent",
@@ -41,7 +39,7 @@ export const getRoomEditorPlannerAgent = async () => {
       IMPORTANT: If you need to call tools to make the information accurate, always do so.
     `,
     model: ANALYSIS_MODEL_PRO,
-    tools: await testMcpClient.listTools(),
+    tools: await listBoundRoomTools(),
     memory,
   });
 };

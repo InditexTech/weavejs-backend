@@ -155,7 +155,8 @@ Controllers follow `<verb><Resource>Controller` and live under `src/api/vN/contr
 
 - Models referenced as LiteLLM strings, e.g. `"google/gemini-3.1-pro-preview"` — constants in `src/mastra/index.ts`
 - Agents and workflows are lazily initialized inside `getMastra()`
-- Dev studio: `npm run llm:studio`
+- Dev studio: `npm run llm:studio` (runs in a separate process: set the same `INTERNAL_SERVICE_TOKEN` for it and the backend, and keep the backend running, so its agents can reach `/ai/v1/mcp-rooms`)
+- Agents get room tools through `listBoundRoomTools()`, which overwrites `roomId`/`pageId` from the request context (`createBoundRequestContext`) because the internal token is not tied to a user; always pass a bound `requestContext` when streaming an agent that uses them
 
 ### MCP server
 

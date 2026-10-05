@@ -7,9 +7,14 @@ import { randomUUID } from "crypto";
 import { ServiceConfig } from "../types.js";
 import { DEFAULT_PORT } from "../constants.js";
 
-// Stable per-process secret used by the export worker to bypass user auth on
-// internal image/video fetch requests. Rotates on every server restart.
-const INTERNAL_SERVICE_TOKEN = randomUUID();
+// Secret used by the export worker and the in-app AI agents to authenticate
+// internal requests. Rotates on every server restart unless INTERNAL_SERVICE_TOKEN
+// is set, which lets a separate process (Mastra Studio) share it.
+const INTERNAL_SERVICE_TOKEN =
+  process.env.INTERNAL_SERVICE_TOKEN &&
+  process.env.INTERNAL_SERVICE_TOKEN.length >= 32
+    ? process.env.INTERNAL_SERVICE_TOKEN
+    : randomUUID();
 
 const databaseWithConnectionStringSchema = z.object({
   kind: z.literal("connection_string"),
@@ -327,7 +332,10 @@ export function getServiceConfig(): ServiceConfig {
 
   const rawCorsOrigins = process.env.CORS_ALLOWED_ORIGINS;
   const corsAllowedOrigins: string[] = rawCorsOrigins
-    ? rawCorsOrigins.split(",").map((o) => o.trim()).filter(Boolean)
+    ? rawCorsOrigins
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean)
     : [process.env.BETTER_AUTH_URL ?? ""].filter(Boolean);
 
   const liteLLMEndpoint = process.env.LITELLM_ENDPOINT;

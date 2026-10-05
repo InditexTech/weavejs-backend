@@ -2,15 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { createInternalMcpClient } from "../mcp-client.js";
+import { listBoundRoomTools } from "../mcp-client.js";
 import { Agent } from "@mastra/core/agent";
 import { getMemory } from "../connectors.js";
 import { ANALYSIS_MODEL } from "../index.js";
 
 export const getInformationAgent = async () => {
   const memory = await getMemory();
-
-  const testMcpClient = createInternalMcpClient();
 
   return new Agent({
     id: "information-agent",
@@ -31,7 +29,7 @@ export const getInformationAgent = async () => {
       respond with "I don't know".
     `,
     model: ANALYSIS_MODEL,
-    tools: await testMcpClient.listTools(),
+    tools: await listBoundRoomTools(),
     memory,
   });
 };

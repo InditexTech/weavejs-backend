@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { getMemory } from "@/mastra/connectors.js";
 import { createStep } from "@mastra/core/workflows";
 import { z } from "zod";
+import { createBoundRequestContext } from "@/mastra/mcp-client.js";
 import { CallTool, Task } from "@/mastra/types.js";
 import { ANALYSIS_MODEL } from "@/mastra/index.js";
 
@@ -105,6 +106,7 @@ export const createExecutionStep = async (
         ],
         {
           memory,
+          requestContext: createBoundRequestContext(state.roomId, state.pageId),
           structuredOutput: {
             schema: z.object({
               status: z.enum(["success", "failure"]),
@@ -230,6 +232,7 @@ export const createExecutionStep = async (
         ],
         {
           memory,
+          requestContext: createBoundRequestContext(state.roomId, state.pageId),
           structuredOutput: {
             schema: z.object({
               reason: z

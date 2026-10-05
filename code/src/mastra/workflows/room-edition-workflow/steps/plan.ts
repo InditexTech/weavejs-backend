@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { getMemory } from "@/mastra/connectors.js";
 import { createStep } from "@mastra/core/workflows";
 import { z } from "zod";
+import { createBoundRequestContext } from "@/mastra/mcp-client.js";
 import { CallTool, Task } from "@/mastra/types.js";
 import { ANALYSIS_MODEL_PRO } from "@/mastra/index.js";
 
@@ -105,6 +106,7 @@ export const createPlanStep = async (roomEditorPlannerAgent: any) => {
         ],
         {
           memory,
+          requestContext: createBoundRequestContext(state.roomId, state.pageId),
         },
       );
 
@@ -216,6 +218,7 @@ export const createPlanStep = async (roomEditorPlannerAgent: any) => {
         ],
         {
           memory,
+          requestContext: createBoundRequestContext(state.roomId, state.pageId),
           structuredOutput: {
             schema: z.object({
               question: z
