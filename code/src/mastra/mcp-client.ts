@@ -37,11 +37,13 @@ export const createBoundRequestContext = (roomId: string, pageId: string) => {
 export const bindRoomTool = (tool: any) => {
   const bound = Object.assign(Object.create(Object.getPrototypeOf(tool)), tool);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  bound.execute = async (input: any, context: any) => {
+  bound.execute = (input: any, context: any) => {
     const roomId = context?.requestContext?.get("roomId");
     const pageId = context?.requestContext?.get("pageId");
     if (typeof roomId !== "string" || typeof pageId !== "string") {
-      throw new Error("Room tools require an authorized room and page context");
+      throw new TypeError(
+        "Room tools require an authorized room and page context",
+      );
     }
     return tool.execute({ ...input, roomId, pageId }, context);
   };

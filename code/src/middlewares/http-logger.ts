@@ -8,7 +8,7 @@ import { getLogger } from "../logger/logger.js";
 import { LevelWithSilent, stdSerializers } from "pino";
 
 const isTokenParam = (param: string) => {
-  const name = param.split("=")[0].replace(/\+/g, " ");
+  const name = param.split("=")[0].replaceAll("+", " ");
   try {
     return decodeURIComponent(name) === "_token";
   } catch {
