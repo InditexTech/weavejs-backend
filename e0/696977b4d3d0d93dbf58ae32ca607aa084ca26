@@ -1,0 +1,43 @@
+.github/copilot-instructions.md
+  s_fe7fd64e87bed4::t_8305537c2eccdd 158-159
+code/.env.example
+  s_fe7fd64e87bed4::t_b4341caa95c19a 55-58
+code/src/config/config.ts
+  s_fe7fd64e87bed4::t_752ee889ce830e 10-17,335-338
+code/src/mastra/agents/information-agent.ts
+  s_fe7fd64e87bed4::t_a4b92bf371f36b 5,32
+code/src/mastra/agents/room-editor-executor-agent.ts
+  s_fe7fd64e87bed4::t_293d728619ebf3 5,47
+code/src/mastra/agents/room-editor-executor-result-agent.ts
+  s_fe7fd64e87bed4::t_1397bf6eac0384 5,23
+code/src/mastra/agents/room-editor-planner-agent.ts
+  s_fe7fd64e87bed4::t_51c552654883b4 5,42
+code/src/mastra/agents/room-editor-planner-result-agent.ts
+  s_fe7fd64e87bed4::t_10c73415106211 5,23
+code/src/mastra/workflows/room-edition-workflow/steps/execution.ts
+  s_fe7fd64e87bed4::t_6673c3f78c7a54 9,109,235
+code/src/mastra/workflows/room-edition-workflow/steps/plan.ts
+  s_fe7fd64e87bed4::t_745a12aef35859 9,109,221
+code/src/mastra/workflows/room-edition-workflow/steps/references-extraction.ts
+  s_fe7fd64e87bed4::t_10281dcfce6c2f 8,139-142
+code/src/middlewares/http-logger.ts
+  s_fe7fd64e87bed4::t_765aeffdedb5e5 10-31
+code/src/mastra/mcp-client.ts
+  s_fe7fd64e87bed4::t_9fc843c5f462aa 6,9-10,23-59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e0696977b4d3d0d93dbf58ae32ca607aa084ca26",
+  "prompts": {},
+  "sessions": {
+    "s_fe7fd64e87bed4": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "c5079317-aacf-404f-9e80-0a747ebdd496",
+        "model": "claude-haiku-4.5"
+      },
+      "human_author": "Alejandro Montes <alejandromogarcia@ext.inditex.com>"
+    }
+  }
+}

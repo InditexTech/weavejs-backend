@@ -1,0 +1,29 @@
+code/src/mastra/tools/information-tool.ts
+  s_fe7fd64e87bed4::t_af778959ce9b14 39-43,45-52
+code/src/mcp/tool-result.ts
+  s_fe7fd64e87bed4::t_e12ef5afe49a51 6
+code/src/mcp/tools/add-node.ts
+  s_fe7fd64e87bed4::t_3d4a25f4919b87 82-85
+code/src/mcp/tools/delete-node.ts
+  s_fe7fd64e87bed4::t_5c5fab6a90cd3c 51-54
+code/src/mcp/tools/get-node.ts
+  s_fe7fd64e87bed4::t_85bae194c6271b 60-63
+code/src/mcp/tools/update-node.ts
+  s_fe7fd64e87bed4::t_7863bcf16500b4 74-77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a98ef479feead047765710026129e6ac54b1a4bd",
+  "prompts": {},
+  "sessions": {
+    "s_fe7fd64e87bed4": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "c5079317-aacf-404f-9e80-0a747ebdd496",
+        "model": "claude-haiku-4.5"
+      },
+      "human_author": "Alejandro Montes <alejandromogarcia@ext.inditex.com>"
+    }
+  }
+}

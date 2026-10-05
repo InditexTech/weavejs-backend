@@ -1,0 +1,19 @@
+code/src/mastra/tools/resume-workflow-tool.ts
+  s_fe7fd64e87bed4::t_44720dc682997e 55-65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "67e910bc0205e910f4bac498eb2a0e564aa27e67",
+  "prompts": {},
+  "sessions": {
+    "s_fe7fd64e87bed4": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "c5079317-aacf-404f-9e80-0a747ebdd496",
+        "model": "claude-haiku-4.5"
+      },
+      "human_author": "Alejandro Montes <alejandromogarcia@ext.inditex.com>"
+    }
+  }
+}
