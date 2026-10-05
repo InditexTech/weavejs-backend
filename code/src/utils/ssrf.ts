@@ -33,11 +33,16 @@ const BLOCKED_V4: [number[], number][] = [
 // Leading hextets of each range, the rest is zero.
 const BLOCKED_V6: [number[], number][] = [
   [[], 96], // unspecified, loopback, IPv4-compatible
+  [[0, 0, 0, 0, 0xffff, 0], 96], // IPv4-translated
   [[0x64, 0xff9b], 96], // NAT64
+  [[0x64, 0xff9b, 1], 48], // local-use NAT64
   [[0x100], 64], // discard-only
+  [[0x2001], 32], // Teredo (embeds an IPv4 address)
   [[0x2001, 0xdb8], 32], // documentation
+  [[0x2002], 16], // 6to4 (embeds an IPv4 address)
   [[0xfc00], 7], // unique-local
   [[0xfe80], 10], // link-local
+  [[0xfec0], 10], // site-local (deprecated)
   [[0xff00], 8], // multicast
 ];
 
@@ -54,21 +59,11 @@ for (const [hextets, prefix] of BLOCKED_V6) {
   );
 }
 
-const MAPPED_V6 = /^(?:0{0,4}:){2,5}ffff:(.+)$/i;
-
-const mappedToIpv4 = (address: string): string | null => {
-  const match = MAPPED_V6.exec(address);
-  if (!match) return null;
-
-  const tail = match[1];
-  if (isIP(tail) === 4) return tail;
-
-  const hextets = /^([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i.exec(tail);
-  if (!hextets) return null;
-
-  const hi = Number.parseInt(hextets[1], 16);
-  const lo = Number.parseInt(hextets[2], 16);
-  return `${hi >> 8}.${hi & 255}.${lo >> 8}.${lo & 255}`;
+// IPv4-mapped addresses (::ffff:a.b.c.d) are never a valid public destination.
+// URL canonicalizes every spelling (dotted, hex, zero-padded) to one form.
+const isMappedV6 = (ip: string) => {
+  const canonical = new URL(`http://[${ip}]/`).hostname;
+  return /^\[::ffff:[0-9a-f]{1,4}:[0-9a-f]{1,4}\]$/.test(canonical);
 };
 
 /** Returns true for any address that is not a public unicast destination. Unparseable input is treated as blocked. */
@@ -81,11 +76,7 @@ export function isBlockedIp(address: string): boolean {
   }
 
   if (family === 6) {
-    const mapped = mappedToIpv4(ip);
-    if (mapped) {
-      return blockList.check(mapped, "ipv4");
-    }
-    return blockList.check(ip, "ipv6");
+    return isMappedV6(ip) || blockList.check(ip, "ipv6");
   }
 
   return blockList.check(ip, "ipv4");
@@ -172,14 +163,14 @@ export function safeFetchBuffer(
         const status = res.statusCode ?? 0;
 
         if (status < 200 || status >= 300) {
-          res.resume();
+          req.destroy();
           reject(new Error(`Failed to fetch image: ${status}`));
           return;
         }
 
         const contentLength = Number(res.headers["content-length"]);
         if (!Number.isNaN(contentLength) && contentLength > maxBytes) {
-          res.resume();
+          req.destroy();
           reject(
             new Error(
               `Image response too large: ${contentLength} bytes (max ${maxBytes})`,
@@ -208,9 +199,11 @@ export function safeFetchBuffer(
       },
     );
 
-    req.setTimeout(timeoutMs, () => {
+    // Total deadline (DNS, connect and body), not just socket inactivity.
+    const deadline = setTimeout(() => {
       req.destroy(new Error("Request timed out"));
-    });
+    }, timeoutMs);
+    req.on("close", () => clearTimeout(deadline));
     req.on("error", reject);
     req.end();
   });
