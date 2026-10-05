@@ -1,0 +1,19 @@
+code/src/utils/ssrf.ts
+  s_fe7fd64e87bed4::t_6c2e4bed33a105 8,11-12,43,52-55,86-90,145-160,187,210-226,230,233-234,243,248-253
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1e59e1285b1676460183bd0e695d2771c90f98ec",
+  "prompts": {},
+  "sessions": {
+    "s_fe7fd64e87bed4": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "c5079317-aacf-404f-9e80-0a747ebdd496",
+        "model": "claude-haiku-4.5"
+      },
+      "human_author": "Alejandro Montes <alejandromogarcia@ext.inditex.com>"
+    }
+  }
+}
