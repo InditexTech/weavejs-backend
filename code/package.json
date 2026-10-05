@@ -112,7 +112,6 @@
     "module-alias": "^2.2.3",
     "morgan": "^1.10.0",
     "multer": "^2.0.2",
-    "npm": "^11.6.2",
     "p-limit": "^7.3.0",
     "p-queue": "^8.1.1",
     "pantone-tcx": "^2.2.4",
