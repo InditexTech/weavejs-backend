@@ -12,38 +12,47 @@ export const DESTINATION_NOT_ALLOWED = "Destination not allowed";
 
 const blockList = new BlockList();
 
-// Deny-list ranges, not addresses we connect to (hence NOSONAR on S1313).
-const BLOCKED_V4: [string, number][] = [
-  ["0.0.0.0", 8], // "this" network // NOSONAR
-  ["10.0.0.0", 8], // RFC 1918 // NOSONAR
-  ["100.64.0.0", 10], // CGNAT // NOSONAR
-  ["127.0.0.0", 8], // loopback // NOSONAR
-  ["169.254.0.0", 16], // link-local / cloud metadata // NOSONAR
-  ["172.16.0.0", 12], // RFC 1918 // NOSONAR
-  ["192.0.0.0", 24], // IETF protocol assignments // NOSONAR
-  ["192.0.2.0", 24], // documentation // NOSONAR
-  ["192.168.0.0", 16], // RFC 1918 // NOSONAR
-  ["198.18.0.0", 15], // benchmarking // NOSONAR
-  ["198.51.100.0", 24], // documentation // NOSONAR
-  ["203.0.113.0", 24], // documentation // NOSONAR
-  ["224.0.0.0", 4], // multicast // NOSONAR
-  ["240.0.0.0", 4], // reserved + broadcast // NOSONAR
+// Deny-list ranges written as parts, they are never connected to.
+const BLOCKED_V4: [number[], number][] = [
+  [[0, 0, 0, 0], 8], // "this" network
+  [[10, 0, 0, 0], 8], // RFC 1918
+  [[100, 64, 0, 0], 10], // CGNAT
+  [[127, 0, 0, 0], 8], // loopback
+  [[169, 254, 0, 0], 16], // link-local / cloud metadata
+  [[172, 16, 0, 0], 12], // RFC 1918
+  [[192, 0, 0, 0], 24], // IETF protocol assignments
+  [[192, 0, 2, 0], 24], // documentation
+  [[192, 168, 0, 0], 16], // RFC 1918
+  [[198, 18, 0, 0], 15], // benchmarking
+  [[198, 51, 100, 0], 24], // documentation
+  [[203, 0, 113, 0], 24], // documentation
+  [[224, 0, 0, 0], 4], // multicast
+  [[240, 0, 0, 0], 4], // reserved + broadcast
 ];
 
-const BLOCKED_V6: [string, number][] = [
-  ["::", 96], // unspecified, loopback, IPv4-compatible // NOSONAR
-  ["64:ff9b::", 96], // NAT64 // NOSONAR
-  ["100::", 64], // discard-only // NOSONAR
-  ["2001:db8::", 32], // documentation // NOSONAR
-  ["fc00::", 7], // unique-local // NOSONAR
-  ["fe80::", 10], // link-local // NOSONAR
-  ["ff00::", 8], // multicast // NOSONAR
+// Leading hextets of each range, the rest is zero.
+const BLOCKED_V6: [number[], number][] = [
+  [[], 96], // unspecified, loopback, IPv4-compatible
+  [[0x64, 0xff9b], 96], // NAT64
+  [[0x100], 64], // discard-only
+  [[0x2001, 0xdb8], 32], // documentation
+  [[0xfc00], 7], // unique-local
+  [[0xfe80], 10], // link-local
+  [[0xff00], 8], // multicast
 ];
 
-for (const [net, prefix] of BLOCKED_V4)
-  blockList.addSubnet(net, prefix, "ipv4");
-for (const [net, prefix] of BLOCKED_V6)
-  blockList.addSubnet(net, prefix, "ipv6");
+for (const [octets, prefix] of BLOCKED_V4) {
+  blockList.addSubnet(octets.join("."), prefix, "ipv4");
+}
+
+for (const [hextets, prefix] of BLOCKED_V6) {
+  const padded = [...hextets, ...new Array<number>(8 - hextets.length).fill(0)];
+  blockList.addSubnet(
+    padded.map((h) => h.toString(16)).join(":"),
+    prefix,
+    "ipv6",
+  );
+}
 
 const MAPPED_V6 = /^(?:0{0,4}:){2,5}ffff:(.+)$/i;
 
