@@ -2,22 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { MCPClient } from "@mastra/mcp";
+import { listBoundRoomTools } from "../mcp-client.js";
 import { Agent } from "@mastra/core/agent";
 import { getMemory } from "../connectors.js";
 import { ANALYSIS_MODEL_PRO } from "../index.js";
 
 export const getRoomEditorExecutorAgent = async () => {
   const memory = await getMemory();
-
-  const testMcpClient = new MCPClient({
-    id: "weavejs-mcp-client",
-    servers: {
-      weavejsLocal: {
-        url: new URL(`http://localhost:8081/ai/v1/mcp`),
-      },
-    },
-  });
 
   return new Agent({
     id: "room-editor-executor-agent",
@@ -53,7 +44,7 @@ export const getRoomEditorExecutorAgent = async () => {
       spacing, line height, horizontal align and vertical align.
     `,
     model: ANALYSIS_MODEL_PRO,
-    tools: await testMcpClient.listTools(),
+    tools: await listBoundRoomTools(),
     memory,
   });
 };

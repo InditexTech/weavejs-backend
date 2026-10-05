@@ -5,6 +5,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { createStep } from "@mastra/core/workflows";
 import { z } from "zod";
+import { createBoundRequestContext } from "@/mastra/mcp-client.js";
 import { ImagesPersistenceHandler } from "@/images/persistence.js";
 import { getServiceConfig } from "@/config/config.js";
 import { getImageMetadata } from "@/mcp/tools/get-image-metadata.js";
@@ -131,10 +132,14 @@ export const createReferencesExtractionStep = async (
             },
             {
               role: "user",
-              content: `The room to edit is: ${pageId}`,
+              content: `The room to edit has roomId "${roomId}" and pageId "${pageId}". Always pass both to the tools that require them.`,
             },
           ],
           {
+            requestContext: createBoundRequestContext(
+              state.roomId,
+              state.pageId,
+            ),
             structuredOutput: {
               schema: z.array(
                 z

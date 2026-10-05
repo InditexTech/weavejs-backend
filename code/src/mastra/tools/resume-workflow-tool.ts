@@ -52,6 +52,17 @@ export const resumeWorkflowTool = createTool({
     if (workflow) {
       const state = await workflow.getWorkflowRunById(executionId);
 
+      // The run's saved room is only trusted if it is the room this request was
+      // authorized for (the chat route checks membership of that room).
+      const requestRoomId = context.requestContext?.get("roomId");
+      if (state && state.initialState?.roomId !== requestRoomId) {
+        return {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          status: "execution-not-found" as any,
+          reason: `Workflow run with id ${executionId} not found`,
+        };
+      }
+
       if (state?.status === "suspended") {
         const reader = createWorkflowStateReader(state);
         const suspendedStep = reader.getSuspendedStep();

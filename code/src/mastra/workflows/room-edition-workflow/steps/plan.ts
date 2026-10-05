@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { getMemory } from "@/mastra/connectors.js";
 import { createStep } from "@mastra/core/workflows";
 import { z } from "zod";
+import { createBoundRequestContext } from "@/mastra/mcp-client.js";
 import { CallTool, Task } from "@/mastra/types.js";
 import { ANALYSIS_MODEL_PRO } from "@/mastra/index.js";
 
@@ -25,6 +26,7 @@ export const createPlanStep = async (roomEditorPlannerAgent: any) => {
       plan: z.string(),
     }),
     stateSchema: z.object({
+      roomId: z.string(),
       pageId: z.string(),
       originalMessage: z.string(),
       referenceNodesInformation: z.array(z.any()),
@@ -32,7 +34,7 @@ export const createPlanStep = async (roomEditorPlannerAgent: any) => {
     }),
     execute: async ({ inputData, mastra, state, writer }) => {
       const { message } = inputData;
-      const { pageId, referenceNodesInformation } = state;
+      const { roomId, pageId, referenceNodesInformation } = state;
       const { originalMessage, imagesInformation } = state;
 
       const logger = mastra?.getLogger();
@@ -99,11 +101,12 @@ export const createPlanStep = async (roomEditorPlannerAgent: any) => {
           },
           {
             role: "user",
-            content: `The room to edit is: ${pageId}.`,
+            content: `The room to edit has roomId "${roomId}" and pageId "${pageId}". Always pass both to the tools that require them.`,
           },
         ],
         {
           memory,
+          requestContext: createBoundRequestContext(state.roomId, state.pageId),
         },
       );
 
@@ -215,6 +218,7 @@ export const createPlanStep = async (roomEditorPlannerAgent: any) => {
         ],
         {
           memory,
+          requestContext: createBoundRequestContext(state.roomId, state.pageId),
           structuredOutput: {
             schema: z.object({
               question: z

@@ -11,7 +11,7 @@ export function internalToken(
   next: NextFunction,
 ) {
   const { internalToken: token } = getServiceConfig();
-  if (req.query._token === token) {
+  if (req.query._token === token || req.headers["x-internal-token"] === token) {
     req.isInternalRequest = true;
   }
   next();

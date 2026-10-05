@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { getMemory } from "@/mastra/connectors.js";
 import { createStep } from "@mastra/core/workflows";
 import { z } from "zod";
+import { createBoundRequestContext } from "@/mastra/mcp-client.js";
 import { CallTool, Task } from "@/mastra/types.js";
 import { ANALYSIS_MODEL } from "@/mastra/index.js";
 
@@ -30,6 +31,7 @@ export const createExecutionStep = async (
       execution: z.string(),
     }),
     stateSchema: z.object({
+      roomId: z.string(),
       pageId: z.string(),
       originalMessage: z.string(),
       referenceNodesInformation: z.array(z.any()),
@@ -90,7 +92,7 @@ export const createExecutionStep = async (
           },
           {
             role: "user",
-            content: `The room to edit is: ${state.pageId}`,
+            content: `The room to edit has roomId "${state.roomId}" and pageId "${state.pageId}". Always pass both to the tools that require them.`,
           },
           {
             role: "user",
@@ -104,6 +106,7 @@ export const createExecutionStep = async (
         ],
         {
           memory,
+          requestContext: createBoundRequestContext(state.roomId, state.pageId),
           structuredOutput: {
             schema: z.object({
               status: z.enum(["success", "failure"]),
@@ -229,6 +232,7 @@ export const createExecutionStep = async (
         ],
         {
           memory,
+          requestContext: createBoundRequestContext(state.roomId, state.pageId),
           structuredOutput: {
             schema: z.object({
               reason: z
