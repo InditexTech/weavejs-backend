@@ -71,6 +71,10 @@ export const registerTool = (
 
       roomDocument = await getStore().getRoomDocument(authorized.docId);
 
+      if (!roomDocument) {
+        return roomAccessErrorResult();
+      }
+
       const containerId = "mainLayer";
       const container = WeaveStateManipulation.getYjsElement(
         roomDocument,

@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export const toolErrorResult = (message: string) => ({
+  isError: true,
   content: [{ type: "text" as const, text: `Error: ${message}` }],
   structuredContent: { error: message },
 });

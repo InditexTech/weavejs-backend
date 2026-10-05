@@ -57,6 +57,10 @@ export const registerTool = (server: McpServer) => {
 
       roomDocument = await getStore().getRoomDocument(authorized.docId);
 
+      if (!roomDocument) {
+        return roomAccessErrorResult();
+      }
+
       const node = WeaveStateManipulation.getYjsElement(roomDocument, nodeId);
 
       if (!node) {

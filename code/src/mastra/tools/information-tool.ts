@@ -36,17 +36,20 @@ export const informationTool = createTool({
       name: informationAgent.name,
     });
 
-    const stream = await informationAgent.stream([
-      {
-        role: "system",
-        content: `Analyze the the user request, and try to answer it with the information you have about
+    const stream = await informationAgent.stream(
+      [
+        {
+          role: "system",
+          content: `Analyze the the user request, and try to answer it with the information you have about
             the agents and tools capabilities.`,
-      },
-      {
-        role: "user",
-        content: `The user request is: ${params.prompt}`,
-      },
-    ]);
+        },
+        {
+          role: "user",
+          content: `The user request is: ${params.prompt}`,
+        },
+      ],
+      { requestContext: context.requestContext },
+    );
 
     await stream!.fullStream.pipeTo(writer!);
 
