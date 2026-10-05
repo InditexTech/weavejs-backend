@@ -219,6 +219,7 @@ export function safeFetchBuffer(
         if (decoder) {
           decoder.on("error", (err) => {
             req.destroy();
+            decoder.destroy();
             reject(err);
           });
           body = res.pipe(decoder);
@@ -231,6 +232,7 @@ export function safeFetchBuffer(
           total += chunk.length;
           if (total > maxBytes) {
             req.destroy();
+            body.destroy();
             reject(
               new Error(
                 `Image response exceeds size limit of ${maxBytes} bytes`,
