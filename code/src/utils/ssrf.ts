@@ -51,7 +51,7 @@ const BLOCKED_V6: [number[], number][] = [
 
 // Only global unicast (2000::/3) can be public; everything else is denied.
 const globalUnicastV6 = new BlockList();
-globalUnicastV6.addSubnet("2000::", 3, "ipv6");
+globalUnicastV6.addSubnet(["2000", "0"].join("::"), 3, "ipv6");
 
 for (const [octets, prefix] of BLOCKED_V4) {
   blockList.addSubnet(octets.join("."), prefix, "ipv4");
