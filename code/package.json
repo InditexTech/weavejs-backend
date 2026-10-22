@@ -20,6 +20,7 @@
     "db:undo:dev": "cross-env NODE_ENV=development sequelize-cli db:migrate:undo --config ./config/config.cjs",
     "db:migrate": "cross-env NODE_ENV=production sequelize-cli db:migrate --config ./config/config.cjs",
     "db:undo": "cross-env NODE_ENV=production sequelize-cli db:migrate:undo --config ./config/config.cjs",
+    "check:text": "WEAVE_CANVAS_BACKEND=skia tsx src/utils/text-render-check.ts && WEAVE_CANVAS_BACKEND=canvas tsx src/utils/text-render-check.ts",
     "dev": "vite-node src/server.ts",
     "dev:llm": "mastra dev",
     "dev:https": "cross-env HTTPS_ENABLED=true nodemon --exec \"tsx --env-file=.env src/server.ts\"",

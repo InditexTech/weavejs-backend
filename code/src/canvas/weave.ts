@@ -24,17 +24,14 @@ import {
   WeaveStrokeSingleNode,
   setupSkiaBackend,
   WeavePolygonNode,
-  // setupCanvasBackend,
+  setupCanvasBackend,
 } from "@inditextech/weave-sdk/server";
 import { WeaveKonvaBaseRenderer } from "@inditextech/weave-renderer-konva-base/server";
 // import { WeaveKonvaReactReconcilerRenderer } from "@inditextech/weave-renderer-konva-react-reconciler/server";
 import { ColorTokenNode } from "./nodes/color-token/color-token.ts";
 import { isAbsoluteUrl, assertSafeUrl } from "../utils.ts";
 import { type ServiceConfig } from "../types.ts";
-import {
-  registerSkiaFonts,
-  // registerCanvasFonts,
-} from "./fonts.ts";
+import { registerSkiaFonts, registerCanvasFonts } from "./fonts.ts";
 import { ImageTemplateNode } from "./nodes/image-template/image-template.ts";
 import { MeasureNode } from "./nodes/measure/measure.ts";
 import { PantoneNode } from "./nodes/pantone/pantone.ts";
@@ -58,13 +55,14 @@ export const renderWeaveRoom = (
       }
     };
 
-    // Setup Skia backend
-    registerSkiaFonts();
-    await setupSkiaBackend();
-
-    // Setup Canvas backend
-    // registerCanvasFonts();
-    // await setupCanvasBackend();
+    // Setup canvas backend (WEAVE_CANVAS_BACKEND=skia|canvas, default skia)
+    if (process.env.WEAVE_CANVAS_BACKEND === "canvas") {
+      registerCanvasFonts();
+      await setupCanvasBackend();
+    } else {
+      registerSkiaFonts();
+      await setupSkiaBackend();
+    }
 
     const store = new WeaveStoreStandalone(
       {
