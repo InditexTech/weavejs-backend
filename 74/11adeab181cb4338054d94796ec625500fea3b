@@ -1,0 +1,25 @@
+code/package.json
+  s_5319bbcbdfbfb4::t_04291ada291af2 23
+code/src/canvas/fonts.ts
+  s_5319bbcbdfbfb4::t_1ae1c93790d12d 211-212,220
+code/src/canvas/weave.ts
+  s_5319bbcbdfbfb4::t_31f55d1a9730da 27,34,58-65
+code/src/utils/text-render-check.ts
+  s_5319bbcbdfbfb4::t_98b821ee71e149 1-258
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7411adeab181cb4338054d94796ec625500fea3b",
+  "prompts": {},
+  "sessions": {
+    "s_5319bbcbdfbfb4": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e9c2f0a1affezYNaWXaFnnQbPN",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
