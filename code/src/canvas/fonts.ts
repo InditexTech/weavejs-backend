@@ -208,8 +208,8 @@ export const registerCanvasFonts = () => {
     path: path.resolve(process.cwd(), "fonts/Inter_18pt-Light.ttf"),
     fontFace: {
       family: "Inter",
-      weight: "100",
-      style: "italic",
+      weight: "300",
+      style: "normal",
     },
   });
 
@@ -217,7 +217,7 @@ export const registerCanvasFonts = () => {
     path: path.resolve(process.cwd(), "fonts/Inter_18pt-LightItalic.ttf"),
     fontFace: {
       family: "Inter",
-      weight: "100",
+      weight: "300",
       style: "italic",
     },
   });

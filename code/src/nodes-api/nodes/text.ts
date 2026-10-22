@@ -15,7 +15,7 @@ import { WeaveStateElement } from "@inditextech/weave-types";
 import {
   WeaveStateManipulation,
   mergeExceptArrays,
-  WeaveTextNode,
+  WeaveTextV2Node,
 } from "@inditextech/weave-sdk";
 import { BaseNodeMapper } from "./base.js";
 
@@ -65,7 +65,7 @@ export class TextNodeMapper implements BaseNodeMapper<
     const tw = node.width;
     const th = node.height;
 
-    const nodeState: WeaveStateElement = WeaveTextNode.defaultState(nodeId);
+    const nodeState: WeaveStateElement = WeaveTextV2Node.defaultState(nodeId);
     nodeState.props = {
       ...nodeState.props,
       x: origin.x + tx,
@@ -87,7 +87,7 @@ export class TextNodeMapper implements BaseNodeMapper<
       strokeWidth: 2,
     };
 
-    const imageSchema = WeaveTextNode.getSchema();
+    const imageSchema = WeaveTextV2Node.getSchema();
     const parsedState = imageSchema.safeParse(nodeState);
 
     if (!parsedState.success) {
