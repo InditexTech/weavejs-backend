@@ -9,7 +9,7 @@ import {
   WeaveRegularPolygonNode,
   WeaveStarNode,
   WeaveStrokeSingleNode,
-  WeaveTextNode,
+  WeaveTextV2Node,
 } from "@inditextech/weave-sdk/server";
 import { NodeTypeInformation } from "./types.js";
 import {
@@ -67,7 +67,11 @@ export const getDefaultNodeTypesInformation = (): NodeTypeInformation[] => {
     {
       type: "text",
       description: "Text node, a node that displays text.",
-      schema: JSON.stringify(WeaveTextNode.getSchema().toJSONSchema(), null, 2),
+      schema: JSON.stringify(
+        WeaveTextV2Node.getSchema().toJSONSchema(),
+        null,
+        2,
+      ),
     },
     {
       type: "image",
@@ -97,7 +101,7 @@ export const getDefaultCreateNodeTypeDefaultState = (
       return WeaveStarNode.defaultState(nodeId);
     }
     case "text": {
-      return WeaveTextNode.defaultState(nodeId);
+      return WeaveTextV2Node.defaultState(nodeId);
     }
     case "frame": {
       return WeaveFrameNode.defaultState(nodeId);
@@ -128,7 +132,7 @@ export const getDefaultAddNodeState = (
       return WeaveStarNode.addNodeState(defaultNodeState, props);
     }
     case "text": {
-      return WeaveTextNode.addNodeState(defaultNodeState, props);
+      return WeaveTextV2Node.addNodeState(defaultNodeState, props);
     }
     case "frame": {
       return WeaveFrameNode.addNodeState(defaultNodeState, props);
@@ -150,7 +154,7 @@ export const getDefaultUpdateNodeState = (
 ): WeaveStateElement | undefined => {
   switch (prevNodeState.type) {
     case "text": {
-      return WeaveTextNode.updateNodeState(prevNodeState, nextProps);
+      return WeaveTextV2Node.updateNodeState(prevNodeState, nextProps);
     }
     case "frame": {
       return WeaveFrameNode.updateNodeState(prevNodeState, nextProps);

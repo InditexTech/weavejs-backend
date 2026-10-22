@@ -11,7 +11,7 @@ import {
   WeaveRectangleNode,
   WeaveEllipseNode,
   WeaveLineNode,
-  WeaveTextNode,
+  WeaveTextV2Node,
   WeaveImageNode,
   WeaveVideoNode,
   WeaveStarNode,
@@ -239,7 +239,7 @@ const getNodes = (config: ServiceConfig) => {
     new WeaveLineNode(),
     new WeaveStrokeNode(),
     new WeaveStrokeSingleNode(),
-    new WeaveTextNode(),
+    new WeaveTextV2Node(),
     new WeaveImageNode({
       config: {
         imageFallback: { enabled: false },
