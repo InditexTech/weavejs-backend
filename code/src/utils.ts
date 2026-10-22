@@ -63,7 +63,7 @@ export function isAbsoluteUrl(url: string): boolean {
   return /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(url);
 }
 
-export { assertSafeUrl } from "./utils/ssrf.js";
+export { assertSafeUrl } from "./utils/ssrf.ts";
 
 export function stripOrigin(url: string): string {
   const parsedUrl = new URL(url);
