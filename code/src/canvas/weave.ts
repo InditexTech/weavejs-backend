@@ -12,6 +12,7 @@ import {
   WeaveEllipseNode,
   WeaveLineNode,
   WeaveTextV2Node,
+  WeaveTextToolAction,
   WeaveImageNode,
   WeaveVideoNode,
   WeaveStarNode,
@@ -87,7 +88,13 @@ export const renderWeaveRoom = (
         store,
         renderer,
         nodes: getNodes(config),
-        actions: [],
+        actions: [
+          new WeaveTextToolAction({ props: { richText: false } }),
+          new WeaveTextToolAction({
+            name: "richTextTool",
+            props: { richText: true },
+          }),
+        ],
         plugins: [],
         fonts: [],
         logger: {
@@ -239,7 +246,20 @@ const getNodes = (config: ServiceConfig) => {
     new WeaveLineNode(),
     new WeaveStrokeNode(),
     new WeaveStrokeSingleNode(),
-    new WeaveTextV2Node(),
+    // Same config as the frontend app (text and rich text share this node;
+    // rich text is switched on per node by its `richText` attribute).
+    new WeaveTextV2Node({
+      config: {
+        outline: { enabled: true, color: "#D6D6D6", width: 2 },
+        link: { defaultColor: "#1155ccff", hoverColor: "#3d7be0ff" },
+        sizeWarning: { threshold: 200_000 },
+        edition: {
+          outline: { padding: 0 },
+          followPadding: { top: 160, right: 120, bottom: 140, left: 120 },
+        },
+        richText: { enabled: false, indentStep: 1.5 },
+      },
+    }),
     new WeaveImageNode({
       config: {
         imageFallback: { enabled: false },
