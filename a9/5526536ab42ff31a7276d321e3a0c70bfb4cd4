@@ -1,0 +1,23 @@
+cleanup-storage/package-lock.json
+  s_bfeb0f9bfee7ab::t_86da8497e67d47 14,62,133,187-189,201-202,244-246,249,257-259,1164,1390,1509-1519,1540-1542,1828,2515-2526,3001-3003,3006,3008,3010-3011,3014,3151,3159-3170,3408,4008,4162-4164,4167-4168,4171,4206-4208
+cleanup-storage/package.json
+  s_bfeb0f9bfee7ab::t_3fe4a2dee8b1e4 23,41
+cleanup-storage/src/config.ts
+  s_bfeb0f9bfee7ab::t_bb2498be9762dd 13,20,28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "a95526536ab42ff31a7276d321e3a0c70bfb4cd4",
+  "prompts": {},
+  "sessions": {
+    "s_bfeb0f9bfee7ab": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e8302a253ffekAxDhlklFRYTr9",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
