@@ -1,0 +1,33 @@
+code/Dockerfile
+  s_d71a079c363e1a::t_26faa32ad86ea8 54
+code/package.json
+  s_d71a079c363e1a::t_423e0a3f3e1c70 43
+code/src/workers/workers.ts
+  s_d71a079c363e1a::t_15af641033270a 7,65-76
+code/src/workloads/jobs/export-frame-pdf/job.ts
+  s_d71a079c363e1a::t_c35170b1ad61f3 21,110-121
+code/src/workloads/jobs/export-page-image/job.ts
+  s_d71a079c363e1a::t_97c877b36f004e 21,112-128,130,137-153,155
+code/src/workloads/jobs/export-room-pdf/job.ts
+  s_d71a079c363e1a::t_def30e6b1d757c 21,136-150,206-219
+code/src/workloads/jobs/presentation-mode-images/job.ts
+  s_d71a079c363e1a::t_ece4c62a26ba83 21,146-161
+code/vite.config.js
+  s_d71a079c363e1a::t_b372616f7be21a 55-62,64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "88786dbf3ac5d2ade9893b392bc9a141b506e191",
+  "prompts": {},
+  "sessions": {
+    "s_d71a079c363e1a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e838e13d5ffeE6sq6KIc2ZFf3t",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
