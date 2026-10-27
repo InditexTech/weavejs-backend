@@ -52,8 +52,16 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       ssr: true,
       lib: {
-        entry: 'src/server.ts',
+        entry: {
+          server: 'src/server.ts',
+          'workers/exportPageToImage': 'src/workloads/jobs/export-page-image/workers/exportPageToImage.ts',
+          'workers/exportRoomPageToImage': 'src/workloads/jobs/export-room-pdf/workers/exportPageToImage.ts',
+          'workers/exportRoomToPDF': 'src/workloads/jobs/export-room-pdf/workers/exportRoomToPDF.ts',
+          'workers/exportFramesToPDF': 'src/workloads/jobs/export-frame-pdf/workers/exportFramesToPDF.ts',
+          'workers/generatePresentationModeImage': 'src/workloads/jobs/presentation-mode-images/workers/generatePresentationModeImage.ts',
+        },
         formats: ['es'],
+        fileName: (_format, name) => `${name}.js`,
       },
       rollupOptions: {
         external: [

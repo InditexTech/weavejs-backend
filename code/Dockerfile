@@ -51,4 +51,4 @@ ENV XDG_CACHE_HOME=/tmp/fontconfig
 USER service
 EXPOSE 8080
 ENV PORT=8080
-CMD ["node", "--experimental-specifier-resolution=node", "--env-file=.env", "--loader=ts-node/esm", "server.js"]
+CMD ["node", "--env-file=.env", "server.js"]

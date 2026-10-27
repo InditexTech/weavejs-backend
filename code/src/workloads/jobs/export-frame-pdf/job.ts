@@ -18,7 +18,7 @@ import { JOB_EXPORT_FRAMES_TO_PDF_QUEUE_NAME } from "./constants.js";
 import { getLogger } from "../../../logger/logger.js";
 import { createTask, updateTask } from "../../../database/controllers/task.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
-import { runWorker } from "@/workers/workers.js";
+import { runWorker, resolveWorkerPath } from "@/workers/workers.js";
 import { getServiceConfig } from "@/config/config.js";
 import {
   ExportFramesToPdfWorkerPayload,
@@ -107,12 +107,18 @@ export class ExportFramesToPdfJob {
       const result = await runWorker<
         ExportFramesToPdfWorkerPayload,
         ExportToIPdfWorkerResult
-      >(path.join(__dirname, "./workers/exportFramesToPDF.ts"), {
-        ...payload,
-        roomId,
-        pdfId: exportedPdfId,
-        config,
-      });
+      >(
+        resolveWorkerPath(
+          "exportFramesToPDF",
+          path.join(__dirname, "./workers/exportFramesToPDF.ts"),
+        ),
+        {
+          ...payload,
+          roomId,
+          pdfId: exportedPdfId,
+          config,
+        },
+      );
 
       let hasError = false;
       if (result.status === "KO") {

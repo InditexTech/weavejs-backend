@@ -18,7 +18,7 @@ import { JOB_EXPORT_PAGE_IMAGE_QUEUE_NAME } from "./constants.js";
 import { getLogger } from "../../../logger/logger.js";
 import { createTask, updateTask } from "../../../database/controllers/task.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
-import { runWorker } from "@/workers/workers.js";
+import { runWorker, resolveWorkerPath } from "@/workers/workers.js";
 import {
   ExportPageImageFormat,
   ExportPageImageWorkerPayload,
@@ -109,38 +109,50 @@ export class ExportPageToImageJob {
           result = await runWorker<
             ExportPageImageWorkerPayload,
             ExportToImageWorkerResult
-          >(path.join(__dirname, "./workers/exportPageToImage.ts"), {
-            jobId,
-            roomId,
-            imageId: exportedImageId,
-            config: getServiceConfig(),
-            roomData: payload.roomData,
-            nodes: payload.nodes,
-            type: "nodes",
-            options: {
-              ...payload.options,
-              format: payload.options.format as ExportPageImageFormat,
+          >(
+            resolveWorkerPath(
+              "exportPageToImage",
+              path.join(__dirname, "./workers/exportPageToImage.ts"),
+            ),
+            {
+              jobId,
+              roomId,
+              imageId: exportedImageId,
+              config: getServiceConfig(),
+              roomData: payload.roomData,
+              nodes: payload.nodes,
+              type: "nodes",
+              options: {
+                ...payload.options,
+                format: payload.options.format as ExportPageImageFormat,
+              },
             },
-          });
+          );
           break;
         }
         case "area": {
           result = await runWorker<
             ExportPageImageWorkerPayload,
             ExportToImageWorkerResult
-          >(path.join(__dirname, "./workers/exportPageToImage.ts"), {
-            jobId,
-            roomId,
-            imageId: exportedImageId,
-            config: getServiceConfig(),
-            roomData: payload.roomData,
-            area: payload.area,
-            type: "area",
-            options: {
-              ...payload.options,
-              format: payload.options.format as ExportPageImageFormat,
+          >(
+            resolveWorkerPath(
+              "exportPageToImage",
+              path.join(__dirname, "./workers/exportPageToImage.ts"),
+            ),
+            {
+              jobId,
+              roomId,
+              imageId: exportedImageId,
+              config: getServiceConfig(),
+              roomData: payload.roomData,
+              area: payload.area,
+              type: "area",
+              options: {
+                ...payload.options,
+                format: payload.options.format as ExportPageImageFormat,
+              },
             },
-          });
+          );
           break;
         }
         default:
