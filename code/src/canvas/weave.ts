@@ -11,7 +11,8 @@ import {
   WeaveRectangleNode,
   WeaveEllipseNode,
   WeaveLineNode,
-  WeaveTextNode,
+  WeaveTextV2Node,
+  WeaveTextToolAction,
   WeaveImageNode,
   WeaveVideoNode,
   WeaveStarNode,
@@ -24,17 +25,14 @@ import {
   WeaveStrokeSingleNode,
   setupSkiaBackend,
   WeavePolygonNode,
-  // setupCanvasBackend,
+  setupCanvasBackend,
 } from "@inditextech/weave-sdk/server";
 import { WeaveKonvaBaseRenderer } from "@inditextech/weave-renderer-konva-base/server";
 // import { WeaveKonvaReactReconcilerRenderer } from "@inditextech/weave-renderer-konva-react-reconciler/server";
 import { ColorTokenNode } from "./nodes/color-token/color-token.ts";
 import { isAbsoluteUrl, assertSafeUrl } from "../utils.ts";
 import { type ServiceConfig } from "../types.ts";
-import {
-  registerSkiaFonts,
-  // registerCanvasFonts,
-} from "./fonts.ts";
+import { registerSkiaFonts, registerCanvasFonts } from "./fonts.ts";
 import { ImageTemplateNode } from "./nodes/image-template/image-template.ts";
 import { MeasureNode } from "./nodes/measure/measure.ts";
 import { PantoneNode } from "./nodes/pantone/pantone.ts";
@@ -58,13 +56,14 @@ export const renderWeaveRoom = (
       }
     };
 
-    // Setup Skia backend
-    registerSkiaFonts();
-    await setupSkiaBackend();
-
-    // Setup Canvas backend
-    // registerCanvasFonts();
-    // await setupCanvasBackend();
+    // Setup canvas backend (WEAVE_CANVAS_BACKEND=skia|canvas, default skia)
+    if (process.env.WEAVE_CANVAS_BACKEND === "canvas") {
+      registerCanvasFonts();
+      await setupCanvasBackend();
+    } else {
+      registerSkiaFonts();
+      await setupSkiaBackend();
+    }
 
     const store = new WeaveStoreStandalone(
       {
@@ -89,7 +88,13 @@ export const renderWeaveRoom = (
         store,
         renderer,
         nodes: getNodes(config),
-        actions: [],
+        actions: [
+          new WeaveTextToolAction({ props: { richText: false } }),
+          new WeaveTextToolAction({
+            name: "richTextTool",
+            props: { richText: true },
+          }),
+        ],
         plugins: [],
         fonts: [],
         logger: {
@@ -241,7 +246,20 @@ const getNodes = (config: ServiceConfig) => {
     new WeaveLineNode(),
     new WeaveStrokeNode(),
     new WeaveStrokeSingleNode(),
-    new WeaveTextNode(),
+    // Same config as the frontend app (text and rich text share this node;
+    // rich text is switched on per node by its `richText` attribute).
+    new WeaveTextV2Node({
+      config: {
+        outline: { enabled: true, color: "#D6D6D6", width: 2 },
+        link: { defaultColor: "#1155ccff", hoverColor: "#3d7be0ff" },
+        sizeWarning: { threshold: 200_000 },
+        edition: {
+          outline: { padding: 0 },
+          followPadding: { top: 160, right: 120, bottom: 140, left: 120 },
+        },
+        richText: { enabled: false, indentStep: 1.5 },
+      },
+    }),
     new WeaveImageNode({
       config: {
         imageFallback: { enabled: false },
