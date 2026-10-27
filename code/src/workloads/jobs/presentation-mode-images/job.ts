@@ -18,7 +18,7 @@ import { JOB_PRESENTATION_MODE_IMAGES_QUEUE_NAME } from "./constants.js";
 import { getLogger } from "../../../logger/logger.js";
 import { createTask, updateTask } from "../../../database/controllers/task.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
-import { runWorker } from "@/workers/workers.js";
+import { runWorker, resolveWorkerPath } from "@/workers/workers.js";
 import { getServiceConfig } from "@/config/config.js";
 import {
   GeneratePresentationModePageImagePageWorkerPayload,
@@ -143,16 +143,22 @@ export class PresentationModeImagesJob {
         const result = await runWorker<
           GeneratePresentationModePageImagePageWorkerPayload,
           GeneratePresentationModePageImagePageWorkerResult
-        >(path.join(__dirname, "./workers/generatePresentationModeImage.ts"), {
-          jobId,
-          pageId: page.pageId,
-          instanceId: payload.presentationModeId,
-          roomData,
-          area: payload.area,
-          type: "area",
-          options: payload.options,
-          config,
-        });
+        >(
+          resolveWorkerPath(
+            "generatePresentationModeImage",
+            path.join(__dirname, "./workers/generatePresentationModeImage.ts"),
+          ),
+          {
+            jobId,
+            pageId: page.pageId,
+            instanceId: payload.presentationModeId,
+            roomData,
+            area: payload.area,
+            type: "area",
+            options: payload.options,
+            config,
+          },
+        );
 
         if (result.status === "KO") {
           hasError = true;

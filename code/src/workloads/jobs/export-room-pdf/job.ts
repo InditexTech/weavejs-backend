@@ -18,7 +18,7 @@ import { JOB_EXPORT_ROOM_TO_PDF_QUEUE_NAME } from "./constants.js";
 import { getLogger } from "../../../logger/logger.js";
 import { createTask, updateTask } from "../../../database/controllers/task.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
-import { runWorker } from "@/workers/workers.js";
+import { runWorker, resolveWorkerPath } from "@/workers/workers.js";
 import { getServiceConfig } from "@/config/config.js";
 import {
   ExportRoomToPdfWorkerPayload,
@@ -133,15 +133,21 @@ export class ExportRoomToPdfJob {
         const result = await runWorker<
           ExportToImagePageWorkerPayload,
           ExportToImagePageWorkerResult
-        >(path.join(__dirname, "./workers/exportPageToImage.ts"), {
-          ...payload,
-          jobId,
-          roomId,
-          imageId: exportedPageImageId,
-          roomData,
-          options: payload.options,
-          config,
-        });
+        >(
+          resolveWorkerPath(
+            "exportRoomPageToImage",
+            path.join(__dirname, "./workers/exportPageToImage.ts"),
+          ),
+          {
+            ...payload,
+            jobId,
+            roomId,
+            imageId: exportedPageImageId,
+            roomData,
+            options: payload.options,
+            config,
+          },
+        );
 
         if (result.status === "KO") {
           hasError = true;
@@ -197,14 +203,20 @@ export class ExportRoomToPdfJob {
       const result = await runWorker<
         ExportRoomToPdfWorkerPayload,
         ExportRoomToPdfWorkerResult
-      >(path.join(__dirname, "./workers/exportRoomToPDF.ts"), {
-        ...payload,
-        jobId,
-        roomId,
-        pdfId: exportedPdfId,
-        pages: pagesImages,
-        config,
-      });
+      >(
+        resolveWorkerPath(
+          "exportRoomToPDF",
+          path.join(__dirname, "./workers/exportRoomToPDF.ts"),
+        ),
+        {
+          ...payload,
+          jobId,
+          roomId,
+          pdfId: exportedPdfId,
+          pages: pagesImages,
+          config,
+        },
+      );
 
       if (result.status === "KO") {
         hasError = true;

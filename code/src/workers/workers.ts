@@ -4,6 +4,7 @@
 
 import { getLogger } from "@/logger/logger.js";
 import { Worker } from "node:worker_threads";
+import { fileURLToPath } from "node:url";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,4 +61,16 @@ export function runWorker<P, T>(workerPath: string, workerData: P): Promise<T> {
 
     return result;
   });
+}
+
+/**
+ * Resolves the worker file. In the built bundle workers are emitted to
+ * `<dist>/workers/<name>.js`; in dev (running from sources) the source `.ts`
+ * file is used.
+ */
+export function resolveWorkerPath(name: string, sourcePath: string): string {
+  if (import.meta.url.endsWith(".ts")) {
+    return sourcePath;
+  }
+  return fileURLToPath(new URL(`./workers/${name}.js`, import.meta.url));
 }
