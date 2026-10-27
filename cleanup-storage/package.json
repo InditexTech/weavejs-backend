@@ -20,7 +20,7 @@
   "dependencies": {
     "@azure/identity": "^4.10.2",
     "@azure/storage-blob": "^12.26.0",
-    "zod": "^3.25.67"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
