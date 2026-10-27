@@ -55,7 +55,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "yjs": "13.6.27",
-    "zod": "4.3.6",
+    "zod": "4.6.6",
     "qs": "^6.16.0",
     "follow-redirects": "^1.16.1",
     "hono": "^4.13.11",
@@ -117,7 +117,7 @@
     "mime-types": "^3.0.1",
     "module-alias": "^2.2.3",
     "morgan": "^1.10.0",
-    "multer": "^2.0.2",
+    "multer": "^2.5.0",
     "p-limit": "^7.3.0",
     "p-queue": "^8.1.1",
     "pantone-tcx": "^2.2.4",
@@ -132,7 +132,7 @@
     "skia-canvas": "3.0.8",
     "uuid": "^11.1.0",
     "yjs": "13.6.27",
-    "zod": "4.3.6",
+    "zod": "4.6.6",
     "zod-to-json-schema": "^3.25.2"
   },
   "devDependencies": {
