@@ -6,21 +6,17 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { createThread } from "../../../database/controllers/thread.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
+import { toStoredUserMetadata } from "@/database/user-metadata.js";
 
 export const postThreadController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId as string;
 
-    const { userMetadata, x, y, content } = req.body;
+    const { x, y, content } = req.body;
 
     const userId: string = req.session!.user.id;
 
-    if (
-      !userMetadata ||
-      !x ||
-      !y ||
-      !content
-    ) {
+    if (!x || !y || !content) {
       res.status(400).json({
         status: "KO",
         message: "Missing required fields",
@@ -32,7 +28,7 @@ export const postThreadController = () => {
       threadId: uuidv4(),
       roomId,
       userId,
-      userMetadata,
+      userMetadata: toStoredUserMetadata(userId),
       x: parseFloat(x),
       y: parseFloat(y),
       status: "pending",

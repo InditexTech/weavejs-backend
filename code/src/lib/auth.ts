@@ -7,6 +7,13 @@ import { getLogger } from "@/logger/logger.js";
 import { getDatabaseCloudCredentialsToken } from "@/utils.js";
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
+import { Kysely, PostgresDialect } from "kysely";
+import { kyselyAdapter } from "@better-auth/kysely-adapter";
+import { getPiiCrypto, isPiiEncryptionEnabled } from "@/lib/pii/index.js";
+import {
+  AUTH_PII_FIELDS,
+  createPiiAdapterWrapper,
+} from "@/lib/pii/auth-adapter.js";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,6 +27,22 @@ declare global {
     }
   }
 }
+
+const createAuthDatabase = (pool: Pool) => {
+  const adapterFactory = kyselyAdapter(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    new Kysely<any>({ dialect: new PostgresDialect({ pool }) }),
+    { type: "postgres" },
+  );
+  const wrap = createPiiAdapterWrapper({
+    pii: getPiiCrypto(),
+    fields: AUTH_PII_FIELDS,
+    encryptWrites: isPiiEncryptionEnabled(),
+  });
+
+  return (options: Parameters<typeof adapterFactory>[0]) =>
+    wrap(adapterFactory(options));
+};
 
 export const setupAuth = async () => {
   logger = getLogger().child({ module: "auth" });
@@ -44,6 +67,18 @@ export const setupAuth = async () => {
       cookiePrefix: process.env.DEPLOY_ENVIRONMENT,
       crossSubDomainCookies: {
         enabled: true,
+      },
+      ipAddress: {
+        disableIpTracking: true,
+      },
+    },
+    databaseHooks: {
+      session: {
+        create: {
+          before: async (session: Record<string, unknown>) => ({
+            data: { ...session, ipAddress: null, userAgent: null },
+          }),
+        },
       },
     },
     emailAndPassword: {
@@ -77,17 +112,19 @@ export const setupAuth = async () => {
 
     auth = betterAuth({
       ...authConfig,
-      database: new Pool({
-        connectionString,
-        max: 3,
-        min: 0,
-        idleTimeoutMillis: 10000,
-        connectionTimeoutMillis: 30000,
-        options: "-c search_path=auth",
-        ssl: {
-          rejectUnauthorized: true,
-        },
-      }),
+      database: createAuthDatabase(
+        new Pool({
+          connectionString,
+          max: 3,
+          min: 0,
+          idleTimeoutMillis: 10000,
+          connectionTimeoutMillis: 30000,
+          options: "-c search_path=auth",
+          ssl: {
+            rejectUnauthorized: true,
+          },
+        }),
+      ),
     });
   }
 
@@ -102,28 +139,30 @@ export const setupAuth = async () => {
 
     auth = betterAuth({
       ...authConfig,
-      database: new Pool({
-        host,
-        port,
-        user: username,
-        password: config.database.connection.cloudCredentials
-          ? async () => {
-              const accessToken = await getDatabaseCloudCredentialsToken();
-              return accessToken.token;
-            }
-          : password,
-        database: db,
-        ...(ssl && {
-          ssl: {
-            rejectUnauthorized: true,
-          },
+      database: createAuthDatabase(
+        new Pool({
+          host,
+          port,
+          user: username,
+          password: config.database.connection.cloudCredentials
+            ? async () => {
+                const accessToken = await getDatabaseCloudCredentialsToken();
+                return accessToken.token;
+              }
+            : password,
+          database: db,
+          ...(ssl && {
+            ssl: {
+              rejectUnauthorized: true,
+            },
+          }),
+          max: 3,
+          min: 0,
+          idleTimeoutMillis: 10000,
+          connectionTimeoutMillis: 30000,
+          options: "-c search_path=auth",
         }),
-        max: 3,
-        min: 0,
-        idleTimeoutMillis: 10000,
-        connectionTimeoutMillis: 30000,
-        options: "-c search_path=auth",
-      }),
+      ),
     });
   }
 
