@@ -1,0 +1,51 @@
+.github/workflows/code-deploy.yml
+  s_55fc80dcfb88dc::t_c938ba9ce8e497 74-76,132-134
+code/.env.example
+  s_55fc80dcfb88dc::t_5d967684c6c502 59-68
+code/package-lock.json
+  s_55fc80dcfb88dc::t_2aa647b362dd88 16,57
+code/package.json
+  s_55fc80dcfb88dc::t_7222baf77913e1 41,45,100,129
+code/src/actions/pii-backfill/action.ts
+  s_55fc80dcfb88dc::t_873ce81c07b1eb 1-154
+code/src/api/v1/controllers/postThread.ts
+  s_55fc80dcfb88dc::t_3893e38764bd05 9,15,19,31
+code/src/api/v1/controllers/postThreadAnswer.ts
+  s_55fc80dcfb88dc::t_6b73f9601a8f1b 10,17,21,49
+code/src/api/v1/controllers/standalone/postStandaloneThread.ts
+  s_55fc80dcfb88dc::t_ccabdc04e73540 8,15,19,33
+code/src/api/v1/controllers/standalone/postStandaloneThreadAnswer.ts
+  s_55fc80dcfb88dc::t_aaf51c41a2c6f9 9,17,21,51
+code/src/database/models/thread-answer.ts
+  s_55fc80dcfb88dc::t_fb3958790c1f83 7-10,77-81
+code/src/database/models/thread.ts
+  s_55fc80dcfb88dc::t_56e7f0a574d914 7-10,93-97
+code/src/database/user-metadata.ts
+  s_55fc80dcfb88dc::t_d58c471b8906b2 1-65
+code/src/lib/auth.ts
+  s_55fc80dcfb88dc::t_29d2eea003992e 10-16,31-46,71-82,115-127,142-163,165
+code/src/lib/pii/auth-adapter.test.ts
+  s_55fc80dcfb88dc::t_60df7e1a665b03 1-114
+code/src/lib/pii/auth-adapter.ts
+  s_55fc80dcfb88dc::t_b643c39648c18d 1-212
+code/src/lib/pii/crypto.test.ts
+  s_55fc80dcfb88dc::t_6c1a1c4fd3b6a9 1-75
+code/src/lib/pii/index.ts
+  s_55fc80dcfb88dc::t_c4edd791dbfe51 1-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "fd862f38c3e2586be85f62dd7e0a2bb3b4be5807",
+  "prompts": {},
+  "sessions": {
+    "s_55fc80dcfb88dc": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e76a368cfffedfexXbohaOvN1j",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
