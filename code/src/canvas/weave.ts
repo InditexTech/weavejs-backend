@@ -25,6 +25,7 @@ import {
   WeaveStrokeSingleNode,
   setupSkiaBackend,
   WeavePolygonNode,
+  WeaveStickyNoteNode,
   setupCanvasBackend,
 } from "@inditextech/weave-sdk/server";
 import { WeaveKonvaBaseRenderer } from "@inditextech/weave-renderer-konva-base/server";
@@ -279,6 +280,7 @@ const getNodes = (config: ServiceConfig) => {
     new WeaveArrowNode(),
     new WeaveRegularPolygonNode(),
     new WeavePolygonNode(),
+    new WeaveStickyNoteNode(),
     new WeaveFrameNode({
       config: {
         fontFamily: "'Inter', sans-serif",
