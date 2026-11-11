@@ -1,0 +1,19 @@
+code/src/canvas/weave.ts
+  s_607c048379b315::t_556f379e0cba1f 28,283
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "65319fc4d77fd7bb8205c1cc1bf4a7dddd082f6c",
+  "prompts": {},
+  "sessions": {
+    "s_607c048379b315": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e363c0d75ffeJLRu39lUOvmY1g",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
