@@ -17,7 +17,22 @@ export const postRoomBusJoinController = () => {
       return;
     }
 
-    await serviceClient.group(`${roomId}.commbus`).addUser(userId);
+    try {
+      await serviceClient.group(`${roomId}.commbus`).addUser(userId);
+    } catch (ex) {
+      const error = ex as { statusCode?: number; code?: string };
+      if (error.statusCode === 404) {
+        res.status(409).json({
+          error: "User has no active connection to the Azure Web PubSub bus",
+          code: error.code,
+        });
+        return;
+      }
+      res
+        .status(500)
+        .json({ error: "Error joining the Azure Web PubSub bus group" });
+      return;
+    }
 
     res.status(200).json({ success: true });
   };
