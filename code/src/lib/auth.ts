@@ -75,9 +75,10 @@ export const setupAuth = async () => {
     databaseHooks: {
       session: {
         create: {
-          before: async (session: Record<string, unknown>) => ({
-            data: { ...session, ipAddress: null, userAgent: null },
-          }),
+          before: (session: Record<string, unknown>) =>
+            Promise.resolve({
+              data: { ...session, ipAddress: null, userAgent: null },
+            }),
         },
       },
     },

@@ -7,14 +7,12 @@ import { createPiiCrypto, parsePiiKeys, type PiiCrypto } from "./crypto.js";
 let instance: PiiCrypto | null = null;
 
 export const getPiiCrypto = (): PiiCrypto => {
-  if (!instance) {
-    instance = createPiiCrypto(
-      parsePiiKeys(
-        process.env.PII_ENCRYPTION_KEYS,
-        process.env.PII_BLIND_INDEX_KEY,
-      ),
-    );
-  }
+  instance ??= createPiiCrypto(
+    parsePiiKeys(
+      process.env.PII_ENCRYPTION_KEYS,
+      process.env.PII_BLIND_INDEX_KEY,
+    ),
+  );
   return instance;
 };
 

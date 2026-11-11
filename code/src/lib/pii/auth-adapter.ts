@@ -148,7 +148,7 @@ export const createPiiAdapterWrapper = ({
         }),
       );
 
-    wrapped.count = async (args: AnyRecord) =>
+    wrapped.count = (args: AnyRecord) =>
       adapter.count({ ...args, where: encryptWhere(args.model, args.where) });
 
     wrapped.update = async (args: AnyRecord) =>
@@ -161,17 +161,17 @@ export const createPiiAdapterWrapper = ({
         }),
       );
 
-    wrapped.updateMany = async (args: AnyRecord) =>
+    wrapped.updateMany = (args: AnyRecord) =>
       adapter.updateMany({
         ...args,
         where: encryptWhere(args.model, args.where),
         update: encryptData(args.model, args.update),
       });
 
-    wrapped.delete = async (args: AnyRecord) =>
+    wrapped.delete = (args: AnyRecord) =>
       adapter.delete({ ...args, where: encryptWhere(args.model, args.where) });
 
-    wrapped.deleteMany = async (args: AnyRecord) =>
+    wrapped.deleteMany = (args: AnyRecord) =>
       adapter.deleteMany({
         ...args,
         where: encryptWhere(args.model, args.where),
