@@ -4,6 +4,10 @@
 
 import { Sequelize, Model, DataTypes } from "sequelize";
 import { WeaveUser } from "@inditextech/weave-types";
+import {
+  resolveUserMetadata,
+  sanitizeUserMetadata,
+} from "../user-metadata.js";
 
 export type ThreadStatus = "pending" | "resolved";
 
@@ -86,6 +90,11 @@ export const defineThreadModel = async (sequelize: Sequelize) => {
       tableName: "weavejs_thread",
       timestamps: true,
       sequelize,
+      hooks: {
+        beforeSave: (instance) => sanitizeUserMetadata(instance),
+        afterFind: (result) => resolveUserMetadata(result as never),
+        afterCreate: (instance) => resolveUserMetadata(instance),
+      },
     }
   );
 };

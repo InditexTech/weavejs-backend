@@ -71,6 +71,9 @@ jobs:
       GITHUB_CLIENT_SECRET: ${{ secrets.SOCIAL_GITHUB_CLIENT_SECRET }}
       GOOGLE_CLIENT_ID: ${{ secrets.SOCIAL_GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.SOCIAL_GOOGLE_CLIENT_SECRET }}
+      PII_ENCRYPTION_KEYS: ${{ secrets.PII_ENCRYPTION_KEYS }}
+      PII_BLIND_INDEX_KEY: ${{ secrets.PII_BLIND_INDEX_KEY }}
+      PII_ENCRYPTION_ENABLED: ${{ vars.PII_ENCRYPTION_ENABLED }}
     steps:
       - name: Get input parameters
         env:
@@ -126,6 +129,9 @@ jobs:
           echo GITHUB_CLIENT_SECRET=${{ env.GITHUB_CLIENT_SECRET }} >> .env
           echo GOOGLE_CLIENT_ID=${{ env.GOOGLE_CLIENT_ID }} >> .env
           echo GOOGLE_CLIENT_SECRET=${{ env.GOOGLE_CLIENT_SECRET }} >> .env
+          echo PII_ENCRYPTION_KEYS="${{ env.PII_ENCRYPTION_KEYS }}" >> .env
+          echo PII_BLIND_INDEX_KEY="${{ env.PII_BLIND_INDEX_KEY }}" >> .env
+          echo PII_ENCRYPTION_ENABLED="${{ env.PII_ENCRYPTION_ENABLED }}" >> .env
           echo LOG_LEVEL=${{ env.AZURE_LOG_LEVEL }} >> .env
           echo HTTP_LOG_LEVEL=${{ env.AZURE_HTTP_LOG_LEVEL }} >> .env
           echo DEPLOY_ENVIRONMENT=${{ env.AZURE_DEPLOY_ENVIRONMENT }} >> .env
