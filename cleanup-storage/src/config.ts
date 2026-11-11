@@ -9,25 +9,22 @@ const actionConfigSchema = z.object({
   dryRun: z.boolean(),
   storage: z.object({
     accountName: z
-        .string({
-          required_error:
-            "Define the Azure Storage account name on the environment variable AZURE_STORAGE_ACCOUNT_NAME",
-        })
-        .trim(),
+      .string(
+        "Define the Azure Storage account name on the environment variable AZURE_STORAGE_ACCOUNT_NAME",
+      )
+      .trim(),
     rooms: z.object({
       containerName: z
-        .string({
-          required_error:
-            "Define the Azure Blob Storage container name for the rooms data on the environment variable AZURE_STORAGE_ROOMS_CONTAINER_NAME",
-        })
+        .string(
+          "Define the Azure Blob Storage container name for the rooms data on the environment variable AZURE_STORAGE_ROOMS_CONTAINER_NAME",
+        )
         .trim(),
     }),
     images: z.object({
       containerName: z
-        .string({
-          required_error:
-            "Define the Azure Blob Storage container name for the images data on the environment variable AZURE_STORAGE_IMAGES_CONTAINER_NAME",
-        })
+        .string(
+          "Define the Azure Blob Storage container name for the images data on the environment variable AZURE_STORAGE_IMAGES_CONTAINER_NAME",
+        )
         .trim(),
     }),
   }),
