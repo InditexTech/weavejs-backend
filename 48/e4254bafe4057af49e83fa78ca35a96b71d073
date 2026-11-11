@@ -1,0 +1,25 @@
+code/src/actions/pii-backfill/action.ts
+  s_39497996103a68::t_86ce676a2978f0 27,29,31-32,47-61,63-129,131-164,166-175,177-181,183-188,194-196,199
+code/src/lib/auth.ts
+  s_39497996103a68::t_27127772b99edf 78-81
+code/src/lib/pii/auth-adapter.ts
+  s_39497996103a68::t_86a986f0b1779d 151,164,171,174
+code/src/lib/pii/index.ts
+  s_39497996103a68::t_7483ec5095553f 10-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "48e4254bafe4057af49e83fa78ca35a96b71d073",
+  "prompts": {},
+  "sessions": {
+    "s_39497996103a68": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e83957294ffeGmwnroRlUedbbb",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
