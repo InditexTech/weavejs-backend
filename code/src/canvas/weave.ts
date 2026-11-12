@@ -22,6 +22,7 @@ import {
   WeaveStrokeNode,
   WeaveMeasureNode,
   WeaveConnectorNode,
+  WeaveStickyNoteNode,
   WeaveStrokeSingleNode,
   setupSkiaBackend,
   WeavePolygonNode,
@@ -236,13 +237,17 @@ function transformMediaUrl(url: string, config: ServiceConfig): string {
   return url;
 }
 
+// Same label engine as the frontend app, so rich text labels (labelBlocks)
+// keep their formatting when rendered on the server.
+const nativeLabelConfig = { engine: "native" } as const;
+
 const getNodes = (config: ServiceConfig) => {
   return [
     new WeaveStageNode(),
     new WeaveLayerNode(),
     new WeaveGroupNode(),
-    new WeaveRectangleNode(),
-    new WeaveEllipseNode(),
+    new WeaveRectangleNode({ config: { label: nativeLabelConfig } }),
+    new WeaveEllipseNode({ config: { label: nativeLabelConfig } }),
     new WeaveLineNode(),
     new WeaveStrokeNode(),
     new WeaveStrokeSingleNode(),
@@ -278,7 +283,8 @@ const getNodes = (config: ServiceConfig) => {
     new WeaveStarNode(),
     new WeaveArrowNode(),
     new WeaveRegularPolygonNode(),
-    new WeavePolygonNode(),
+    new WeavePolygonNode({ config: { label: nativeLabelConfig } }),
+    new WeaveStickyNoteNode({ config: { label: nativeLabelConfig } }),
     new WeaveFrameNode({
       config: {
         fontFamily: "'Inter', sans-serif",

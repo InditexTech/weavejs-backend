@@ -8,6 +8,7 @@ import {
   WeaveRectangleNode,
   WeaveRegularPolygonNode,
   WeaveStarNode,
+  WeaveStickyNoteNode,
   WeaveStrokeSingleNode,
   WeaveTextV2Node,
 } from "@inditextech/weave-sdk/server";
@@ -50,6 +51,16 @@ export const getDefaultNodeTypesInformation = (): NodeTypeInformation[] => {
         "Rectangle node, a rectangular shape with fill and stroke properties.",
       schema: JSON.stringify(
         WeaveRectangleNode.getSchema().toJSONSchema(),
+        null,
+        2,
+      ),
+    },
+    {
+      type: "sticky-note",
+      description:
+        "Sticky note node, a pastel paper note with a folded corner and editable text label (labelText), optional author and color.",
+      schema: JSON.stringify(
+        WeaveStickyNoteNode.getSchema().toJSONSchema(),
         null,
         2,
       ),
@@ -112,6 +123,9 @@ export const getDefaultCreateNodeTypeDefaultState = (
     case "rectangle": {
       return WeaveRectangleNode.defaultState(nodeId);
     }
+    case "sticky-note": {
+      return WeaveStickyNoteNode.defaultState(nodeId);
+    }
     default:
       return undefined;
   }
@@ -143,6 +157,9 @@ export const getDefaultAddNodeState = (
     case "rectangle": {
       return WeaveRectangleNode.addNodeState(defaultNodeState, props);
     }
+    case "sticky-note": {
+      return WeaveStickyNoteNode.addNodeState(defaultNodeState, props);
+    }
     default:
       return undefined;
   }
@@ -165,6 +182,9 @@ export const getDefaultUpdateNodeState = (
     case "rectangle": {
       return WeaveRectangleNode.updateNodeState(prevNodeState, nextProps);
     }
+    case "sticky-note": {
+      return WeaveStickyNoteNode.updateNodeState(prevNodeState, nextProps);
+    }
     default:
       return undefined;
   }
@@ -177,6 +197,7 @@ export const getNodeTypes = () => {
     "star",
     "text",
     "rectangle",
+    "sticky-note",
     "frame",
     "image",
   ];
