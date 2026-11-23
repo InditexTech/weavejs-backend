@@ -1,0 +1,105 @@
+CHANGELOG.md
+  s_da1e755f778646::t_687746e6ef5ad1 16-24
+code/CHANGELOG.md
+  s_da1e755f778646::t_72397e095bba51 16-24
+code/package.json
+  s_da1e755f778646::t_49e1c8eddc0b81 45
+code/src/api/v1/controllers/delThread.ts
+  s_da1e755f778646::t_da5f22303c81a4 14
+code/src/api/v1/controllers/delThreadAnswer.ts
+  s_da1e755f778646::t_6f7510e8e66834 15
+code/src/api/v1/controllers/getRoomConnect.ts
+  s_da1e755f778646::t_8b6e72e24dc0ed 11
+code/src/api/v1/controllers/getRoomStorage.ts
+  s_da1e755f778646::t_5806f3ee4363f8 15
+code/src/api/v1/controllers/getThread.ts
+  s_da1e755f778646::t_1892716459ee75 11
+code/src/api/v1/controllers/getThreadAnswer.ts
+  s_da1e755f778646::t_a3271e3fc0d192 11
+code/src/api/v1/controllers/getThreadAnswers.ts
+  s_da1e755f778646::t_12033f3e25e44e 14
+code/src/api/v1/controllers/getThreads.ts
+  s_da1e755f778646::t_67edeaa7e38c82 15
+code/src/api/v1/controllers/pages/delPage.test.ts
+  s_da1e755f778646::t_23b9ccd693e6b1 1,5-6,8-9,11-22,24,26-35,37-50
+code/src/api/v1/controllers/pages/postPage.test.ts
+  s_da1e755f778646::t_b68c5190b80d20 1-115
+code/src/api/v1/controllers/pages/postPage.ts
+  s_da1e755f778646::t_dfa8f86a07d03b 16,22-23
+code/src/api/v1/controllers/postThread.ts
+  s_da1e755f778646::t_fe87de86df39e6 13
+code/src/api/v1/controllers/postThreadAnswer.ts
+  s_da1e755f778646::t_4af6dd0fe17055 14
+code/src/api/v1/controllers/putThread.ts
+  s_da1e755f778646::t_63bdd580d35704 14
+code/src/api/v1/controllers/putThreadAnswer.ts
+  s_da1e755f778646::t_2440c57f2d8be2 15
+code/src/api/v1/router.ts
+  s_da1e755f778646::t_4184ce555e3e0a 148,158,372,380,388,396,404,415,423,431,439,447
+code/src/middlewares/page-member.test.ts
+  s_da1e755f778646::t_08afdb795bcf69 1-93
+code/src/middlewares/page-member.ts
+  s_da1e755f778646::t_c8ea9707b7456d 14,19
+code/src/storage/storage.ts
+  s_da1e755f778646::t_08323fc84d0d1b 5
+openspec/changes/archive/2026-11-23-server-owned-page-ids/.openspec.yaml
+  s_da1e755f778646::t_ae20781477da86 1-2
+openspec/changes/archive/2026-11-23-server-owned-page-ids/design.md
+  s_11d4064529cfc9::t_400b810aac5533 1-43
+openspec/changes/archive/2026-11-23-server-owned-page-ids/proposal.md
+  s_11d4064529cfc9::t_0cda532a395b12 1-36
+openspec/changes/archive/2026-11-23-server-owned-page-ids/specs/page-access/spec.md
+  s_222f345225f7a0::t_0641b15c1d992b 1-40
+openspec/changes/archive/2026-11-23-server-owned-page-ids/specs/page-ids/spec.md
+  s_222f345225f7a0::t_c683ae9606a56f 1-41
+openspec/changes/archive/2026-11-23-server-owned-page-ids/specs/room-storage-listing/spec.md
+  s_4debfd5921c031::t_c0000c27d63608 1-18
+openspec/changes/archive/2026-11-23-server-owned-page-ids/tasks.md
+  s_da1e755f778646::t_c53bf9a2f678aa 1-22
+openspec/specs/page-access/spec.md
+  s_da1e755f778646::t_f8e3223cb9e716 1-40
+openspec/specs/page-ids/spec.md
+  s_da1e755f778646::t_a2029343ff182e 1-41
+openspec/specs/room-storage-listing/spec.md
+  s_da1e755f778646::t_108cf094938e3c 1-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "21ca8a5cbcf689588b8af33cef7fa245440e09a1",
+  "prompts": {},
+  "sessions": {
+    "s_11d4064529cfc9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_df7a97f1affebHRDRtF2x1lz0W",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    },
+    "s_222f345225f7a0": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e0753ddc2ffesWccUTS2hhG3si",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    },
+    "s_4debfd5921c031": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e0b8fcf75ffebGOj80waLrHc4M",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    },
+    "s_da1e755f778646": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_df7ace2c7ffeYMGriKFlQpLGHi",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
