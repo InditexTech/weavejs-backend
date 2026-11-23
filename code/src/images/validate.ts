@@ -11,7 +11,7 @@ export const imagePayloadSchema = z.object({
   image: z.object({
     replaceImage: z.string().optional(),
     dataBase64: z.string().max(IMAGE_BASE64_MAX),
-    contentType: z.string().max(100),
+    contentType: z.string().min(1).max(100),
   }),
 });
 

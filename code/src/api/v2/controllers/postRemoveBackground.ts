@@ -3,12 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Request, Response } from "express";
-import { getLogger } from "../../../logger/logger.js";
 import {
-  decodeImageOrThrow,
-  imagePayloadSchema,
-  InvalidImageError,
-} from "../../../images/validate.js";
+  readValidatedImagePayload,
+  respondImageJobError,
+} from "../../../images/http.js";
 import { getJobHandler } from "../../../workloads/workloads.js";
 import { JOB_HANDLERS } from "../../../workloads/constants.js";
 import { RemoveImageBackgroundJob } from "../../../workloads/jobs/remove-image-background/job.js";
@@ -29,25 +27,12 @@ export const postRemoveBackgroundController = () => {
       return;
     }
 
-    const parsedBody = imagePayloadSchema.safeParse(req.body);
-    if (!parsedBody.success) {
-      res.status(400).json({ errors: parsedBody.error.issues });
-      return;
-    }
-
-    const { replaceImage, dataBase64, contentType } = parsedBody.data.image;
-
-    if (!contentType) {
-      res.status(400).json({
-        status: "KO",
-        message: "Missing required fields",
-      });
+    const image = await readValidatedImagePayload(req.body, res);
+    if (!image) {
       return;
     }
 
     try {
-      await decodeImageOrThrow(dataBase64);
-
       const jobHandler = getJobHandler<RemoveImageBackgroundJob>(
         JOB_HANDLERS.REMOVE_IMAGE_BACKGROUND,
       );
@@ -57,11 +42,7 @@ export const postRemoveBackgroundController = () => {
         roomId,
         userId,
         imageId,
-        {
-          replaceImage,
-          dataBase64,
-          contentType,
-        },
+        image,
       );
 
       if (id) {
@@ -76,17 +57,12 @@ export const postRemoveBackgroundController = () => {
         });
       }
     } catch (ex) {
-      if (ex instanceof InvalidImageError) {
-        res.status(400).json({ status: "KO", message: ex.message });
-        return;
-      }
-      getLogger()
-        .child({ module: "remove-background-controller" })
-        .error({ err: ex }, "Error creating image background removal job");
-      res.status(500).json({
-        status: "KO",
-        message: "Error creating image background removal job",
-      });
+      respondImageJobError(
+        res,
+        ex,
+        "remove-background-controller",
+        "creating image background removal job",
+      );
     }
   };
 };

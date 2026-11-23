@@ -3,13 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Request, Response } from "express";
-import { getLogger } from "../../../logger/logger.js";
 import { getJobHandler } from "../../../workloads/workloads.js";
 import {
-  decodeImageOrThrow,
-  imagePayloadSchema,
-  InvalidImageError,
-} from "../../../images/validate.js";
+  readValidatedImagePayload,
+  respondImageJobError,
+} from "../../../images/http.js";
 import { JOB_HANDLERS } from "../../../workloads/constants.js";
 import { GrayscaleImageJob } from "../../../workloads/jobs/grayscale-image/job.js";
 
@@ -29,17 +27,12 @@ export const postGrayscaleImageController = () => {
       return;
     }
 
-    const parsedBody = imagePayloadSchema.safeParse(req.body);
-    if (!parsedBody.success) {
-      res.status(400).json({ errors: parsedBody.error.issues });
+    const image = await readValidatedImagePayload(req.body, res);
+    if (!image) {
       return;
     }
 
-    const { replaceImage, dataBase64, contentType } = parsedBody.data.image;
-
     try {
-      await decodeImageOrThrow(dataBase64);
-
       const jobHandler = getJobHandler<GrayscaleImageJob>(
         JOB_HANDLERS.GRAYSCALE_IMAGE
       );
@@ -49,11 +42,7 @@ export const postGrayscaleImageController = () => {
         roomId,
         userId,
         imageId,
-        {
-          replaceImage,
-          dataBase64,
-          contentType,
-        }
+        image,
       );
 
       if (id) {
@@ -68,17 +57,12 @@ export const postGrayscaleImageController = () => {
         });
       }
     } catch (ex) {
-      if (ex instanceof InvalidImageError) {
-        res.status(400).json({ status: "KO", message: ex.message });
-        return;
-      }
-      getLogger()
-        .child({ module: "grayscale-image-controller" })
-        .error({ err: ex }, "Error creating grayscale image job");
-      res.status(500).json({
-        status: "KO",
-        message: "Error creating grayscale image job",
-      });
+      respondImageJobError(
+        res,
+        ex,
+        "grayscale-controller",
+        "creating grayscale image job",
+      );
     }
   };
 };

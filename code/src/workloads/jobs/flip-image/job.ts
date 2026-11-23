@@ -20,12 +20,9 @@ import { JOB_FLIP_IMAGE_QUEUE_NAME } from "./constants.js";
 import { getLogger } from "../../../logger/logger.js";
 import { saveBase64ToFile } from "../../../utils.js";
 import sharp from "sharp";
-import { decodeImageOrThrow } from "../../../images/validate.js";
-import { createTask, updateTask } from "../../../database/controllers/task.js";
-import {
-  createImage,
-  updateImage,
-} from "../../../database/controllers/image.js";
+import { createImageJobRecords } from "../image-job-records.js";
+import { updateTask } from "../../../database/controllers/task.js";
+import { updateImage } from "../../../database/controllers/image.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 import { getServiceConfig } from "@/config/config.js";
 import { getDatabaseInstance } from "@/database/database.js";
@@ -250,36 +247,15 @@ export class FlipImageJob {
     } = data;
 
     try {
-      const { width, height } = await decodeImageOrThrow(image.dataBase64);
-
-      await createTask({
+      await createImageJobRecords({
         jobId,
         roomId,
         userId,
-        type: "flipImage",
-        status: "created",
-        opened: false,
-        metadata: {
-          imageId,
-          newImageId,
-        },
-      });
-
-      const fileName = `${roomId}/${newImageId}`;
-
-      await createImage({
-        roomId,
-        imageId: newImageId,
+        imageId,
+        newImageId,
+        taskType: "flipImage",
         operation: "flip-image",
-        status: "pending",
-        mimeType: image.contentType,
-        fileName,
-        width,
-        height,
-        aspectRatio: width / height,
-        jobId,
-        removalJobId: null,
-        removalStatus: null,
+        image,
       });
 
       broadcastToRoom(roomId, {
