@@ -98,7 +98,17 @@ export async function registerNewImageJob(
       image,
     });
 
-    broadcastToRoom(roomId, { jobId, type: taskType, status: "created" });
+    try {
+      await broadcastToRoom(roomId, {
+        jobId,
+        type: taskType,
+        status: "created",
+      });
+    } catch (err) {
+      getLogger()
+        .child({ module: "image-job" })
+        .error({ err, jobId }, "Failed to broadcast new job");
+    }
 
     getLogger()
       .child({ module: "image-job" })
