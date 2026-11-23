@@ -114,6 +114,7 @@ import {
   aiPasswordRateLimit,
   roomImageUploadRateLimit,
   roomVideoUploadRateLimit,
+  mediaReadRateLimit,
 } from "@/middlewares/api-rate-limit.js";
 
 const router: Router = Router();
@@ -201,6 +202,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     internalToken,
     session,
+    mediaReadRateLimit,
     auth,
     roomMember,
     getChatImageController(),
@@ -260,6 +262,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     internalToken,
     session,
+    mediaReadRateLimit,
     auth,
     roomMember,
     getImageController(),
@@ -342,6 +345,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     internalToken,
     session,
+    mediaReadRateLimit,
     auth,
     roomMember,
     getVideoController(),
@@ -351,6 +355,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     internalToken,
     session,
+    mediaReadRateLimit,
     auth,
     roomMember,
     getVideoPlaceholderController(),

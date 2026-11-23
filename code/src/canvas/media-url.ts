@@ -28,11 +28,11 @@ const getRawPath = (url: string): string => {
 };
 
 const getQuery = (url: string): URLSearchParams => {
-  try {
-    return new URL(url, "http://base.invalid").searchParams;
-  } catch {
-    return new URLSearchParams();
-  }
+  const [beforeHash] = url.split("#", 1);
+  const queryStart = beforeHash.indexOf("?");
+  return new URLSearchParams(
+    queryStart === -1 ? "" : beforeHash.slice(queryStart + 1),
+  );
 };
 
 type MediaUrlConfig = Pick<ServiceConfig, "internalToken"> & {
