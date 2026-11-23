@@ -11,7 +11,7 @@ import { toStoredUserMetadata } from "@/database/user-metadata.js";
 
 export const postThreadAnswerController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId as string;
+    const roomId = req.params.pageId as string;
     const threadId = req.params.threadId as string;
 
     const { content } = req.body;
