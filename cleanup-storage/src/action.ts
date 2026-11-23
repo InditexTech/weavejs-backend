@@ -21,7 +21,6 @@ import whitelist from "./whitelist.json" with { type: "json" };
   const config = getActionConfig();
   console.log(`configuration:`);
   console.log(`- storage:`);
-  console.log(`--- account name: ${config.storage.accountName}`);
   console.log(
     `--- rooms container name: ${config.storage.rooms.containerName}`
   );
