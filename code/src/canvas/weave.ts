@@ -31,7 +31,7 @@ import {
 import { WeaveKonvaBaseRenderer } from "@inditextech/weave-renderer-konva-base/server";
 // import { WeaveKonvaReactReconcilerRenderer } from "@inditextech/weave-renderer-konva-react-reconciler/server";
 import { ColorTokenNode } from "./nodes/color-token/color-token.ts";
-import { isAbsoluteUrl, assertSafeUrl } from "../utils.ts";
+import { transformMediaUrl } from "./media-url.ts";
 import { type ServiceConfig } from "../types.ts";
 import { registerSkiaFonts, registerCanvasFonts } from "./fonts.ts";
 import { ImageTemplateNode } from "./nodes/image-template/image-template.ts";
@@ -168,74 +168,6 @@ export const renderWeaveRoom = (
     await weave.start();
   });
 };
-
-/**
- * Rewrites a media asset URL so the server-side renderer can fetch it via
- * the internal service endpoint.
- *
- * Rules (evaluated in order):
- * 1. Any URL whose path starts with `/weavebff` — relative or absolute,
- *    any origin — is rewritten to `http://localhost:PORT<strippedPath>?_token=…`.
- *    This handles the common case where the client stored the full public URL
- *    (e.g. `https://prod.domain.com/weavebff/api/v1/images/foo`).
- * 2. An absolute URL that targets localhost/127.0.0.1 at the service port is
- *    treated as a trusted internal request and gets the internal token appended.
- * 3. All other absolute URLs pass through the SSRF guard (`assertSafeUrl`).
- */
-function transformMediaUrl(url: string, config: ServiceConfig): string {
-  const isAbsolute = isAbsoluteUrl(url);
-
-  let urlPath: string;
-  let parsed: URL | null = null;
-
-  if (isAbsolute) {
-    try {
-      parsed = new URL(url);
-      urlPath = parsed.pathname;
-    } catch {
-      return "";
-    }
-  } else {
-    urlPath = url;
-  }
-
-  // Rule 1: any /weavebff path → rewrite to internal service URL.
-  if (urlPath.startsWith("/weavebff")) {
-    const strippedPath = urlPath.replace("/weavebff", "");
-    const target = new URL(
-      `http://localhost:${config.service.port}${strippedPath}`,
-    );
-    // Preserve original query params (if absolute URL had any).
-    if (parsed) {
-      parsed.searchParams.forEach((v, k) => target.searchParams.set(k, v));
-    }
-    target.searchParams.set("_token", config.internalToken);
-    return target.toString();
-  }
-
-  // Rule 2: absolute URL targeting the service's own localhost.
-  if (isAbsolute && parsed) {
-    const isOwnService =
-      (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") &&
-      parsed.port === String(config.service.port);
-
-    if (isOwnService) {
-      if (!parsed.searchParams.has("_token")) {
-        parsed.searchParams.set("_token", config.internalToken);
-      }
-      return parsed.toString();
-    }
-
-    // Rule 3: external absolute URL — apply SSRF guard.
-    try {
-      assertSafeUrl(url);
-    } catch {
-      return "";
-    }
-  }
-
-  return url;
-}
 
 // Same label engine as the frontend app, so rich text labels (labelBlocks)
 // keep their formatting when rendered on the server.

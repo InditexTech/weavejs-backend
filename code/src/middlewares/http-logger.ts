@@ -10,13 +10,14 @@ import { LevelWithSilent, stdSerializers } from "pino";
 const isTokenParam = (param: string) => {
   const name = param.split("=")[0].replaceAll("+", " ");
   try {
-    return decodeURIComponent(name) === "_token";
+    const decoded = decodeURIComponent(name);
+    return decoded === "_token" || decoded === "_t";
   } catch {
     return false;
   }
 };
 
-const stripInternalToken = (url: string) => {
+export const stripInternalToken = (url: string) => {
   const queryStart = url.indexOf("?");
   if (queryStart === -1) {
     return url;
