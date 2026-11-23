@@ -1,0 +1,71 @@
+CHANGELOG.md
+  s_31e8148345af40::t_a4fa354b3fe91d 18-20,26
+code/.env.example
+  s_31e8148345af40::t_f0979df7da517b 72-73
+code/src/api/v1/controllers/imageControllers.test.ts
+  s_31e8148345af40::t_a3e6bdce442c31 1-128
+code/src/api/v1/controllers/postFlipImage.ts
+  s_31e8148345af40::t_ea1e3e8f667618 6,8-12,43,51-52,54,56-87
+code/src/api/v1/controllers/postGrayscaleImage.ts
+  s_31e8148345af40::t_6a26634e30228f 6,8-12,32,40-41,43-45,47-77,80
+code/src/api/v1/controllers/postNegateImage.ts
+  s_31e8148345af40::t_7404ff3e767538 6,8-12,32,40-41,43,45-75
+code/src/api/v2/controllers/postUploadImage.test.ts
+  s_31e8148345af40::t_0ccdbb820f76ac 1-78
+code/src/api/v2/controllers/postUploadImage.ts
+  s_31e8148345af40::t_acc8a7b6d5deab 6-9,47-59,61-62
+code/src/app.ts
+  s_31e8148345af40::t_06786a8ef6650a 19,55-60
+code/src/images/validate.test.ts
+  s_31e8148345af40::t_da74580799cc93 5-8,10-15,17,19-22,24-29,31-37
+code/src/images/validate.ts
+  s_31e8148345af40::t_d29db66d4f64c9 1-59
+code/src/middlewares/origin-guard.test.ts
+  s_31e8148345af40::t_eb5c7b58998d19 1-101
+code/src/middlewares/origin-guard.ts
+  s_31e8148345af40::t_4f42a58fa2b20a 1-45
+code/src/process-handlers.test.ts
+  s_31e8148345af40::t_cb0037a8dea010 1-43
+code/src/process-handlers.ts
+  s_31e8148345af40::t_ffd9f75fde1436 1-34
+code/src/server.ts
+  s_31e8148345af40::t_0efc7972f51f9b 11,34-35
+code/src/workloads/jobs/flip-image/job.ts
+  s_31e8148345af40::t_67b62c4fd7498b 23,172,252-253,255-266,277-279,285-289,291-295
+code/src/workloads/jobs/grayscale-image/job.ts
+  s_31e8148345af40::t_f9387e8f1a6641 22,167,239-240,242-253,264-266,272-276,278-284
+code/src/workloads/jobs/negate-image/job.ts
+  s_31e8148345af40::t_145454cd89ea2e 22,165,237-238,240-251,262-264,270-274,276-282
+code/src/workloads/jobs/onNew.test.ts
+  s_31e8148345af40::t_a97da5e585accb 1-132
+code/src/workloads/jobs/remove-image-background/job.ts
+  s_31e8148345af40::t_55dedec27b9c81 22,166,241-242,244-255,266-268,274-278,280-286
+openspec/changes/archive/2026-11-23-harden-image-job-errors/.openspec.yaml
+  s_31e8148345af40::t_021d9229d32a45 1-2
+openspec/changes/archive/2026-11-23-harden-image-job-errors/proposal.md
+  s_31e8148345af40::t_1fbe6008e98ed3 1-33
+openspec/changes/archive/2026-11-23-harden-image-job-errors/tasks.md
+  s_31e8148345af40::t_e210a513be8ef7 1-33
+openspec/specs/image-input-validation/spec.md
+  s_31e8148345af40::t_8a82685b83c76d 1-47
+openspec/specs/mutating-request-origin/spec.md
+  s_31e8148345af40::t_e34d926879ca84 1-40
+openspec/specs/process-fault-handling/spec.md
+  s_31e8148345af40::t_651c2cdd6e1ca1 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "310c24e1ae7e90b603de40ad384cc5cb4aa06995",
+  "prompts": {},
+  "sessions": {
+    "s_31e8148345af40": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_df70aa42dffeyVYanT6voPA2db",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
