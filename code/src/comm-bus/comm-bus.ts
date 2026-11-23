@@ -6,6 +6,7 @@ import { DefaultAzureCredential } from "@azure/identity";
 import { WebPubSubServiceClient, AzureKeyCredential } from "@azure/web-pubsub";
 import { getServiceConfig } from "../config/config.js";
 import { getLogger } from "../logger/logger.js";
+import { GLOBAL_BUS_ID } from "./constants.js";
 
 let logger = null as unknown as ReturnType<typeof getLogger>;
 let serviceClient: WebPubSubServiceClient | null = null;
@@ -53,7 +54,7 @@ export const broadcastToGlobal = async (message: any) => {
   if (!serviceClient) {
     throw new Error("Communication bus not initialized");
   }
-  const group = `weavejsGlobal.commbus`;
+  const group = `${GLOBAL_BUS_ID}.commbus`;
 
   try {
     await serviceClient.group(group).sendToAll(message);

@@ -87,6 +87,7 @@ import { postRoomController } from "./controllers/rooms/postRoom.js";
 import { auth } from "@/middlewares/auth.js";
 import { session } from "@/middlewares/session.js";
 import { roomMember } from "@/middlewares/room-member.js";
+import { busMember } from "@/middlewares/bus-member.js";
 import { pageMember } from "@/middlewares/page-member.js";
 import { instanceMember } from "@/middlewares/instance-member.js";
 import { internalToken } from "@/middlewares/internal-token.js";
@@ -182,6 +183,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getRoomToJsonController(),
   );
   router.post(
@@ -208,6 +210,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getChatsController(),
   );
   router.get(
@@ -215,6 +218,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getChatController(),
   );
   router.put(
@@ -222,6 +226,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     putChatController(),
   );
   router.post(
@@ -229,6 +234,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     postChatController(),
   );
   router.delete(
@@ -236,6 +242,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     delChatController(),
   );
 
@@ -327,6 +334,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getVideosController(),
   );
   router.get(
@@ -458,6 +466,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      instanceMember,
       getStandaloneThreadsController(),
     );
     router.get(
@@ -465,6 +474,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      instanceMember,
       getStandaloneThreadController(),
     );
     router.post(
@@ -472,6 +482,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      instanceMember,
       postStandaloneThreadController(),
     );
     router.put(
@@ -479,6 +490,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      instanceMember,
       putStandaloneThreadController(),
     );
     router.delete(
@@ -486,6 +498,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      instanceMember,
       delStandaloneThreadController(),
     );
 
@@ -496,6 +509,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      instanceMember,
       getStandaloneThreadAnswersController(),
     );
     router.get(
@@ -503,6 +517,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      instanceMember,
       getStandaloneThreadAnswerController(),
     );
     router.post(
@@ -510,6 +525,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      instanceMember,
       postStandaloneThreadAnswerController(),
     );
     router.put(
@@ -517,6 +533,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      instanceMember,
       putStandaloneThreadAnswerController(),
     );
     router.delete(
@@ -524,6 +541,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      instanceMember,
       delStandaloneThreadAnswerController(),
     );
 
@@ -533,6 +551,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      busMember,
       getRoomBusNegotiateController(),
     );
     router.post(
@@ -540,6 +559,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      busMember,
       postRoomBusJoinController(),
     );
 
@@ -557,6 +577,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       json({ limit: "50mb" }),
       postExportPageToImageAsyncController(),
     );
@@ -573,6 +594,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       postExportRoomToPDFAsyncController(),
     );
     router.post(
@@ -580,6 +602,7 @@ export function setupApiV1Router(app: Application) {
       cors,
       session,
       auth,
+      roomMember,
       json({ limit: "50mb" }),
       postExportFramesToPDFAsyncController(),
     );
@@ -591,6 +614,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getSimulateStoreWsErrorController(),
   );
 
@@ -642,6 +666,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    instanceMember,
     getStandaloneImageController(),
   );
   router.put(
@@ -649,6 +674,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    instanceMember,
     putStandaloneSaveInstanceImageController(),
   );
   router.get(
@@ -656,6 +682,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    instanceMember,
     getStandaloneInstanceImageController(),
   );
   router.get(
@@ -663,6 +690,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    instanceMember,
     getStandaloneImagesController(),
   );
   router.post(
@@ -670,6 +698,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    instanceMember,
     upload.single("file"),
     postStandaloneUploadImageController(),
   );
@@ -715,6 +744,7 @@ export function setupApiV1Router(app: Application) {
     cors,
     session,
     auth,
+    roomMember,
     getChatController(),
   );
   if (process.env.AI_SERVICES === "true") {
