@@ -5,6 +5,8 @@
 import { decodeImageOrThrow } from "../../images/validate.js";
 import { createTask } from "../../database/controllers/task.js";
 import { createImage } from "../../database/controllers/image.js";
+import { broadcastToRoom } from "../../comm-bus/comm-bus.js";
+import { getLogger } from "../../logger/logger.js";
 
 type ImageJobRecordsInput = {
   jobId: string;
@@ -54,4 +56,57 @@ export async function createImageJobRecords({
     removalJobId: null,
     removalStatus: null,
   });
+}
+
+type NewImageJobData = {
+  jobId: string;
+  clientId: string;
+  roomId: string;
+  userId: string;
+  payload: {
+    imageId: string;
+    newImageId: string;
+    image: { dataBase64: string; contentType: string };
+  };
+};
+
+export async function registerNewImageJob(
+  data: NewImageJobData,
+  {
+    taskType,
+    operation,
+    label,
+  }: Pick<ImageJobRecordsInput, "taskType" | "operation"> & { label: string },
+) {
+  const {
+    jobId,
+    clientId,
+    roomId,
+    userId,
+    payload: { imageId, newImageId, image },
+  } = data;
+
+  try {
+    await createImageJobRecords({
+      jobId,
+      roomId,
+      userId,
+      imageId,
+      newImageId,
+      taskType,
+      operation,
+      image,
+    });
+
+    broadcastToRoom(roomId, { jobId, type: taskType, status: "created" });
+
+    getLogger()
+      .child({ module: "image-job" })
+      .info(`${label} / created new job / ${jobId} / ${clientId}`);
+  } catch (ex) {
+    getLogger()
+      .child({ module: "image-job" })
+      .error({ err: ex, jobId }, "Failed to register new job");
+    throw ex;
+  }
 }

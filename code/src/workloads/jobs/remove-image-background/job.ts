@@ -19,7 +19,7 @@ import { JOB_REMOVE_IMAGE_BACKGROUND_QUEUE_NAME } from "./constants.js";
 import { getLogger } from "../../../logger/logger.js";
 import { saveBase64ToFile } from "../../../utils.js";
 import { removeBackground } from "@imgly/background-removal-node";
-import { createImageJobRecords } from "../image-job-records.js";
+import { registerNewImageJob } from "../image-job-records.js";
 import { updateTask } from "../../../database/controllers/task.js";
 import { updateImage } from "../../../database/controllers/image.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
@@ -227,39 +227,11 @@ export class RemoveImageBackgroundJob {
   }
 
   private async onNew(data: RemoveImageBackgroundJobNew) {
-    const {
-      jobId,
-      clientId,
-      userId,
-      roomId,
-      payload: { imageId, newImageId, image },
-    } = data;
-
-    try {
-      await createImageJobRecords({
-        jobId,
-        roomId,
-        userId,
-        imageId,
-        newImageId,
-        taskType: "removeImageBackground",
-        operation: "background-removal",
-        image,
-      });
-
-      broadcastToRoom(roomId, {
-        jobId,
-        type: "removeImageBackground",
-        status: "created",
-      });
-
-      this.logger.info(
-        `Remove image background / created new job / ${jobId} / ${clientId}`,
-      );
-    } catch (ex) {
-      this.logger.error({ err: ex, jobId }, "Failed to register new job");
-      throw ex;
-    }
+    await registerNewImageJob(data, {
+      taskType: "removeImageBackground",
+      operation: "background-removal",
+      label: "Remove image background",
+    });
   }
 
   private async onProcessing(data: RemoveImageBackgroundJobProcessing) {

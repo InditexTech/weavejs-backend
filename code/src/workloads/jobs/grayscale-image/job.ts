@@ -19,7 +19,7 @@ import { JOB_GRAYSCALE_IMAGE_QUEUE_NAME } from "./constants.js";
 import { getLogger } from "../../../logger/logger.js";
 import { saveBase64ToFile } from "../../../utils.js";
 import sharp from "sharp";
-import { createImageJobRecords } from "../image-job-records.js";
+import { registerNewImageJob } from "../image-job-records.js";
 import { updateTask } from "../../../database/controllers/task.js";
 import { updateImage } from "../../../database/controllers/image.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
@@ -225,39 +225,11 @@ export class GrayscaleImageJob {
   }
 
   private async onNew(data: GrayscaleImageJobNew) {
-    const {
-      jobId,
-      clientId,
-      userId,
-      roomId,
-      payload: { imageId, newImageId, image },
-    } = data;
-
-    try {
-      await createImageJobRecords({
-        jobId,
-        roomId,
-        userId,
-        imageId,
-        newImageId,
-        taskType: "grayscaleImage",
-        operation: "grayscale-image",
-        image,
-      });
-
-      broadcastToRoom(roomId, {
-        jobId,
-        type: "grayscaleImage",
-        status: "created",
-      });
-
-      this.logger.info(
-        `Grayscale image / created new job / ${jobId} / ${clientId}`,
-      );
-    } catch (ex) {
-      this.logger.error({ err: ex, jobId }, "Failed to register new job");
-      throw ex;
-    }
+    await registerNewImageJob(data, {
+      taskType: "grayscaleImage",
+      operation: "grayscale-image",
+      label: "Grayscale image",
+    });
   }
 
   private async onProcessing(data: GrayscaleImageJobProcessing) {
