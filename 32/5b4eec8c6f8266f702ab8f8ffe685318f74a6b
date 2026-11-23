@@ -1,0 +1,21 @@
+REUSE.toml
+  s_da1e755f778646::t_a05b61757f79b6 12-13
+code/src/middlewares/page-member.test.ts
+  s_da1e755f778646::t_d22867f8de6db9 65-71,73-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "325b4eec8c6f8266f702ab8f8ffe685318f74a6b",
+  "prompts": {},
+  "sessions": {
+    "s_da1e755f778646": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_df7ace2c7ffeYMGriKFlQpLGHi",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
