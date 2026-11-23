@@ -1,0 +1,33 @@
+code/src/api/v1/controllers/createImageJobController.ts
+  s_31e8148345af40::t_5dabdd82dc3f1d 1-84
+code/src/api/v1/controllers/postGrayscaleImage.ts
+  s_31e8148345af40::t_bb4774ff900b5c 7-16
+code/src/api/v1/controllers/postNegateImage.ts
+  s_31e8148345af40::t_18f5bee1665d1d 7-16
+code/src/workloads/jobs/flip-image/job.ts
+  s_31e8148345af40::t_637b9636468a06 23,241-245
+code/src/workloads/jobs/grayscale-image/job.ts
+  s_31e8148345af40::t_46e1f7a92d54f7 22,228-232
+code/src/workloads/jobs/image-job-records.ts
+  s_31e8148345af40::t_645b866d43c152 8-9,60-112
+code/src/workloads/jobs/negate-image/job.ts
+  s_31e8148345af40::t_f2a6ba8b3733c0 22,226-230
+code/src/workloads/jobs/remove-image-background/job.ts
+  s_31e8148345af40::t_d34c71f5158dec 22,230-234
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "b1b8e5a4f9fe731c793b1bbd6aca699ed5670d87",
+  "prompts": {},
+  "sessions": {
+    "s_31e8148345af40": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_df70aa42dffeyVYanT6voPA2db",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
