@@ -1,0 +1,19 @@
+code/src/workloads/jobs/image-job-records.ts
+  s_31e8148345af40::t_711229a79456e6 101-111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "7e2a53733491a035c0d863a453fce43ce695bf02",
+  "prompts": {},
+  "sessions": {
+    "s_31e8148345af40": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_df70aa42dffeyVYanT6voPA2db",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
