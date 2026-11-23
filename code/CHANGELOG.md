@@ -21,5 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - **BREAKING**: `GET /{hub}/rooms` (unscoped storage container listing).
+- **BREAKING**: the `?_token=` query credential is no longer accepted; use the `x-internal-token` header. The server-side renderer now authenticates with a short-lived `_t` token scoped to one media path.
+- **BREAKING**: the renderer rejects media sources that are not a known `/weavebff` media route (unknown relative paths and absolute `localhost` URLs resolve to an empty source).
 
 [Unreleased]: https://github.com/InditexTech/weavejs/compare/HEAD

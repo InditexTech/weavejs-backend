@@ -20,7 +20,10 @@ import { delImageController } from "./controllers/delImage.js";
 import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
 import { session } from "../../middlewares/session.js";
 import { auth } from "../../middlewares/auth.js";
-import { aiImageOperationRateLimit } from "@/middlewares/api-rate-limit.js";
+import {
+  aiImageOperationRateLimit,
+  mediaReadRateLimit,
+} from "@/middlewares/api-rate-limit.js";
 import { roomMember } from "../../middlewares/room-member.js";
 import { internalToken } from "../../middlewares/internal-token.js";
 
@@ -79,6 +82,7 @@ export function setupApiV2Router(app: Express) {
   router.get(
     `/${hubName}/rooms/:roomId/images/:imageId`,
     cors,
+    mediaReadRateLimit,
     internalToken,
     session,
     auth,

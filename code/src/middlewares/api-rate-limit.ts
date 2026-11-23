@@ -2,23 +2,27 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type { RequestHandler } from "express";
+import type { Request, RequestHandler } from "express";
 import { ipKeyGenerator, rateLimit } from "express-rate-limit";
+import { hasInternalCredential } from "@/middlewares/internal-token.js";
 
 type ApiRateLimitOptions = {
   windowMs: number;
   max: number;
   message: string;
+  skip?: (req: Request) => boolean;
 };
 
 const createApiRateLimit = ({
   windowMs,
   max,
   message,
+  skip,
 }: ApiRateLimitOptions): RequestHandler =>
   rateLimit({
     windowMs,
     max,
+    skip,
     standardHeaders: "draft-8",
     legacyHeaders: false,
     keyGenerator: (req) =>
@@ -55,4 +59,14 @@ export const aiPasswordRateLimit = createApiRateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
   message: "Too many attempts. Please try again later.",
+});
+
+// Media reads. Boards load many assets at once, so the limit is generous.
+// Runs before internalToken and session, so it is keyed by IP. Requests with a
+// valid internal credential (the server-side renderer) are not limited.
+export const mediaReadRateLimit = createApiRateLimit({
+  windowMs: 60 * 1000,
+  max: 1200,
+  message: "Too many media requests. Please try again later.",
+  skip: hasInternalCredential,
 });
