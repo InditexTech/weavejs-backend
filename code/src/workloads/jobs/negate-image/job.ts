@@ -19,6 +19,7 @@ import { JOB_NEGATE_IMAGE_QUEUE_NAME } from "./constants.js";
 import { getLogger } from "../../../logger/logger.js";
 import { saveBase64ToFile } from "../../../utils.js";
 import sharp from "sharp";
+import { decodeImageOrThrow } from "../../../images/validate.js";
 import { createTask, updateTask } from "../../../database/controllers/task.js";
 import {
   createImage,
@@ -161,7 +162,7 @@ export class NegateImageJob {
         },
       });
     } catch (ex) {
-      await fs.promises.rm(filePath);
+      await fs.promises.rm(filePath, { force: true });
 
       this.boss.fail(JOB_NEGATE_IMAGE_QUEUE_NAME, jobId, {
         status: "KO",
@@ -233,23 +234,21 @@ export class NegateImageJob {
       payload: { imageId, newImageId, image },
     } = data;
 
-    await createTask({
-      jobId,
-      roomId,
-      userId,
-      type: "negateImage",
-      status: "created",
-      opened: false,
-      metadata: {
-        imageId,
-        newImageId,
-      },
-    });
+    try {
+      const { width, height } = await decodeImageOrThrow(image.dataBase64);
 
-    const imageBuffer = Buffer.from(image.dataBase64, "base64");
-
-    if (imageBuffer) {
-      const dimensions = await sharp(imageBuffer).metadata();
+      await createTask({
+        jobId,
+        roomId,
+        userId,
+        type: "negateImage",
+        status: "created",
+        opened: false,
+        metadata: {
+          imageId,
+          newImageId,
+        },
+      });
 
       const fileName = `${roomId}/${newImageId}`;
 
@@ -260,22 +259,27 @@ export class NegateImageJob {
         status: "pending",
         mimeType: image.contentType,
         fileName,
-        width: dimensions.width,
-        height: dimensions.height,
-        aspectRatio: dimensions.width / dimensions.height,
+        width,
+        height,
+        aspectRatio: width / height,
         jobId,
         removalJobId: null,
         removalStatus: null,
       });
+
+      broadcastToRoom(roomId, {
+        jobId,
+        type: "negateImage",
+        status: "created",
+      });
+
+      this.logger.info(
+        `Negate image / created new job / ${jobId} / ${clientId}`,
+      );
+    } catch (ex) {
+      this.logger.error({ err: ex, jobId }, "Failed to register new job");
+      throw ex;
     }
-
-    broadcastToRoom(roomId, {
-      jobId,
-      type: "negateImage",
-      status: "created",
-    });
-
-    this.logger.info(`Negate image / created new job / ${jobId} / ${clientId}`);
   }
 
   private async onProcessing(data: NegateImageJobProcessing) {

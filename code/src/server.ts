@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { getLogger, setupLogger } from "./logger/logger.js";
 import { setupApp } from "./app.js";
+import { registerProcessFaultHandlers } from "./process-handlers.js";
 import { setupStore, setupStoreRoomsCleanup } from "./store.js";
 import { setupWorkloads } from "./workloads/workloads.js";
 import { setupDatabase } from "./database/database.js";
@@ -29,6 +30,8 @@ const start = async () => {
     // Setup service logger
     setupLogger();
     const logger = getLogger().child({ module: "server" });
+
+    registerProcessFaultHandlers(logger);
 
     logger.info("Starting service...");
     logger.info(`Log level set to: ${process.env.LOG_LEVEL ?? "error"}`);
