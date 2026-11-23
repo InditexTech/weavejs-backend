@@ -62,32 +62,18 @@ test("allows a member of the page's room", async () => {
   assert.equal(r.status, 0);
 });
 
-test("denies a non member", async () => {
-  const r = await run({ pageId: "page-b" });
-  assert.equal(r.nextCalled, false);
-  assert.equal(r.status, 403);
-});
+const denied: [string, Record<string, string>][] = [
+  ["a non member", { pageId: "page-b" }],
+  ["an id without a page row", { pageId: "orphan-blob-id" }],
+  ["an archived page", { pageId: "page-archived" }],
+  ["a room id used as page id", { pageId: "room-a" }],
+  ["a request with only :roomId", { roomId: "room-a" }],
+];
 
-test("denies an id without a page row", async () => {
-  const r = await run({ pageId: "orphan-blob-id" });
-  assert.equal(r.nextCalled, false);
-  assert.equal(r.status, 403);
-});
-
-test("denies an archived page", async () => {
-  const r = await run({ pageId: "page-archived" });
-  assert.equal(r.nextCalled, false);
-  assert.equal(r.status, 403);
-});
-
-test("does not treat a room id in :roomId as a page id", async () => {
-  const r = await run({ roomId: "room-a" });
-  assert.equal(r.nextCalled, false);
-  assert.equal(r.status, 403);
-});
-
-test("a room id is not accepted as page id", async () => {
-  const r = await run({ pageId: "room-a" });
-  assert.equal(r.nextCalled, false);
-  assert.equal(r.status, 403);
-});
+for (const [name, params] of denied) {
+  test(`denies ${name}`, async () => {
+    const r = await run(params);
+    assert.equal(r.nextCalled, false);
+    assert.equal(r.status, 403);
+  });
+}

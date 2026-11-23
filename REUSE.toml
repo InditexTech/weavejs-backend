@@ -9,6 +9,8 @@ path = [
     ".github/**",
     "images/**",
     "REUSE.toml",
+    ".opencode/**",
+    "openspec/**",
     "repolinter.json",
 
     # repeated files licensing
