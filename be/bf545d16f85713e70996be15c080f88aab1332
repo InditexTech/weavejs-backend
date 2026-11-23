@@ -1,0 +1,51 @@
+code/CHANGELOG.md
+  s_63a72eb12a88b3::t_cc009848f73de9 24-25
+code/src/canvas/media-url.ts
+  s_63a72eb12a88b3::t_9b572abeb5cddf 1-128
+code/src/canvas/weave.ts
+  s_63a72eb12a88b3::t_ca504f7c8cfa2e 34
+code/src/middlewares/http-logger.ts
+  s_222f345225f7a0::t_b462be59e22a2e 13-14,20
+code/src/middlewares/internal-token.test.ts
+  s_63a72eb12a88b3::t_e545fa15216126 1-75
+code/src/middlewares/internal-token.ts
+  s_222f345225f7a0::t_b3377b25e431bb 5,8-15,23-29
+code/src/utils/media-token.test.ts
+  s_222f345225f7a0::t_eabd52ee1368b0 1-61
+code/src/utils/media-token.ts
+  s_222f345225f7a0::t_81f178dad22f9b 1-54
+openspec/changes/archive/2026-11-23-harden-media-url-rewrite/.openspec.yaml
+  s_63a72eb12a88b3::t_20a5e6e08a0e8a 1-2
+openspec/changes/archive/2026-11-23-harden-media-url-rewrite/design.md
+  s_222f345225f7a0::t_babd54895aaef1 1-35
+openspec/changes/archive/2026-11-23-harden-media-url-rewrite/specs/renderer-media-urls/spec.md
+  s_222f345225f7a0::t_b0661084f609fe 1-105
+openspec/changes/archive/2026-11-23-harden-media-url-rewrite/tasks.md
+  s_63a72eb12a88b3::t_4dd57bcd711eb8 1-25
+openspec/specs/renderer-media-urls/spec.md
+  s_63a72eb12a88b3::t_22402ffa38e349 1-105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "bebf545d16f85713e70996be15c080f88aab1332",
+  "prompts": {},
+  "sessions": {
+    "s_222f345225f7a0": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e0753ddc2ffesWccUTS2hhG3si",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    },
+    "s_63a72eb12a88b3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_df7229312ffeVy8Iyv9q1xSwof",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
