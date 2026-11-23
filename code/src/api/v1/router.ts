@@ -200,9 +200,9 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/rooms/:roomId/chats/:chatId/images/:imageId`,
     cors,
+    mediaReadRateLimit,
     internalToken,
     session,
-    mediaReadRateLimit,
     auth,
     roomMember,
     getChatImageController(),
@@ -260,9 +260,9 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/rooms/:roomId/images/:imageId`,
     cors,
+    mediaReadRateLimit,
     internalToken,
     session,
-    mediaReadRateLimit,
     auth,
     roomMember,
     getImageController(),
@@ -343,9 +343,9 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/rooms/:roomId/videos/:videoId`,
     cors,
+    mediaReadRateLimit,
     internalToken,
     session,
-    mediaReadRateLimit,
     auth,
     roomMember,
     getVideoController(),
@@ -353,9 +353,9 @@ export function setupApiV1Router(app: Application) {
   router.get(
     `/${hubName}/rooms/:roomId/videos/:videoId/placeholder`,
     cors,
+    mediaReadRateLimit,
     internalToken,
     session,
-    mediaReadRateLimit,
     auth,
     roomMember,
     getVideoPlaceholderController(),

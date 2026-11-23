@@ -82,9 +82,9 @@ export function setupApiV2Router(app: Express) {
   router.get(
     `/${hubName}/rooms/:roomId/images/:imageId`,
     cors,
+    mediaReadRateLimit,
     internalToken,
     session,
-    mediaReadRateLimit,
     auth,
     roomMember,
     getImageController(),

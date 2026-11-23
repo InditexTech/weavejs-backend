@@ -4,6 +4,7 @@
 
 import type { Request, RequestHandler } from "express";
 import { ipKeyGenerator, rateLimit } from "express-rate-limit";
+import { hasInternalCredential } from "@/middlewares/internal-token.js";
 
 type ApiRateLimitOptions = {
   windowMs: number;
@@ -61,10 +62,11 @@ export const aiPasswordRateLimit = createApiRateLimit({
 });
 
 // Media reads. Boards load many assets at once, so the limit is generous.
-// Internal requests (the server-side renderer) are not limited.
+// Runs before internalToken and session, so it is keyed by IP. Requests with a
+// valid internal credential (the server-side renderer) are not limited.
 export const mediaReadRateLimit = createApiRateLimit({
   windowMs: 60 * 1000,
-  max: 600,
+  max: 1200,
   message: "Too many media requests. Please try again later.",
-  skip: (req) => req.isInternalRequest === true,
+  skip: hasInternalCredential,
 });
