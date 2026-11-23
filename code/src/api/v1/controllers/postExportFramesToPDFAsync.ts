@@ -32,7 +32,7 @@ export const postExportFramesToPDFAsyncController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId as string;
 
-    const userId: string = (req.headers["x-weave-user-id"] as string) ?? "";
+    const userId: string = req.session!.user.id;
     const clientId: string = (req.headers["x-weave-client-id"] as string) ?? "";
 
     const parsedBody = payloadSchema.safeParse(req.body);
