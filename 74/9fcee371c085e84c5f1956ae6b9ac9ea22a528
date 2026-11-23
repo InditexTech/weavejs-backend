@@ -1,0 +1,51 @@
+code/src/api/v1/controllers/postExportFramesToPDFAsync.ts
+  s_be5584c32d6bf3::t_3aae9ff6acb64b 35
+code/src/api/v1/controllers/postExportPageToImageAsync.ts
+  s_be5584c32d6bf3::t_95f5f3106fb23c 55
+code/src/api/v1/controllers/postExportRoomToPDFAsync.test.ts
+  s_be5584c32d6bf3::t_ea3caa07c934b1 1-48
+code/src/api/v1/controllers/postExportRoomToPDFAsync.ts
+  s_be5584c32d6bf3::t_cf43e59ab3a3ab 31
+code/src/api/v1/router.membership.test.ts
+  s_be5584c32d6bf3::t_16142d35c3e347 1-75
+code/src/api/v1/router.ts
+  s_be5584c32d6bf3::t_9f0706a6df40f9 90,186,213,221,229,237,245,337,469,477,485,493,501,512,520,528,536,544,554,562,580,597,605,617,669,677,685,693,701,747
+code/src/comm-bus/comm-bus.ts
+  s_be5584c32d6bf3::t_f4ae32c65bd328 9,57
+code/src/comm-bus/constants.ts
+  s_be5584c32d6bf3::t_c05efd786e227d 1-5
+code/src/middlewares/bus-member.test.ts
+  s_be5584c32d6bf3::t_69244609badc25 1-70
+code/src/middlewares/bus-member.ts
+  s_be5584c32d6bf3::t_e94a98bb195ac6 1-19
+code/src/middlewares/instance-member.test.ts
+  s_be5584c32d6bf3::t_8bd9493cbefb0a 1-55
+openspec/changes/archive/2026-11-23-apply-room-instance-membership/.openspec.yaml
+  s_be5584c32d6bf3::t_43dabe4d95ad74 1-2
+openspec/changes/archive/2026-11-23-apply-room-instance-membership/design.md
+  s_be5584c32d6bf3::t_9f9a503d22005e 1-46
+openspec/changes/archive/2026-11-23-apply-room-instance-membership/proposal.md
+  s_be5584c32d6bf3::t_f2c25920d480b9 1-31
+openspec/changes/archive/2026-11-23-apply-room-instance-membership/specs/room-access/spec.md
+  s_be5584c32d6bf3::t_24eb59de1f6004 1-82
+openspec/changes/archive/2026-11-23-apply-room-instance-membership/tasks.md
+  s_be5584c32d6bf3::t_68d9cfa414eac7 1-22
+openspec/specs/room-access/spec.md
+  s_be5584c32d6bf3::t_a086af32e03954 1-82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "749fcee371c085e84c5f1956ae6b9ac9ea22a528",
+  "prompts": {},
+  "sessions": {
+    "s_be5584c32d6bf3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_df782a096ffeljIobzy0k2hdWr",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
