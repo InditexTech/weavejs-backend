@@ -3,7 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Request, Response } from "express";
-import sharp from "sharp";
+import {
+  InvalidImageError,
+  validateImageBufferOrThrow,
+} from "../../../images/validate.js";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
 import { createImage } from "../../../database/controllers/image.js";
 import { ImageModel } from "../../../database/models/image.js";
@@ -41,10 +44,22 @@ export const postUploadImageController = () => {
       return;
     }
 
-    try {
-      if (file) {
-        const dimensions = await sharp(data).metadata();
+    let dimensions: { width: number; height: number } | undefined;
+    if (file) {
+      try {
+        dimensions = await validateImageBufferOrThrow(file.buffer);
+      } catch (ex) {
+        if (ex instanceof InvalidImageError) {
+          res.status(400).json({ status: "KO", message: ex.message });
+          return;
+        }
+        res.status(500).json({ status: "KO", message: "Error creating image" });
+        return;
+      }
+    }
 
+    try {
+      if (file && dimensions) {
         await persistenceHandler.persist(
           fileName,
           { size: file.size, mimeType },

@@ -40,7 +40,6 @@ import { getRoomBusNegotiateController } from "./controllers/getRoomBusNegotiate
 import { postRoomBusJoinController } from "./controllers/postRoomBusJoin.js";
 import { postExportPageToImageAsyncController } from "./controllers/postExportPageToImageAsync.js";
 import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
-import { getSimulateStoreWsErrorController } from "./controllers/getSimulateStoreWsError.js";
 import { getVideosController } from "./controllers/getVideos.js";
 import { getVideoController } from "./controllers/getVideo.js";
 import { postUploadVideoController } from "./controllers/postUploadVideo.js";
@@ -612,16 +611,6 @@ export function setupApiV1Router(app: Application) {
       postExportFramesToPDFAsyncController(),
     );
   }
-
-  // Store testing API (only in dev mode)
-  router.get(
-    `/${hubName}/rooms/:roomId/simulate-ws-error`,
-    cors,
-    session,
-    auth,
-    roomMember,
-    getSimulateStoreWsErrorController(),
-  );
 
   // Template handling API
   router.get(

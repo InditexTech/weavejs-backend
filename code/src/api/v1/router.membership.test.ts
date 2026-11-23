@@ -70,6 +70,5 @@ test("previously unguarded room routes use roomMember", () => {
   expectGuarded("PUT", "/rooms/:roomId/chats/:chatId", "roomMember");
   expectGuarded("DELETE", "/rooms/:roomId/chats/:chatId", "roomMember");
   expectGuarded("GET", "/rooms/:roomId/videos", "roomMember");
-  expectGuarded("GET", "/rooms/:roomId/simulate-ws-error", "roomMember");
   expectGuarded("GET", "/rooms/:roomId/ai/chats/:chatId/stream", "roomMember");
 });

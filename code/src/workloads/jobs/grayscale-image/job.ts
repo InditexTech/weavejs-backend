@@ -19,11 +19,9 @@ import { JOB_GRAYSCALE_IMAGE_QUEUE_NAME } from "./constants.js";
 import { getLogger } from "../../../logger/logger.js";
 import { saveBase64ToFile } from "../../../utils.js";
 import sharp from "sharp";
-import { createTask, updateTask } from "../../../database/controllers/task.js";
-import {
-  createImage,
-  updateImage,
-} from "../../../database/controllers/image.js";
+import { registerNewImageJob } from "../image-job-records.js";
+import { updateTask } from "../../../database/controllers/task.js";
+import { updateImage } from "../../../database/controllers/image.js";
 import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 import { getServiceConfig } from "@/config/config.js";
 import { getDatabaseInstance } from "@/database/database.js";
@@ -163,7 +161,7 @@ export class GrayscaleImageJob {
         },
       });
     } catch (ex) {
-      await fs.promises.rm(filePath);
+      await fs.promises.rm(filePath, { force: true });
 
       this.boss.fail(JOB_GRAYSCALE_IMAGE_QUEUE_NAME, jobId, {
         status: "KO",
@@ -227,59 +225,11 @@ export class GrayscaleImageJob {
   }
 
   private async onNew(data: GrayscaleImageJobNew) {
-    const {
-      jobId,
-      clientId,
-      userId,
-      roomId,
-      payload: { imageId, newImageId, image },
-    } = data;
-
-    await createTask({
-      jobId,
-      roomId,
-      userId,
-      type: "grayscaleImage",
-      status: "created",
-      opened: false,
-      metadata: {
-        imageId,
-        newImageId,
-      },
+    await registerNewImageJob(data, {
+      taskType: "grayscaleImage",
+      operation: "grayscale-image",
+      label: "Grayscale image",
     });
-
-    const imageBuffer = Buffer.from(image.dataBase64, "base64");
-
-    if (imageBuffer) {
-      const dimensions = await sharp(imageBuffer).metadata();
-
-      const fileName = `${roomId}/${newImageId}`;
-
-      await createImage({
-        roomId,
-        imageId: newImageId,
-        operation: "grayscale-image",
-        status: "pending",
-        mimeType: image.contentType,
-        fileName,
-        width: dimensions.width,
-        height: dimensions.height,
-        aspectRatio: dimensions.width / dimensions.height,
-        jobId,
-        removalJobId: null,
-        removalStatus: null,
-      });
-    }
-
-    broadcastToRoom(roomId, {
-      jobId,
-      type: "grayscaleImage",
-      status: "created",
-    });
-
-    this.logger.info(
-      `Grayscale image / created new job / ${jobId} / ${clientId}`,
-    );
   }
 
   private async onProcessing(data: GrayscaleImageJobProcessing) {

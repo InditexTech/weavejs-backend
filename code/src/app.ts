@@ -16,6 +16,7 @@ import { getServiceConfig } from "./config/config.js";
 import { toNodeHandler } from "better-auth/node";
 import { getAuth } from "@/lib/auth.js";
 import { getCorsMiddleware } from "./middlewares/cors.js";
+import { getOriginGuardMiddleware } from "./middlewares/origin-guard.js";
 
 setLogLevel("verbose");
 
@@ -50,6 +51,12 @@ export function setupApp() {
   const cors = getCorsMiddleware("/api/auth/*");
   const auth = getAuth();
   app.all("/api/auth/*", cors, toNodeHandler(auth));
+
+  // Reject mutating browser requests from origins outside the allowlist
+  app.use(
+    ["/api/v1", "/api/v2", "/api/v3"],
+    getOriginGuardMiddleware(config.cors.allowedOrigins),
+  );
 
   // Setup Routers
   setupApiV1Router(app);
