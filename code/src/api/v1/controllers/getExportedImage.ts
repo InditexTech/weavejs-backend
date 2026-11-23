@@ -6,7 +6,7 @@ import { Readable } from "stream";
 import { pipeline } from "stream/promises";
 import { Request, Response } from "express";
 import { ImagesPersistenceHandler } from "../../../images/persistence.js";
-import archiver from "archiver";
+import { ZipArchive } from "archiver";
 import { getServiceConfig } from "@/config/config.js";
 
 export const getExportedImageController = () => {
@@ -63,7 +63,7 @@ export const getExportedImageController = () => {
         res.setHeader("Content-Type", "application/zip");
         res.setHeader("Content-Disposition", "attachment; filename=export.zip");
 
-        const archive = archiver("zip", { zlib: { level: 9 } });
+        const archive = new ZipArchive({ zlib: { level: 9 } });
         archive.pipe(res);
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
