@@ -12,7 +12,7 @@ import { broadcastToRoom } from "../../../comm-bus/comm-bus.js";
 
 export const delThreadAnswerController = () => {
   return async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId as string;
+    const roomId = req.params.pageId as string;
     const answerId = req.params.answerId as string;
 
     const userId: string = req.session!.user.id;

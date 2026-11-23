@@ -69,7 +69,6 @@ import { postAiChatMessageController } from "./controllers/ai/postChatMessage.js
 import { getTemplatesImageController } from "./controllers/templates/getTemplatesImage.js";
 import { getTemplatesImagesController } from "./controllers/templates/getTemplatesImages.js";
 import { postTemplatesUploadImageController } from "./controllers/templates/postTemplatesUploadImage.js";
-import { getRoomsStorageController } from "./controllers/getRoomsStorage.js";
 import { postAddImageTemplateToRoomController } from "./controllers/postAddImageTemplateToRoom.js";
 import { postAddTemplateToRoomController } from "./controllers/postAddTemplateToRoom.js";
 import { delTemplatesImageController } from "./controllers/templates/delTemplatesImage.js";
@@ -146,7 +145,7 @@ export function setupApiV1Router(app: Application) {
   setupBodyParserMiddleware(router, routerBasePath);
 
   router.get(
-    `/${hubName}/rooms/:roomId/connect`,
+    `/${hubName}/rooms/:pageId/connect`,
     cors,
     session,
     auth,
@@ -156,14 +155,7 @@ export function setupApiV1Router(app: Application) {
 
   // Room tools
   router.get(
-    `/${hubName}/rooms`,
-    cors,
-    session,
-    auth,
-    getRoomsStorageController(),
-  );
-  router.get(
-    `/${hubName}/rooms/:roomId`,
+    `/${hubName}/rooms/:pageId`,
     cors,
     session,
     auth,
@@ -377,7 +369,7 @@ export function setupApiV1Router(app: Application) {
   if (config.features.threads) {
     // Threads API
     router.get(
-      `/${hubName}/rooms/:roomId/threads`,
+      `/${hubName}/rooms/:pageId/threads`,
       cors,
       session,
       auth,
@@ -385,7 +377,7 @@ export function setupApiV1Router(app: Application) {
       getThreadsController(),
     );
     router.get(
-      `/${hubName}/rooms/:roomId/threads/:threadId`,
+      `/${hubName}/rooms/:pageId/threads/:threadId`,
       cors,
       session,
       auth,
@@ -393,7 +385,7 @@ export function setupApiV1Router(app: Application) {
       getThreadController(),
     );
     router.post(
-      `/${hubName}/rooms/:roomId/threads`,
+      `/${hubName}/rooms/:pageId/threads`,
       cors,
       session,
       auth,
@@ -401,7 +393,7 @@ export function setupApiV1Router(app: Application) {
       postThreadController(),
     );
     router.put(
-      `/${hubName}/rooms/:roomId/threads/:threadId`,
+      `/${hubName}/rooms/:pageId/threads/:threadId`,
       cors,
       session,
       auth,
@@ -409,7 +401,7 @@ export function setupApiV1Router(app: Application) {
       putThreadController(),
     );
     router.delete(
-      `/${hubName}/rooms/:roomId/threads/:threadId`,
+      `/${hubName}/rooms/:pageId/threads/:threadId`,
       cors,
       session,
       auth,
@@ -420,7 +412,7 @@ export function setupApiV1Router(app: Application) {
     // Threads Answers API
 
     router.get(
-      `/${hubName}/rooms/:roomId/threads/:threadId/answers`,
+      `/${hubName}/rooms/:pageId/threads/:threadId/answers`,
       cors,
       session,
       auth,
@@ -428,7 +420,7 @@ export function setupApiV1Router(app: Application) {
       getThreadAnswersController(),
     );
     router.get(
-      `/${hubName}/rooms/:roomId/threads/:threadId/answers/:answerId`,
+      `/${hubName}/rooms/:pageId/threads/:threadId/answers/:answerId`,
       cors,
       session,
       auth,
@@ -436,7 +428,7 @@ export function setupApiV1Router(app: Application) {
       getThreadAnswerController(),
     );
     router.post(
-      `/${hubName}/rooms/:roomId/threads/:threadId/answers`,
+      `/${hubName}/rooms/:pageId/threads/:threadId/answers`,
       cors,
       session,
       auth,
@@ -444,7 +436,7 @@ export function setupApiV1Router(app: Application) {
       postThreadAnswerController(),
     );
     router.put(
-      `/${hubName}/rooms/:roomId/threads/:threadId/answers/:answerId`,
+      `/${hubName}/rooms/:pageId/threads/:threadId/answers/:answerId`,
       cors,
       session,
       auth,
@@ -452,7 +444,7 @@ export function setupApiV1Router(app: Application) {
       putThreadAnswerController(),
     );
     router.delete(
-      `/${hubName}/rooms/:roomId/threads/:threadId/answers/:answerId`,
+      `/${hubName}/rooms/:pageId/threads/:threadId/answers/:answerId`,
       cors,
       session,
       auth,

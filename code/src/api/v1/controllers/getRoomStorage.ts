@@ -12,7 +12,7 @@ import {
 export const getRoomStorageController =
   () =>
   async (req: Request, res: Response): Promise<void> => {
-    const roomId = req.params.roomId as string;
+    const roomId = req.params.pageId as string;
 
     const docName = `${roomId}`;
 

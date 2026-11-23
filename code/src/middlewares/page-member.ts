@@ -11,12 +11,12 @@ export async function pageMember(
   res: Response,
   next: NextFunction,
 ) {
-  const pageId = req.params.roomId as string;
+  const pageId = req.params.pageId as string;
   const userId = req.session!.user.id;
 
   const page = await getPageByPageId({ pageId });
 
-  if (!page) {
+  if (!page || page.status === "archived") {
     res.status(403).json({
       status: "KO",
       message: "You don't have access to this page",

@@ -6,7 +6,6 @@ import { broadcastToGlobal, broadcastToRoom } from "@/comm-bus/comm-bus.js";
 import {
   createPage,
   getLastPageRoom,
-  getPage,
   getPageIndex,
   getPagePosition,
 } from "@/database/controllers/page.js";
@@ -14,22 +13,14 @@ import { getTemplate } from "@/database/controllers/template.js";
 import { TemplateModel } from "@/database/models/template.js";
 import { addTemplateToRoom } from "@/templates/templates.js";
 import { Request, Response } from "express";
+import { randomUUID } from "node:crypto";
 
 export const postPageController = () => {
   return async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.roomId as string;
 
-    const { pageId, name, templateId, target } = req.body;
-
-    const pageObj = await getPage({
-      roomId,
-      pageId,
-    });
-
-    if (pageObj) {
-      res.status(409).json({ status: "KO", message: "Page already exists" });
-      return;
-    }
+    const { name, templateId, target } = req.body;
+    const pageId = randomUUID();
 
     let template: TemplateModel | null = null;
     if (templateId) {
@@ -86,13 +77,6 @@ export const postPageController = () => {
       }
     } catch (error) {
       console.error("Error creating page:", error);
-      page = await getPage({
-        roomId,
-        pageId,
-      });
-    }
-
-    if (!page) {
       res.status(500).json({ status: "KO", message: "Error creating page" });
       return;
     }
