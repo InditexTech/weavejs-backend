@@ -1,0 +1,23 @@
+code/src/api/v1/controllers/rooms/getRooms.test.ts
+  s_dbc846a191d493::t_ba4c7a7e4d02af 1-77
+code/src/api/v1/controllers/rooms/getRooms.ts
+  s_dbc846a191d493::t_dac691fadec9fb 6-12,32-51,69-70
+code/src/database/controllers/room.ts
+  s_dbc846a191d493::t_3f5bb063cc45bd 15-18,34-35,39-40,60-63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "3cec8752cb157523a39cb97e43e879bb7c7e0469",
+  "prompts": {},
+  "sessions": {
+    "s_dbc846a191d493": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_df6cd9018ffe05Zv4JzSiw4RQH",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
