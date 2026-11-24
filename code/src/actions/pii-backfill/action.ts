@@ -13,10 +13,13 @@
 //   2. Run this script against the target database.
 //   3. Set PII_ENCRYPTION_ENABLED=true and redeploy.
 
+import { createRequire } from "node:module";
 import { Pool } from "pg";
 import { getPiiCrypto } from "../../lib/pii/index.js";
 import { AUTH_PII_FIELDS } from "../../lib/pii/auth-adapter.js";
 import { getDatabaseCloudCredentialsToken } from "../../utils.js";
+
+const require = createRequire(import.meta.url);
 
 const BATCH_SIZE = 500;
 const dryRun = process.argv.includes("--dry-run");
@@ -28,21 +31,49 @@ const quote = (identifier: string) => `"${identifier.replaceAll('"', '""')}"`;
 
 type Row = Record<string, unknown> & { id: unknown };
 
-const createPool = () =>
-  new Pool({
-    host: process.env.DATABASE_HOST,
-    port: Number(process.env.DATABASE_PORT),
-    user: process.env.DATABASE_USERNAME,
+type DatabaseConfig = {
+  username?: string;
+  password?: string;
+  database?: string;
+  host?: string;
+  port?: string | number;
+  dialectOptions?: { ssl?: unknown };
+};
+
+const loadDatabaseConfig = (): DatabaseConfig => {
+  const environment = process.env.NODE_ENV ?? "development";
+  const configs = require("../../../config/config.cjs") as Record<
+    string,
+    DatabaseConfig
+  >;
+  const config = configs[environment];
+  if (!config) {
+    throw new Error(`No database config for NODE_ENV=${environment}`);
+  }
+  console.log(
+    `Target: ${config.host}:${config.port}/${config.database} (${environment})`,
+  );
+  return config;
+};
+
+const createPool = () => {
+  const config = loadDatabaseConfig();
+  return new Pool({
+    host: config.host,
+    port: Number(config.port),
+    user: config.username,
     password:
       process.env.DATABASE_CLOUD_CREDENTIALS === "true"
         ? async () => (await getDatabaseCloudCredentialsToken()).token
-        : process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE_NAME,
-    ...(process.env.DATABASE_SSL === "true" && {
+        : config.password,
+    database: config.database,
+    // Stricter than the shared config (rejectUnauthorized: false) on purpose.
+    ...(config.dialectOptions?.ssl && {
       ssl: { rejectUnauthorized: true },
     }),
     max: 2,
   });
+};
 
 const encryptRow = (
   pii: ReturnType<typeof getPiiCrypto>,
