@@ -12,6 +12,10 @@ import {
 } from "../models/room.js";
 import { PageModel } from "../models/page.js";
 
+export const ROOM_SORT_FIELDS = ["createdAt", "updatedAt", "name"] as const;
+export type RoomSortField = (typeof ROOM_SORT_FIELDS)[number];
+export type RoomSortOrder = "asc" | "desc";
+
 export const getRooms = async (
   {
     userId,
@@ -27,9 +31,13 @@ export const getRooms = async (
   {
     limit = 20,
     offset = 0,
+    sort = "createdAt",
+    order = "desc",
   }: {
     limit?: number;
     offset?: number;
+    sort?: RoomSortField;
+    order?: RoomSortOrder;
   },
 ): Promise<RoomModel[]> => {
   return RoomModel.findAll({
@@ -49,7 +57,10 @@ export const getRooms = async (
       ...(status && { status }),
       ...(kind && { kind }),
     },
-    order: [["updatedAt", "ASC"]],
+    order: [
+      [sort, order.toUpperCase()],
+      ["roomId", "ASC"],
+    ],
     attributes: {
       include: [
         "roomId",
