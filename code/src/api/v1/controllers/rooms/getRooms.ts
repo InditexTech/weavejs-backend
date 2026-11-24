@@ -3,7 +3,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Request, Response } from "express";
-import { getRooms, getTotalRooms } from "@/database/controllers/room.js";
+import {
+  getRooms,
+  getTotalRooms,
+  ROOM_SORT_FIELDS,
+  RoomSortField,
+  RoomSortOrder,
+} from "@/database/controllers/room.js";
 import { RoomKind } from "@/database/models/room.js";
 
 export const getRoomsController = () => {
@@ -23,6 +29,26 @@ export const getRoomsController = () => {
       status = req.query.status as string;
     }
 
+    const sortParam = req.query.sort as string | undefined;
+    const sort = ROOM_SORT_FIELDS.find((field) => field === sortParam) as
+      RoomSortField | undefined;
+    if (sortParam !== undefined && !sort) {
+      res.status(400).json({
+        error: `Invalid sort, expected one of: ${ROOM_SORT_FIELDS.join(", ")}`,
+      });
+      return;
+    }
+    const orderParam = (req.query.order as string | undefined)?.toLowerCase();
+    if (
+      orderParam !== undefined &&
+      orderParam !== "asc" &&
+      orderParam !== "desc"
+    ) {
+      res.status(400).json({ error: "Invalid order, expected asc or desc" });
+      return;
+    }
+    const order = orderParam as RoomSortOrder | undefined;
+
     const total = await getTotalRooms({
       userId: req.session.user.id,
       name,
@@ -40,6 +66,8 @@ export const getRoomsController = () => {
       {
         limit: parseInt(limit, 10),
         offset: parseInt(offset, 10),
+        sort,
+        order,
       },
     );
 
