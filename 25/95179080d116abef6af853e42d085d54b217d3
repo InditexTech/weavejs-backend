@@ -1,0 +1,19 @@
+code/src/actions/pii-backfill/action.ts
+  s_dbc846a191d493::t_b387232122e347 16,22-23,34-64,68-71,76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "2595179080d116abef6af853e42d085d54b217d3",
+  "prompts": {},
+  "sessions": {
+    "s_dbc846a191d493": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_df6cd9018ffe05Zv4JzSiw4RQH",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
