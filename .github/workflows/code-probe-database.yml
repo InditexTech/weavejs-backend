@@ -1,6 +1,8 @@
 name: Code probe database
 
 on:
+  pull_request:
+    paths: [ ".github/workflows/code-probe-database.yml" ]
   workflow_dispatch:
     inputs:
       ENVIRONMENT:
@@ -20,7 +22,7 @@ jobs:
   probe:
     name: Probe database connectivity and privileges
     runs-on: ubuntu-24.04
-    environment: ${{ github.event.inputs.ENVIRONMENT }}
+    environment: ${{ github.event.inputs.ENVIRONMENT || 'azure-develop' }}
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
