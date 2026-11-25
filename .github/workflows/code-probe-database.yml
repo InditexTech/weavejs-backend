@@ -31,30 +31,45 @@ jobs:
       AZURE_DATABASE_USERNAME: ${{ secrets.AZURE_DATABASE_USERNAME }}
       AZURE_DATABASE_SSL: ${{ secrets.AZURE_DATABASE_SSL }}
       AZURE_DATABASE_CLOUD_CREDENTIALS: ${{ vars.AZURE_DATABASE_CLOUD_CREDENTIALS }}
+      AZURE_DATABASE_PROBE_USERNAME: ${{ secrets.AZURE_DATABASE_PROBE_USERNAME }}
+      AZURE_DATABASE_PROBE_PASSWORD: ${{ secrets.AZURE_DATABASE_PROBE_PASSWORD }}
       PGCONNECT_TIMEOUT: "15"
     steps:
       - name: Azure Login
+        if: ${{ env.AZURE_DATABASE_PROBE_PASSWORD == '' }}
         uses: azure/login@v2
         with:
           client-id: ${{ env.AZURE_CLIENT_ID }}
           tenant-id: ${{ env.AZURE_TENANT_ID }}
           subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Prepare Entra credentials for PostgreSQL
+      - name: Prepare PostgreSQL credentials
         run: |
           set +x
-          if [ "$AZURE_DATABASE_CLOUD_CREDENTIALS" != "true" ]; then
-            echo "::error::AZURE_DATABASE_CLOUD_CREDENTIALS must be 'true': this probe checks the Entra token path"
-            exit 1
+          if [ -n "$AZURE_DATABASE_PROBE_PASSWORD" ]; then
+            echo "Auth mode: password (AZURE_DATABASE_PROBE_USERNAME)"
+            if [ -z "$AZURE_DATABASE_PROBE_USERNAME" ]; then
+              echo "::error::AZURE_DATABASE_PROBE_USERNAME is required with AZURE_DATABASE_PROBE_PASSWORD"
+              exit 1
+            fi
+            PASSWORD="$AZURE_DATABASE_PROBE_PASSWORD"
+            DB_USER="$AZURE_DATABASE_PROBE_USERNAME"
+          else
+            echo "Auth mode: Entra token (AZURE_DATABASE_USERNAME)"
+            if [ "$AZURE_DATABASE_CLOUD_CREDENTIALS" != "true" ]; then
+              echo "::error::AZURE_DATABASE_CLOUD_CREDENTIALS must be 'true' for the Entra token path"
+              exit 1
+            fi
+            PASSWORD=$(az account get-access-token --resource-type oss-rdbms --query accessToken --output tsv)
+            echo "::add-mask::$PASSWORD"
+            DB_USER="$AZURE_DATABASE_USERNAME"
           fi
-          TOKEN=$(az account get-access-token --resource-type oss-rdbms --query accessToken --output tsv)
-          echo "::add-mask::$TOKEN"
           {
-            echo "PGPASSWORD=$TOKEN"
+            echo "PGPASSWORD=$PASSWORD"
             echo "PGHOST=$AZURE_DATABASE_HOST"
             echo "PGPORT=${AZURE_DATABASE_PORT:-5432}"
             echo "PGDATABASE=$AZURE_DATABASE_NAME"
-            echo "PGUSER=$AZURE_DATABASE_USERNAME"
+            echo "PGUSER=$DB_USER"
             if [ "$AZURE_DATABASE_SSL" = "true" ]; then
               echo "PGSSLMODE=require"
             else
@@ -80,7 +95,7 @@ jobs:
       - name: Check login with Entra token
         run: |
           psql --no-psqlrc --set ON_ERROR_STOP=1 --command "SELECT 1 AS login_ok;" \
-            || { echo "::error::Login failed: the service principal may have no PostgreSQL role"; exit 1; }
+            || { echo "::error::Login failed: check the username/password, or the role mapping for Entra"; exit 1; }
 
       - name: Check read privileges (counts only)
         run: |
