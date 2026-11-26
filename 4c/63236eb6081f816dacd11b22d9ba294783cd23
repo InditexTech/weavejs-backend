@@ -1,0 +1,19 @@
+.github/scripts/room-retention-run.sh
+  s_901bb9a92293e5::t_ca151a58a8ec17 31-35,41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "4c63236eb6081f816dacd11b22d9ba294783cd23",
+  "prompts": {},
+  "sessions": {
+    "s_901bb9a92293e5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ded3fe09effeLCj6gPAq5t3kce",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
