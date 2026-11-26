@@ -48,9 +48,9 @@
 
 - [x] 8.1 Create `RETENTION_TRIGGER_TOKEN` in `azure-develop` and `azure-pro` (different values) and deploy the backend to `azure-develop`; verify the start endpoint answers 401 without the token and starts a dry run with it
 - [x] 8.2 Run the workflow manually on `azure-develop` with `DRY_RUN=true`; verify the summary lists candidate rooms and orphan blobs per container, deletes nothing, the schema guard passes, and the log contains no email address
-- [ ] 8.3 Correct the protected lists for each environment (user ids differ per environment, legacy room names from `cleanup-storage/src/whitelist.json` where still relevant) and repeat the dry run on `azure-pro`; verify the reported protected ids and unmatched ids are as expected and tighten the limits from the dry-run counts
+- [x] 8.3 Correct the protected lists for each environment (user ids differ per environment, legacy room names from `cleanup-storage/src/whitelist.json` where still relevant) and repeat the dry run on `azure-pro`; verify the reported protected ids and unmatched ids are as expected and tighten the limits from the dry-run counts
 - [x] 8.4 Confirm with infra whether anything runs the `cleanup-storage` image and disable it; verify with a written confirmation recorded in issue #185
-- [ ] 8.5 Run a real execution manually on `azure-develop`, then `azure-pro`; verify the target rooms and their blobs are gone, protected ones remain, a second run finds nothing to delete, and a deleting right is not missing
+- [x] 8.5 Run a real execution manually on `azure-develop`, then `azure-pro`; verify the target rooms and their blobs are gone, protected ones remain, a second run finds nothing to delete, and a deleting right is not missing
 - [ ] 8.6 Enable the schedule with dry-run off in both environments; verify the first scheduled runs complete and the summary stays within the limits
 
 ## 9. Cleanup

@@ -44,7 +44,6 @@
     "publish:snapshot": "nx run-many -t publish:snapshot -- --verbose --tag next --registry $NPM_PUBLISHING_REGISTRY --unsafe-perm",
     "start": "node --env-file=.env dist/server.js",
     "test": "tsx --experimental-test-module-mocks --test \"src/**/*.test.ts\"",
-    "storage:cleanup": "tsx --env-file=./src/actions/storage-cleanup/.env ./src/actions/storage-cleanup/action.ts",
     "verify": "npm ci --force --ignore-scripts && npm rebuild canvas sharp skia-canvas && npm run copy:assets && npm run apply:patches && npm run lint && npm run build",
     "version:development": "export BUMP_DEVELOP_VERSION=$(npm version $(npm version minor)-SNAPSHOT) && lerna version $BUMP_DEVELOP_VERSION --no-git-tag-version --no-push --force-publish --exact --yes && npm version $(npm version minor)-SNAPSHOT",
     "version:release": "npm ci && lerna version --no-git-tag-version --no-push --force-publish --exact --yes $RELEASE_VERSION && npm version $RELEASE_VERSION"
