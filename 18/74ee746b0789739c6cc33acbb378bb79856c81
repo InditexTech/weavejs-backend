@@ -1,0 +1,81 @@
+.github/scripts/room-retention-run.sh
+  s_901bb9a92293e5::t_c84b55c220c852 1-166
+.github/workflows/code-deploy.yml
+  s_901bb9a92293e5::t_63252422a9ac9a 77,136
+.github/workflows/code-room-retention.yml
+  s_901bb9a92293e5::t_43c2eb7f7b8b49 57,67-69,81,84-85
+code/src/actions/room-retention/README.md
+  s_901bb9a92293e5::t_08dcd827f0aba3 10-67,74-75,115-118,138-139,145-146
+code/src/actions/room-retention/config.ts
+  s_901bb9a92293e5::t_8e5a346b32afbc 76-93,126-133
+code/src/actions/room-retention/integrationLock.ts
+  s_901bb9a92293e5::t_98b56fbb2e7070 1-23
+code/src/actions/room-retention/request.test.ts
+  s_901bb9a92293e5::t_404160ff285d57 1-108
+code/src/actions/room-retention/request.ts
+  s_901bb9a92293e5::t_ba6eeb95412e86 1-63
+code/src/actions/room-retention/retention.integration.test.ts
+  s_901bb9a92293e5::t_6da1ee6b3c8ee8 17,162-163,166,174
+code/src/actions/room-retention/run.ts
+  s_901bb9a92293e5::t_c1baa41cffde22 27-29,31,41-57,66-67,113-148,175,180-185,188-219
+code/src/actions/room-retention/sequelize.integration.test.ts
+  s_901bb9a92293e5::t_d834b3af084870 1-249
+code/src/actions/room-retention/sequelizeAdapter.ts
+  s_901bb9a92293e5::t_db031f0e1b601b 1-75
+code/src/api/v3/controllers/getRetentionRun.ts
+  s_901bb9a92293e5::t_e1a3828a707fb9 1-60
+code/src/api/v3/controllers/postRetentionRun.ts
+  s_901bb9a92293e5::t_fd3c85b4e1465b 1-75
+code/src/api/v3/controllers/retention-runs.test.ts
+  s_901bb9a92293e5::t_439b1d5f343dc4 1-206
+code/src/api/v3/router.ts
+  s_901bb9a92293e5::t_eb6db45e09662e 13-19,61-76
+code/src/config/config.ts
+  s_901bb9a92293e5::t_69e8af28e1a1fb 19-27,386
+code/src/middlewares/api-rate-limit.ts
+  s_901bb9a92293e5::t_28fdf8200d252a 73-80
+code/src/middlewares/http-logger.ts
+  s_901bb9a92293e5::t_f0e3f1c590bb88 49-52
+code/src/middlewares/retention-token.test.ts
+  s_901bb9a92293e5::t_7a2cdc12b8aa6b 1-78
+code/src/middlewares/retention-token.ts
+  s_901bb9a92293e5::t_5bd75f215c1552 1-35
+code/src/types.ts
+  s_901bb9a92293e5::t_c68d604cdd22ec 11
+code/src/utils/text-render-check.ts
+  s_901bb9a92293e5::t_cd3f13415b5090 277
+code/src/workloads/constants.ts
+  s_901bb9a92293e5::t_2209d90ba46c3f 20
+code/src/workloads/jobs/room-retention/constants.ts
+  s_901bb9a92293e5::t_51ebcce6149905 1-10
+code/src/workloads/jobs/room-retention/deps.ts
+  s_901bb9a92293e5::t_63db745d7dcc90 1-35
+code/src/workloads/jobs/room-retention/job.integration.test.ts
+  s_901bb9a92293e5::t_10b4f0ba143835 1-254
+code/src/workloads/jobs/room-retention/job.ts
+  s_901bb9a92293e5::t_065ffb8c917df0 1-291
+code/src/workloads/jobs/room-retention/types.ts
+  s_901bb9a92293e5::t_4174de4adf7cb3 1-48
+code/src/workloads/workloads.ts
+  s_901bb9a92293e5::t_a447c65e08482e 67,124,307-319
+openspec/changes/room-retention/design.md
+  s_901bb9a92293e5::t_3b3bea5907a54a 33,37,47
+openspec/changes/room-retention/tasks.md
+  s_901bb9a92293e5::t_d5e51298d88c7f 35-39,43-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "1874ee746b0789739c6cc33acbb378bb79856c81",
+  "prompts": {},
+  "sessions": {
+    "s_901bb9a92293e5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ded3fe09effeLCj6gPAq5t3kce",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
