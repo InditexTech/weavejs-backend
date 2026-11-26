@@ -1,0 +1,33 @@
+openspec/changes/room-retention/design.md
+  s_9ab6f00c6adca5::t_b189585cb680df 8-14,19-20,28,32-41,43-49,53-54,57-58,60,63,65,69-76,80-81,83
+openspec/changes/room-retention/proposal.md
+  s_9ab6f00c6adca5::t_0f9cd1a55b97f7 5-7,11-13,15-17,23,30-36
+openspec/changes/room-retention/specs/room-retention/spec.md
+  s_901bb9a92293e5::t_3ab7faa42c5607 122-125,138-192,196,198-200,203,206-209,215,219
+openspec/changes/room-retention/tasks.md
+  s_901bb9a92293e5::t_0301b245b7052e 33,35-39,41,43-58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "e32ba4245236808520e08b30e9b85c51137a5664",
+  "prompts": {},
+  "sessions": {
+    "s_901bb9a92293e5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ded3fe09effeLCj6gPAq5t3kce",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    },
+    "s_9ab6f00c6adca5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_de8639dceffeUyvaWg6J2xN4u8",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
