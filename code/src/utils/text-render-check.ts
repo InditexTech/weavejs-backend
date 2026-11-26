@@ -274,6 +274,7 @@ const main = async () => {
   const config = {
     service: { port: 0 },
     internalToken: "",
+    retentionTriggerToken: "",
   } as unknown as ServiceConfig;
 
   const { instance, destroy } = await renderWeaveRoom(config, buildRoom());

@@ -73,6 +73,24 @@ const required = (env: Env, name: string): string => {
   return value;
 };
 
+// The three configured containers come from the deployment settings, the
+// others are fixed names used by the application.
+export const buildContainerNames = (
+  configured: { rooms: string; images: string; videos: string },
+  generatedImagesOverride?: string,
+): ContainerNames => ({
+  ...configured,
+  generatedImages: generatedImagesOverride?.trim() || "generated-images",
+  exportedImages: "exported-images",
+  exportedPdf: "exported-pdf",
+  pagesThumbnails: "pages-thumbnails",
+  roomsThumbnails: "rooms-thumbnails",
+  templatesImages: "templates-images",
+  standaloneImages: "standalone-images",
+  standaloneInstanceImageData: "standalone-instance-image-data",
+  presentationImages: "presentation-images",
+});
+
 export const parseRetentionConfig = (env: Env): RetentionConfig => {
   const accountName = env.AZURE_STORAGE_ACCOUNT_NAME?.trim() || undefined;
   const connectionString =
@@ -105,22 +123,14 @@ export const parseRetentionConfig = (env: Env): RetentionConfig => {
     storage: {
       accountName,
       connectionString,
-      containers: {
-        rooms: required(env, "AZURE_STORAGE_ROOMS_CONTAINER_NAME"),
-        images: required(env, "AZURE_STORAGE_IMAGES_CONTAINER_NAME"),
-        videos: required(env, "AZURE_STORAGE_VIDEOS_CONTAINER_NAME"),
-        generatedImages:
-          env.AZURE_STORAGE_GENERATED_IMAGES_CONTAINER_NAME?.trim() ||
-          "generated-images",
-        exportedImages: "exported-images",
-        exportedPdf: "exported-pdf",
-        pagesThumbnails: "pages-thumbnails",
-        roomsThumbnails: "rooms-thumbnails",
-        templatesImages: "templates-images",
-        standaloneImages: "standalone-images",
-        standaloneInstanceImageData: "standalone-instance-image-data",
-        presentationImages: "presentation-images",
-      },
+      containers: buildContainerNames(
+        {
+          rooms: required(env, "AZURE_STORAGE_ROOMS_CONTAINER_NAME"),
+          images: required(env, "AZURE_STORAGE_IMAGES_CONTAINER_NAME"),
+          videos: required(env, "AZURE_STORAGE_VIDEOS_CONTAINER_NAME"),
+        },
+        env.AZURE_STORAGE_GENERATED_IMAGES_CONTAINER_NAME,
+      ),
     },
   };
 };

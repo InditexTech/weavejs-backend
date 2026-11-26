@@ -64,6 +64,7 @@ export const setupWorkloads = async () => {
         await initExportFramesToPdfQueue(boss);
         await initGeneratePresentationModeImagesQueue(boss);
         await initEditFallbackImageQueue(boss);
+        await initRoomRetentionQueue(boss);
 
         logger.info("Module ready");
       } else {
@@ -120,6 +121,7 @@ export const setupWorkloads = async () => {
         await initExportFramesToPdfQueue(boss);
         await initGeneratePresentationModeImagesQueue(boss);
         await initEditFallbackImageQueue(boss);
+        await initRoomRetentionQueue(boss);
 
         logger.info("Module ready");
       } else {
@@ -300,6 +302,19 @@ const initEditFallbackImageQueue = async (boss: PgBoss) => {
   const editFallbackImageJob = await EditFallbackImageJob.create(boss);
   await editFallbackImageJob.start();
   jobs["editFallbackImage"] = editFallbackImageJob;
+};
+
+const initRoomRetentionQueue = async (boss: PgBoss) => {
+  const { RoomRetentionJob } = await import("./jobs/room-retention/job.js");
+  const { createRoomRetentionDeps } =
+    await import("./jobs/room-retention/deps.js");
+
+  const roomRetentionJob = await RoomRetentionJob.create(
+    boss,
+    createRoomRetentionDeps(),
+  );
+  await roomRetentionJob.start();
+  jobs["roomRetention"] = roomRetentionJob;
 };
 
 export const getWorkloadsInstance = () => {

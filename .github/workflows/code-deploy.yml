@@ -74,6 +74,7 @@ jobs:
       PII_ENCRYPTION_KEYS: ${{ secrets.PII_ENCRYPTION_KEYS }}
       PII_BLIND_INDEX_KEY: ${{ secrets.PII_BLIND_INDEX_KEY }}
       PII_ENCRYPTION_ENABLED: ${{ vars.PII_ENCRYPTION_ENABLED }}
+      RETENTION_TRIGGER_TOKEN: ${{ secrets.RETENTION_TRIGGER_TOKEN }}
     steps:
       - name: Get input parameters
         env:
@@ -132,6 +133,7 @@ jobs:
           echo PII_ENCRYPTION_KEYS="${{ env.PII_ENCRYPTION_KEYS }}" >> .env
           echo PII_BLIND_INDEX_KEY="${{ env.PII_BLIND_INDEX_KEY }}" >> .env
           echo PII_ENCRYPTION_ENABLED="${{ env.PII_ENCRYPTION_ENABLED }}" >> .env
+          echo RETENTION_TRIGGER_TOKEN="${{ env.RETENTION_TRIGGER_TOKEN }}" >> .env
           echo LOG_LEVEL=${{ env.AZURE_LOG_LEVEL }} >> .env
           echo HTTP_LOG_LEVEL=${{ env.AZURE_HTTP_LOG_LEVEL }} >> .env
           echo DEPLOY_ENVIRONMENT=${{ env.AZURE_DEPLOY_ENVIRONMENT }} >> .env

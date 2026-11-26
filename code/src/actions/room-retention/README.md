@@ -7,15 +7,72 @@ SPDX-License-Identifier: Apache-2.0
 # Room retention
 
 Hard-deletes rooms created more than 7 days ago, and the blobs that no longer
-belong to any room. It is run by `.github/workflows/code-room-retention.yml`
-every 4 hours, and can be run by hand:
+belong to any room.
+
+## How it runs
+
+```
+GitHub Actions (every 4 hours, or on demand)       .github/workflows/code-room-retention.yml
+   |  POST <APP_HOST>/weavebff/api/v3/<hub>/retention/runs      x-retention-token
+   v
+deployed backend (dev or pro)
+   task 1  pg-boss queue "room-retention"   deletes the expired rooms
+   task 2  pg-boss queue "blob-sweep"       removes orphaned blobs (after task 1)
+   ^
+   |  GET  <APP_HOST>/weavebff/api/v3/<hub>/retention/runs/<runId>   until it finishes
+GitHub Actions prints the summary and fails if the run failed
+```
+
+The job runs inside the backend because GitHub-hosted runners cannot reach the
+storage account. GitHub only schedules it and keeps the protected lists in
+environment variables, which it sends with each run. The core logic is in this
+folder; the pg-boss jobs are in `src/workloads/jobs/room-retention/` and the
+endpoints in `src/api/v3/controllers/`.
+
+### Enabling it
+
+Set `RETENTION_TRIGGER_TOKEN` (at least 32 characters, a different value per
+environment) as a GitHub secret of the environment and deploy the backend. It is
+written to the backend `.env` by `code-deploy.yml`. Without it the endpoints
+answer 404 and nothing can run. This token is not the internal service token.
+
+### Starting a run by hand
+
+`dryRun` defaults to true, and only an explicit `false` deletes:
+
+```bash
+curl -sS -X POST "$APP_HOST/weavebff/api/v3/weavejs/retention/runs" \
+  -H "x-retention-token: $RETENTION_TRIGGER_TOKEN" \
+  -H "content-type: application/json" \
+  -d '{"dryRun": true, "protectedRooms": ["room-a"], "protectedUserIds": ["user-id-1"]}'
+# {"status":"OK","runId":"..."}   (409 if a run is already in progress)
+
+curl -sS "$APP_HOST/weavebff/api/v3/weavejs/retention/runs/<runId>" \
+  -H "x-retention-token: $RETENTION_TRIGGER_TOKEN"
+```
+
+The body accepts `dryRun`, `protectedRooms`, `protectedUserIds`,
+`maxRoomsToDelete`, `maxBlobsToDelete`, `maxBlobsPercent` and `blobGraceHours`.
+Unknown fields and invalid values are rejected with 400. The status shows the
+state (`queued`, `active`, `completed`, `failed`), and a `failed: true` flag on a
+completed run means some room or blob could not be removed.
+
+A restart of the backend empties the pg-boss queues, so a run in progress is
+lost. Rooms are deleted one transaction at a time and the sweep is idempotent,
+so the next run finishes whatever was left.
+
+### Running it locally
+
+The same core runs from the command line against a local database and storage,
+which is how to try a change without the backend:
 
 ```bash
 npm run retention:run            # dry run, deletes nothing
 RETENTION_DRY_RUN=false npm run retention:run
 ```
 
-Anything other than `RETENTION_DRY_RUN=false` is a dry run.
+Anything other than `RETENTION_DRY_RUN=false` is a dry run. The variables for
+this mode are listed under Configuration below.
 
 ## What is protected
 
@@ -55,7 +112,10 @@ is in `RETENTION_PROTECTED_ROOMS`.
 Logs report counts and identifiers. Anything that looks like an email is
 redacted.
 
-## Configuration
+## Configuration of the local command
+
+In the backend the same values arrive in the request body (see above); the
+storage and database settings are the backend's own.
 
 | Variable                                                          | Default            | Meaning                                |
 | ----------------------------------------------------------------- | ------------------ | -------------------------------------- |
@@ -75,10 +135,12 @@ redacted.
 ## Tests
 
 Unit tests run with `npm test`. The integration tests need a PostgreSQL where
-all migrations were applied, and are skipped without it:
+all migrations were applied, and are skipped without it. They cover the core, the
+Sequelize adapter the backend uses, and the two pg-boss tasks on real pg-boss:
 
 ```bash
 RETENTION_TEST_DATABASE_URL=postgres://user:pass@localhost:5432/db npm test
 ```
 
-Their fixtures use a unique prefix and are removed afterwards.
+Their fixtures use a unique prefix and are removed afterwards, and the files take
+a database lock so they run one after the other.

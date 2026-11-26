@@ -14,6 +14,7 @@ import test, { after, before } from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
+import { acquireIntegrationLock } from "./integrationLock.ts";
 import { parseRetentionConfig } from "./config.ts";
 import { deleteRoom, deleteRooms } from "./deleteRoom.ts";
 import { loadLiveSet } from "./liveSet.ts";
@@ -158,8 +159,11 @@ const cleanup = async () => {
   await pool.query(`DELETE FROM auth."user" WHERE id LIKE $1`, [`${prefix}%`]);
 };
 
+let releaseLock: (() => Promise<void>) | undefined;
+
 before(async () => {
   if (!url) return;
+  releaseLock = await acquireIntegrationLock(url);
   pool = new Pool({ connectionString: url, max: 3 });
 });
 
@@ -167,6 +171,7 @@ after(async () => {
   if (!url) return;
   await cleanup();
   await pool.end();
+  await releaseLock?.();
 });
 
 test("the schema guard accepts the migrated schema", { skip }, async () => {

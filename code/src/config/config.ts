@@ -16,6 +16,15 @@ const INTERNAL_SERVICE_TOKEN =
     ? process.env.INTERNAL_SERVICE_TOKEN
     : randomUUID();
 
+// Token that lets the scheduling workflow start and read room retention runs.
+// It is separate from the internal token, which also signs media URLs. Without
+// a value of at least 32 characters the retention endpoints are disabled.
+const RETENTION_TRIGGER_TOKEN =
+  process.env.RETENTION_TRIGGER_TOKEN &&
+  process.env.RETENTION_TRIGGER_TOKEN.length >= 32
+    ? process.env.RETENTION_TRIGGER_TOKEN
+    : "";
+
 const databaseWithConnectionStringSchema = z.object({
   kind: z.literal("connection_string"),
   connection: z.object({
@@ -374,5 +383,6 @@ export function getServiceConfig(): ServiceConfig {
   return {
     ...serviceConfigSchema.parse(serviceConfig),
     internalToken: INTERNAL_SERVICE_TOKEN,
+    retentionTriggerToken: RETENTION_TRIGGER_TOKEN,
   };
 }

@@ -10,7 +10,13 @@ import { postEditImageControllerV2 } from "./controllers/postEditImage.js";
 import { setupBodyParserMiddleware } from "../../middlewares/body-parser.js";
 import { session } from "@/middlewares/session.js";
 import { auth } from "@/middlewares/auth.js";
-import { aiImageOperationRateLimit } from "@/middlewares/api-rate-limit.js";
+import {
+  aiImageOperationRateLimit,
+  retentionRateLimit,
+} from "@/middlewares/api-rate-limit.js";
+import { retentionToken } from "@/middlewares/retention-token.js";
+import { postRetentionRunController } from "./controllers/postRetentionRun.js";
+import { getRetentionRunController } from "./controllers/getRetentionRun.js";
 
 const router: Router = Router();
 
@@ -50,6 +56,22 @@ export function setupApiV3Router(app: Express) {
     aiImageOperationRateLimit,
     json({ limit: "100mb" }),
     postEditImageControllerV2(),
+  );
+
+  // Room retention. Started and read by the scheduling workflow with a
+  // dedicated token, so there is no session and no CORS.
+  router.post(
+    `/${hubName}/retention/runs`,
+    retentionRateLimit,
+    retentionToken(),
+    json({ limit: "64kb" }),
+    postRetentionRunController(),
+  );
+  router.get(
+    `/${hubName}/retention/runs/:runId`,
+    retentionRateLimit,
+    retentionToken(),
+    getRetentionRunController(),
   );
 
   app.use(routerBasePath, router);

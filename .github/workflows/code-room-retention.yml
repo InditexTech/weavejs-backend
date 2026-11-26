@@ -54,7 +54,7 @@ jobs:
     name: Room retention / ${{ matrix.environment }}
     needs: plan
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 240
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -62,23 +62,11 @@ jobs:
         environment: ${{ fromJSON(needs.plan.outputs.environments) }}
     environment: ${{ matrix.environment }}
     permissions:
-      id-token: write
       contents: read
     env:
-      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      DATABASE_HOST: ${{ secrets.AZURE_DATABASE_HOST }}
-      DATABASE_PORT: ${{ secrets.AZURE_DATABASE_PORT }}
-      DATABASE_NAME: ${{ secrets.AZURE_DATABASE_NAME }}
-      DATABASE_SSL: ${{ secrets.AZURE_DATABASE_SSL }}
-      DATABASE_USERNAME: ${{ secrets.ACTIONS_DATABASE_USERNAME }}
-      DATABASE_PASSWORD: ${{ secrets.ACTIONS_DATABASE_PASSWORD }}
-      AZURE_STORAGE_ACCOUNT_NAME: ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}
-      AZURE_STORAGE_ROOMS_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_ROOMS_CONTAINER_NAME }}
-      AZURE_STORAGE_IMAGES_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_IMAGES_CONTAINER_NAME }}
-      AZURE_STORAGE_VIDEOS_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_VIDEOS_CONTAINER_NAME }}
-      AZURE_STORAGE_GENERATED_IMAGES_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_GENERATED_IMAGES_CONTAINER_NAME }}
+      APP_HOST: ${{ vars.APP_HOST }}
+      HUB_NAME: ${{ vars.AZURE_WEB_PUBSUB_HUB_NAME }}
+      RETENTION_TRIGGER_TOKEN: ${{ secrets.RETENTION_TRIGGER_TOKEN }}
       RETENTION_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.DRY_RUN || vars.RETENTION_DRY_RUN }}
       RETENTION_PROTECTED_ROOMS: ${{ vars.RETENTION_PROTECTED_ROOMS }}
       RETENTION_PROTECTED_USER_IDS: ${{ vars.RETENTION_PROTECTED_USER_IDS }}
@@ -90,29 +78,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          sparse-checkout: .github/scripts
           persist-credentials: false
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: code/.tool-versions
-          cache: npm
-          cache-dependency-path: code/package-lock.json
-
-      - name: Install dependencies
-        working-directory: code
-        run: npm ci --ignore-scripts
-
-      - name: Azure Login
-        uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
-        with:
-          client-id: ${{ env.AZURE_CLIENT_ID }}
-          tenant-id: ${{ env.AZURE_TENANT_ID }}
-          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Run room retention
-        working-directory: code
-        run: npm run retention:run
+      - name: Run room retention on the backend
+        run: .github/scripts/room-retention-run.sh
 
   # A failed scheduled run opens (or updates) an issue, so a silent failure
   # does not let rooms live longer than expected.

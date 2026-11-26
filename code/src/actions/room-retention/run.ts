@@ -24,37 +24,47 @@ import {
   type SweepResult,
 } from "./sweep.js";
 
-export type RetentionSummary = {
+type Log = (message: string) => void;
+
+export type RoomPhaseSummary = {
   dryRun: boolean;
+  totalRooms: number;
   candidateRooms: number;
   protectedByRoom: number;
   protectedByOwner: number;
   roomsToDelete: string[];
   owners: OwnerProtectionStats;
   rooms: DeleteRoomsSummary;
-  blobs: {
-    total: number;
-    orphans: number;
-    missingContainers: string[];
-    perContainer: Record<string, { total: number; orphans: number }>;
-    result: SweepResult;
-  };
   failed: boolean;
 };
 
-export const runRetention = async ({
+export type BlobPhaseSummary = {
+  dryRun: boolean;
+  total: number;
+  orphans: number;
+  missingContainers: string[];
+  perContainer: Record<string, { total: number; orphans: number }>;
+  result: SweepResult;
+  failed: boolean;
+};
+
+export type RetentionSummary = RoomPhaseSummary & {
+  blobs: BlobPhaseSummary;
+};
+
+// Phase 1: selects the expired rooms that are not protected and deletes them
+// from the database, each in its own transaction.
+export const runRoomPhase = async ({
   config,
   pool,
-  store,
   now,
   log,
 }: {
   config: RetentionConfig;
   pool: TransactionalPool;
-  store: BlobStore;
   now: Date;
-  log: (message: string) => void;
-}): Promise<RetentionSummary> => {
+  log: Log;
+}): Promise<RoomPhaseSummary> => {
   log(
     `retention run started, dry-run=${config.dryRun}, protected rooms=${config.protectedRooms.size}, protected user ids=${config.protectedUserIds.size}`,
   );
@@ -100,8 +110,42 @@ export const runRetention = async ({
     log,
   );
 
-  // A real run already removed the rooms, a dry run simulates their removal.
-  const live = await loadLiveSet(pool, config.dryRun ? roomsToDelete : []);
+  log(
+    `rooms finished, deleted=${rooms.deleted.length}, failed=${rooms.failed.length}`,
+  );
+
+  return {
+    dryRun: config.dryRun,
+    totalRooms,
+    candidateRooms: candidates.length,
+    protectedByRoom,
+    protectedByOwner: owner.rooms.size,
+    roomsToDelete,
+    owners: owner.stats,
+    rooms,
+    failed: rooms.failed.length > 0,
+  };
+};
+
+// Phase 2: removes the blobs whose room, page or presentation is gone. A dry
+// run passes the rooms phase 1 would have deleted in `excludeRoomIds`, so the
+// plan matches what a real run would see.
+export const runBlobPhase = async ({
+  config,
+  pool,
+  store,
+  now,
+  log,
+  excludeRoomIds = [],
+}: {
+  config: RetentionConfig;
+  pool: TransactionalPool;
+  store: BlobStore;
+  now: Date;
+  log: Log;
+  excludeRoomIds?: string[];
+}): Promise<BlobPhaseSummary> => {
+  const live = await loadLiveSet(pool, config.dryRun ? excludeRoomIds : []);
   const plan = await planSweep(
     store,
     buildContainerSpecs(config.storage.containers),
@@ -127,26 +171,49 @@ export const runRetention = async ({
 
   const result = await executeSweep(store, plan.orphans, config.dryRun, log);
 
-  const failed = rooms.failed.length > 0 || result.failed.length > 0;
   log(
-    `retention run finished, rooms deleted=${rooms.deleted.length}, rooms failed=${rooms.failed.length}, blobs ${config.dryRun ? "to delete" : "deleted"}=${config.dryRun ? plan.orphans.length : result.deleted}, blobs failed=${result.failed.length}`,
+    `blobs finished, ${config.dryRun ? "to delete" : "deleted"}=${config.dryRun ? plan.orphans.length : result.deleted}, failed=${result.failed.length}`,
   );
 
   return {
     dryRun: config.dryRun,
-    candidateRooms: candidates.length,
-    protectedByRoom,
-    protectedByOwner: owner.rooms.size,
-    roomsToDelete,
-    owners: owner.stats,
-    rooms,
-    blobs: {
-      total: plan.totalBlobs,
-      orphans: plan.orphans.length,
-      missingContainers: plan.missingContainers,
-      perContainer: plan.perContainer,
-      result,
-    },
-    failed,
+    total: plan.totalBlobs,
+    orphans: plan.orphans.length,
+    missingContainers: plan.missingContainers,
+    perContainer: plan.perContainer,
+    result,
+    failed: result.failed.length > 0,
   };
+};
+
+export const runRetention = async ({
+  config,
+  pool,
+  store,
+  now,
+  log,
+}: {
+  config: RetentionConfig;
+  pool: TransactionalPool;
+  store: BlobStore;
+  now: Date;
+  log: Log;
+}): Promise<RetentionSummary & { failed: boolean }> => {
+  const roomPhase = await runRoomPhase({ config, pool, now, log });
+
+  const blobs = await runBlobPhase({
+    config,
+    pool,
+    store,
+    now,
+    log,
+    excludeRoomIds: roomPhase.roomsToDelete,
+  });
+
+  const failed = roomPhase.failed || blobs.failed;
+  log(
+    `retention run finished, rooms deleted=${roomPhase.rooms.deleted.length}, rooms failed=${roomPhase.rooms.failed.length}, blobs ${config.dryRun ? "to delete" : "deleted"}=${config.dryRun ? blobs.orphans : blobs.result.deleted}, blobs failed=${blobs.result.failed.length}`,
+  );
+
+  return { ...roomPhase, blobs, failed };
 };
