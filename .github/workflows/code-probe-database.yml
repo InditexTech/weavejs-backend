@@ -26,23 +26,23 @@ jobs:
       AZURE_DATABASE_NAME: ${{ secrets.AZURE_DATABASE_NAME }}
       AZURE_DATABASE_USERNAME: ${{ secrets.AZURE_DATABASE_USERNAME }}
       AZURE_DATABASE_SSL: ${{ secrets.AZURE_DATABASE_SSL }}
-      AZURE_DATABASE_PROBE_USERNAME: ${{ secrets.AZURE_DATABASE_PROBE_USERNAME }}
-      AZURE_DATABASE_PROBE_PASSWORD: ${{ secrets.AZURE_DATABASE_PROBE_PASSWORD }}
+      ACTIONS_DATABASE_USERNAME: ${{ secrets.ACTIONS_DATABASE_USERNAME }}
+      ACTIONS_DATABASE_PASSWORD: ${{ secrets.ACTIONS_DATABASE_PASSWORD }}
       PGCONNECT_TIMEOUT: "15"
     steps:
       - name: Prepare PostgreSQL credentials
         run: |
           set +x
-          if [ -z "$AZURE_DATABASE_PROBE_USERNAME" ] || [ -z "$AZURE_DATABASE_PROBE_PASSWORD" ]; then
-            echo "::error::AZURE_DATABASE_PROBE_USERNAME and AZURE_DATABASE_PROBE_PASSWORD must be set in the environment secrets"
+          if [ -z "$ACTIONS_DATABASE_USERNAME" ] || [ -z "$ACTIONS_DATABASE_PASSWORD" ]; then
+            echo "::error::ACTIONS_DATABASE_USERNAME and ACTIONS_DATABASE_PASSWORD must be set in the environment secrets"
             exit 1
           fi
           {
-            echo "PGPASSWORD=$AZURE_DATABASE_PROBE_PASSWORD"
+            echo "PGPASSWORD=$ACTIONS_DATABASE_PASSWORD"
             echo "PGHOST=$AZURE_DATABASE_HOST"
             echo "PGPORT=${AZURE_DATABASE_PORT:-5432}"
             echo "PGDATABASE=$AZURE_DATABASE_NAME"
-            echo "PGUSER=$AZURE_DATABASE_PROBE_USERNAME"
+            echo "PGUSER=$ACTIONS_DATABASE_USERNAME"
             if [ "$AZURE_DATABASE_SSL" = "true" ]; then
               echo "PGSSLMODE=require"
             else
@@ -65,10 +65,10 @@ jobs:
             exit 1
           fi
 
-      - name: Check login with Entra token
+      - name: Check login with database user
         run: |
           psql --no-psqlrc --set ON_ERROR_STOP=1 --command "SELECT 1 AS login_ok;" \
-            || { echo "::error::Login failed: check AZURE_DATABASE_PROBE_USERNAME/PASSWORD"; exit 1; }
+            || { echo "::error::Login failed: check ACTIONS_DATABASE_USERNAME/PASSWORD"; exit 1; }
 
       - name: Check read privileges (counts only)
         run: |
