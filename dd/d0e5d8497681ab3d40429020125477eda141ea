@@ -1,0 +1,23 @@
+openspec/changes/add-retention-db-probe-workflow/design.md
+  s_901bb9a92293e5::t_09d8d67354c5eb 27-28,33,38
+openspec/changes/add-retention-db-probe-workflow/proposal.md
+  s_901bb9a92293e5::t_e6a7d723b0b934 10-11,27-28
+openspec/changes/add-retention-db-probe-workflow/tasks.md
+  s_901bb9a92293e5::t_11a04a12950461 5-7,11-16,20-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "ddd0e5d8497681ab3d40429020125477eda141ea",
+  "prompts": {},
+  "sessions": {
+    "s_901bb9a92293e5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ded3fe09effeLCj6gPAq5t3kce",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
