@@ -213,3 +213,16 @@ test("an interrupted run is repaired by the next one", async () => {
     ["room-gone/b"],
   );
 });
+
+test("a few sample names per container are kept for review", async () => {
+  const names = Array.from({ length: 12 }, (_, i) => `room-gone/image-${i}`);
+  const store = memoryStore({
+    images: [...names.map((name) => aged(name)), aged("room-1/image-1")],
+    videos: [aged("room-1/video-1")],
+  });
+  const plan = await planSweep(store, specs, live, new Set(), 24, now);
+
+  assert.equal(plan.perContainer["images"]!.orphans, 12);
+  assert.deepEqual(plan.samples["images"], names.slice(0, 5));
+  assert.equal(plan.samples["videos"], undefined, "no orphans, no sample");
+});

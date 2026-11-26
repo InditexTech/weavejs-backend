@@ -131,6 +131,14 @@ The system SHALL support a dry-run mode that reports which rooms and blobs would
 - **WHEN** the database contains no rooms
 - **THEN** the run aborts and deletes no blob
 
+#### Scenario: Every room would be deleted
+- **WHEN** a run would delete every room in the database and the request does not explicitly allow it
+- **THEN** the run aborts before deleting anything and reports that all rooms would be deleted
+
+#### Scenario: Deleting every room allowed explicitly
+- **WHEN** a request explicitly allows deleting every room and the number of rooms is within the limit
+- **THEN** the run proceeds
+
 #### Scenario: Threshold exceeded
 - **WHEN** the rooms or blobs to delete exceed the configured limit
 - **THEN** the run aborts before deleting anything and reports the counts
@@ -154,6 +162,10 @@ The system SHALL start a retention run only through an HTTP endpoint of the depl
 - **WHEN** the configuration has a negative limit, a malformed list or an unknown field
 - **THEN** the request is rejected as invalid and no run is started
 
+#### Scenario: List entry pasted from another format
+- **WHEN** a protected room or user entry contains quotes, brackets, spaces or list separators, such as `""`
+- **THEN** the request is rejected as invalid, so a list that would protect nothing is never accepted silently
+
 ### Requirement: Runs execute as two chained background tasks
 The system SHALL execute a run in the backend as a database task followed by a blob sweep task, each as a background job. The blob sweep SHALL start only after the database task completes successfully and SHALL use the same configuration. At most one run SHALL execute at a time across all backend instances.
 
@@ -174,11 +186,15 @@ The system SHALL execute a run in the backend as a database task followed by a b
 - **THEN** no data is left half-deleted in the database, and the next run completes the cleanup
 
 ### Requirement: The outcome of a run can be retrieved
-The system SHALL let the caller, with the same token, read the state of a run (queued, active, completed or failed) and, once finished, a summary with the dry-run flag, the number of rooms deleted and failed, the number of blobs deleted and failed per container, and the protected user IDs that matched no user. The summary SHALL NOT contain user emails.
+The system SHALL let the caller, with the same token, read the state of a run (queued, active, completed or failed) and, once finished, a summary with the dry-run flag, the number of rooms deleted and failed, the number of blobs deleted and failed per container, and the protected user IDs that matched no user. For each storage container it SHALL also list a few examples of the blobs that are or would be removed, so a dry run can be reviewed. The summary SHALL NOT contain user emails.
 
 #### Scenario: Completed run
 - **WHEN** a run has completed
 - **THEN** its state is completed and the summary counts are returned
+
+#### Scenario: Examples of the blobs to remove
+- **WHEN** a container has blobs to remove
+- **THEN** the summary lists up to five of their names for that container
 
 #### Scenario: Failed run
 - **WHEN** a run has failed

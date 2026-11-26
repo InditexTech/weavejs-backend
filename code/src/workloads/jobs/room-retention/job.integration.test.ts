@@ -121,6 +121,12 @@ before(async () => {
      VALUES ($1, $2, $1, 1, 'active')`,
     [id("old-page"), id("old")],
   );
+  // A recent room, so the run never deletes every room.
+  await run(
+    `INSERT INTO weavejs_room ("roomId", name, kind, status, "createdAt", "updatedAt")
+     VALUES ($1, $1, 'room', 'active', now(), now())`,
+    [id("recent")],
+  );
 });
 
 after(async () => {
@@ -165,6 +171,7 @@ test("a run completes with a summary of both tasks", { skip }, async () => {
   assert.equal(status.rooms!.rooms.deleted.length, 0);
   // A dry run simulates the room deletion, so its page blob is an orphan.
   assert.equal(status.blobs!.orphans, 1);
+  assert.deepEqual(status.blobs!.samples.rooms, [id("old-page")]);
   assert.equal(status.blobs!.deleted, 0);
   assert.equal(deleted.length, 0);
 

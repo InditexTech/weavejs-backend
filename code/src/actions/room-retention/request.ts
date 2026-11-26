@@ -5,13 +5,28 @@
 import { z } from "zod";
 import type { RetentionConfig } from "./config.js";
 
-const idList = z.array(z.string().trim().min(1).max(200)).max(1000).default([]);
+// An id is a single token. Quotes, brackets, spaces and list separators in an
+// entry mean the list was pasted from another format, such as `""` for an
+// empty list, and would silently protect nothing.
+const id = z
+  .string()
+  .trim()
+  .min(1)
+  .max(200)
+  .regex(
+    /^[^\s"'`,;[\]{}]+$/,
+    "must be a single id without quotes or separators",
+  );
+
+const idList = z.array(id).max(1000).default([]);
 
 // Configuration of a run, sent by the scheduling workflow. Omitted values take
 // safe defaults, and anything other than an explicit `dryRun: false` is a dry
 // run. Unknown fields are rejected so a typo cannot silently change a run.
 export const retentionRunRequestSchema = z.strictObject({
   dryRun: z.boolean().default(true),
+  // Deleting every room is refused unless this is true.
+  allowDeleteAllRooms: z.boolean().default(false),
   protectedRooms: idList,
   protectedUserIds: idList,
   maxRoomsToDelete: z.number().int().min(0).max(100_000).default(50),
@@ -53,6 +68,7 @@ export const toRetentionConfig = (
   storage: RetentionConfig["storage"],
 ): RetentionConfig => ({
   dryRun: request.dryRun,
+  allowDeleteAllRooms: request.allowDeleteAllRooms,
   protectedRooms: new Set(request.protectedRooms),
   protectedUserIds: new Set(request.protectedUserIds),
   maxRoomsToDelete: request.maxRoomsToDelete,

@@ -53,7 +53,11 @@ body="$(jq -n \
   --arg maxBlobs "${RETENTION_MAX_BLOBS_TO_DELETE:-}" \
   --arg maxPercent "${RETENTION_MAX_BLOBS_PERCENT:-}" \
   --arg grace "${RETENTION_BLOB_GRACE_HOURS:-}" '
-  def list: [split("[,;\n]"; null)[] | gsub("^\\s+|\\s+$"; "") | select(length > 0)];
+  # Entries are trimmed, and quotes, brackets and braces around them are dropped,
+  # so a value pasted as "" or ["a","b"] never becomes a bogus entry.
+  def list: [split("[,;\n]"; null)[]
+    | gsub("^[\\s\"'"'"'`\\[\\]{}]+|[\\s\"'"'"'`\\[\\]{}]+$"; "")
+    | select(length > 0)];
   def number($key; $value): if $value == "" then {} else {($key): ($value | tonumber)} end;
   {dryRun: (($dry | ascii_downcase | gsub("\\s"; "")) != "false"),
    protectedRooms: ($rooms | list),
@@ -94,7 +98,7 @@ summary() {
     else empty end),
     (if $r.blobs then
       "blobs: total=\($r.blobs.total) orphans=\($r.blobs.orphans) deleted=\($r.blobs.deleted) failed=\($r.blobs.failedCount)",
-      ($r.blobs.perContainer | to_entries | map("  \(.key): total=\(.value.total) orphans=\(.value.orphans)") | .[]),
+      ($r.blobs.perContainer | to_entries | map(. as $e | "  \($e.key): total=\($e.value.total) orphans=\($e.value.orphans)" + ((($r.blobs.samples // {})[$e.key] // []) | map("\n      e.g. \(.)") | join(""))) | .[]),
       (if ($r.blobs.missingContainers | length) > 0 then "containers not found: \($r.blobs.missingContainers | join(", "))" else empty end),
       ($r.blobs.failedSample | map("  failed blob \(.container)/\(.name): \(.message)") | .[])
     else empty end)

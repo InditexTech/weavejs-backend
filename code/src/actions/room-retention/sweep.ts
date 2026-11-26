@@ -23,10 +23,13 @@ export type SweepPlan = {
   totalBlobs: number;
   orphans: BlobRef[];
   perContainer: Record<string, { total: number; orphans: number }>;
+  // A few names of the blobs that are or would be deleted, per container.
+  samples: Record<string, string[]>;
   missingContainers: string[];
 };
 
 const HOUR_MS = 60 * 60 * 1000;
+const SAMPLE_SIZE = 5;
 
 // A blob whose age cannot be determined is kept.
 const isRecent = (blob: BlobInfo, now: Date, graceHours: number): boolean => {
@@ -53,6 +56,7 @@ export const planSweep = async (
     totalBlobs: 0,
     orphans: [],
     perContainer: {},
+    samples: {},
     missingContainers: [],
   };
 
@@ -63,6 +67,7 @@ export const planSweep = async (
     }
 
     const stats = { total: 0, orphans: 0 };
+    const samples: string[] = [];
 
     for await (const blob of store.list(spec.name)) {
       stats.total++;
@@ -77,10 +82,16 @@ export const planSweep = async (
 
       stats.orphans++;
       plan.orphans.push({ container: spec.name, name: blob.name });
+      if (samples.length < SAMPLE_SIZE) {
+        samples.push(blob.name);
+      }
     }
 
     plan.totalBlobs += stats.total;
     plan.perContainer[spec.name] = stats;
+    if (samples.length > 0) {
+      plan.samples[spec.name] = samples;
+    }
   }
 
   return plan;

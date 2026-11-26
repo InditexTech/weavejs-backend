@@ -102,6 +102,53 @@ test("unknown fields are rejected so a typo cannot change a run", () => {
   assert.ok(invalid([]).length > 0);
 });
 
+test("deleting every room must be allowed explicitly and is off by default", () => {
+  assert.equal(parse({}).allowDeleteAllRooms, false);
+  assert.equal(parse({ allowDeleteAllRooms: true }).allowDeleteAllRooms, true);
+  assert.ok(invalid({ allowDeleteAllRooms: "true" }).length > 0);
+  const config = toRetentionConfig(
+    parse({ allowDeleteAllRooms: true }),
+    storage,
+  );
+  assert.equal(config.allowDeleteAllRooms, true);
+});
+
+test("entries pasted from another format are rejected, not silently ignored", () => {
+  for (const entry of [
+    '""',
+    "''",
+    '"room-a"',
+    "room-a,room-b",
+    "room-a;room-b",
+    "room a",
+    "[room-a]",
+    "{room-a}",
+    "`room-a`",
+  ]) {
+    assert.ok(
+      invalid({ protectedRooms: [entry] }).length > 0,
+      `room entry ${entry}`,
+    );
+    assert.ok(
+      invalid({ protectedUserIds: [entry] }).length > 0,
+      `user entry ${entry}`,
+    );
+  }
+});
+
+test("legacy room names and generated ids are accepted", () => {
+  const request = parse({
+    protectedRooms: [
+      "showcase-presentation",
+      "25-05-2025-presentacion-final",
+      "0b6f6d5e-5a3c-4d3b-9a43-2f6a1b0c8d11",
+    ],
+    protectedUserIds: ["6SKFjtxdsvgFsJyuWhQCb5343nre32JR"],
+  });
+  assert.equal(request.protectedRooms.length, 3);
+  assert.equal(request.protectedUserIds.length, 1);
+});
+
 test("ids are case sensitive and kept as sent", () => {
   const request = parse({ protectedUserIds: ["AbC", "abc"] });
   assert.deepEqual(request.protectedUserIds, ["AbC", "abc"]);

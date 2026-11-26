@@ -44,6 +44,7 @@ export type BlobPhaseSummary = {
   orphans: number;
   missingContainers: string[];
   perContainer: Record<string, { total: number; orphans: number }>;
+  samples: Record<string, string[]>;
   result: SweepResult;
   failed: boolean;
 };
@@ -100,6 +101,7 @@ export const runRoomPhase = async ({
     totalRooms,
     toDelete: roomsToDelete.length,
     maxRooms: config.maxRoomsToDelete,
+    allowDeleteAll: config.allowDeleteAllRooms,
   });
 
   const rooms = await deleteRooms(
@@ -181,6 +183,7 @@ export const runBlobPhase = async ({
     orphans: plan.orphans.length,
     missingContainers: plan.missingContainers,
     perContainer: plan.perContainer,
+    samples: plan.samples,
     result,
     failed: result.failed.length > 0,
   };
