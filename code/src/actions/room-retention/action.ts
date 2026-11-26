@@ -18,6 +18,25 @@ import { runRetention } from "./run.js";
 
 const logger = createLogger();
 
+// Azure SDK errors carry a code and an HTTP status that tell a missing role
+// apart from a storage firewall, so they are worth logging.
+const describeError = (error: unknown): string => {
+  if (!(error instanceof Error)) {
+    return String(error);
+  }
+  const { code, statusCode } = error as {
+    code?: unknown;
+    statusCode?: unknown;
+  };
+  const details = [
+    code !== undefined ? `code=${String(code)}` : "",
+    statusCode !== undefined ? `status=${String(statusCode)}` : "",
+  ].filter(Boolean);
+  return details.length > 0
+    ? `${error.message.split("\n")[0]} (${details.join(", ")})`
+    : error.message;
+};
+
 const main = async (): Promise<number> => {
   const config = parseRetentionConfig(process.env);
   const pool = createPool(process.env);
@@ -39,7 +58,7 @@ const main = async (): Promise<number> => {
 main()
   .then((code) => process.exit(code))
   .catch((error) => {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = describeError(error);
     logger.error(
       error instanceof AbortRun ? `aborted: ${message}` : `failed: ${message}`,
     );
