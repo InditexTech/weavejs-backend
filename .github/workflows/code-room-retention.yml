@@ -1,6 +1,8 @@
 name: Code room retention
 
 on:
+  pull_request:
+    paths: [ ".github/workflows/code-room-retention.yml" ]
   schedule:
     - cron: "0 */4 * * *"
   workflow_dispatch:
@@ -44,7 +46,9 @@ jobs:
           EVENT: ${{ github.event_name }}
           INPUT_ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
         run: |
-          if [ "$EVENT" = "schedule" ] || [ "$INPUT_ENVIRONMENT" = "all" ]; then
+          if [ "$EVENT" = "pull_request" ]; then
+            echo 'environments=["azure-develop"]' >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT" = "schedule" ] || [ "$INPUT_ENVIRONMENT" = "all" ]; then
             echo 'environments=["azure-develop","azure-pro"]' >> "$GITHUB_OUTPUT"
           else
             echo "environments=[\"$INPUT_ENVIRONMENT\"]" >> "$GITHUB_OUTPUT"
@@ -79,7 +83,7 @@ jobs:
       AZURE_STORAGE_IMAGES_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_IMAGES_CONTAINER_NAME }}
       AZURE_STORAGE_VIDEOS_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_VIDEOS_CONTAINER_NAME }}
       AZURE_STORAGE_GENERATED_IMAGES_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_GENERATED_IMAGES_CONTAINER_NAME }}
-      RETENTION_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.DRY_RUN || vars.RETENTION_DRY_RUN }}
+      RETENTION_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.DRY_RUN || github.event_name == 'pull_request' && 'true' || vars.RETENTION_DRY_RUN }}
       RETENTION_PROTECTED_ROOMS: ${{ vars.RETENTION_PROTECTED_ROOMS }}
       RETENTION_PROTECTED_USER_IDS: ${{ vars.RETENTION_PROTECTED_USER_IDS }}
       RETENTION_MAX_ROOMS_TO_DELETE: ${{ vars.RETENTION_MAX_ROOMS_TO_DELETE }}
