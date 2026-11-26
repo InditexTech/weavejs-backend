@@ -18,5 +18,5 @@
 ## 3. Run and record results
 
 - [x] 3.1 Dispatch the workflow on `azure-develop` and record the outcome of every step in issue #185; verify each step's result is documented, including the first failing step if any
-- [ ] 3.2 Dispatch it on the remaining real target environments (`azure-pro`) and record results in issue #185; verify the issue states which environments pass and what infra work (role, grants, network) is still needed
+- [x] 3.2 Dispatch it on the remaining real target environments (`azure-pro`) and record results in issue #185; verify the issue states which environments pass and what infra work (role, grants, network) is still needed
 - [x] 3.3 Record the email-encryption finding in issue #185 so the retention design chooses between matching encrypted emails and resolving users through the PII layer

@@ -46,7 +46,10 @@ export function setupHttpLoggerMiddleware(app: Express) {
   const httpLogger = pinoHttp({
     logger: getLogger(),
     useLevel: httpLogLevel,
-    redact: ['req.headers["x-internal-token"]'],
+    redact: [
+      'req.headers["x-internal-token"]',
+      'req.headers["x-retention-token"]',
+    ],
     serializers: {
       req: (req) => {
         const serialized = stdSerializers.req(req);

@@ -8,6 +8,7 @@ export type ServiceConfig = {
     port: number;
   };
   internalToken: string;
+  retentionTriggerToken: string;
   pubsub: {
     endpoint: string;
     key?: string;

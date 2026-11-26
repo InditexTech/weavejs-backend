@@ -70,3 +70,11 @@ export const mediaReadRateLimit = createApiRateLimit({
   message: "Too many media requests. Please try again later.",
   skip: hasInternalCredential,
 });
+
+// The retention workflow starts one run and polls it every few seconds, so
+// the limit only needs to stop unauthenticated floods.
+export const retentionRateLimit = createApiRateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+  message: "Too many retention requests. Please try again later.",
+});

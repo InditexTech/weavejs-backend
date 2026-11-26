@@ -17,4 +17,5 @@ export const JOB_HANDLERS = {
   EXPORT_FRAMES_TO_PDF: "exportFramesToPdf",
   PRESENTATION_MODE_IMAGES: "presentationModeImages",
   EDIT_FALLBACK_IMAGE: "editFallbackImage",
+  ROOM_RETENTION: "roomRetention",
 } as const;
