@@ -24,6 +24,7 @@ export type RetentionConfig = {
   protectedRooms: Set<string>;
   protectedUserIds: Set<string>;
   maxRoomsToDelete: number;
+  allowDeleteAllRooms: boolean;
   maxBlobsToDelete: number;
   maxBlobsPercent: number;
   blobGraceHours: number;
@@ -107,6 +108,8 @@ export const parseRetentionConfig = (env: Env): RetentionConfig => {
     dryRun: env.RETENTION_DRY_RUN?.trim().toLowerCase() !== "false",
     protectedRooms: new Set(parseList(env.RETENTION_PROTECTED_ROOMS)),
     protectedUserIds: new Set(parseList(env.RETENTION_PROTECTED_USER_IDS)),
+    allowDeleteAllRooms:
+      env.RETENTION_ALLOW_DELETE_ALL_ROOMS?.trim().toLowerCase() === "true",
     maxRoomsToDelete: parseNumber(env, "RETENTION_MAX_ROOMS_TO_DELETE", 50, {
       min: 0,
     }),

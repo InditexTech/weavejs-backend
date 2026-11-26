@@ -24,6 +24,26 @@ test("defaults are safe: dry run on and conservative limits", () => {
   assert.equal(config.protectedUserIds.size, 0);
 });
 
+test("deleting every room is off unless explicitly enabled", () => {
+  assert.equal(parseRetentionConfig(baseEnv).allowDeleteAllRooms, false);
+  for (const value of ["", "1", "yes", "false"]) {
+    assert.equal(
+      parseRetentionConfig({
+        ...baseEnv,
+        RETENTION_ALLOW_DELETE_ALL_ROOMS: value,
+      }).allowDeleteAllRooms,
+      false,
+    );
+  }
+  assert.equal(
+    parseRetentionConfig({
+      ...baseEnv,
+      RETENTION_ALLOW_DELETE_ALL_ROOMS: "true",
+    }).allowDeleteAllRooms,
+    true,
+  );
+});
+
 test("only an explicit false disables the dry run", () => {
   for (const value of ["", "0", "no", "TRUE", undefined]) {
     assert.equal(

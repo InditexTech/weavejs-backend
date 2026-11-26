@@ -46,13 +46,19 @@
 
 ## 8. Rollout
 
-- [ ] 8.1 Create `RETENTION_TRIGGER_TOKEN` in `azure-develop` and `azure-pro` (different values) and deploy the backend to `azure-develop`; verify the start endpoint answers 401 without the token and starts a dry run with it
-- [ ] 8.2 Run the workflow manually on `azure-develop` with `DRY_RUN=true`; verify the summary lists candidate rooms and orphan blobs per container, deletes nothing, the schema guard passes, and the log contains no email address
+- [x] 8.1 Create `RETENTION_TRIGGER_TOKEN` in `azure-develop` and `azure-pro` (different values) and deploy the backend to `azure-develop`; verify the start endpoint answers 401 without the token and starts a dry run with it
+- [x] 8.2 Run the workflow manually on `azure-develop` with `DRY_RUN=true`; verify the summary lists candidate rooms and orphan blobs per container, deletes nothing, the schema guard passes, and the log contains no email address
 - [ ] 8.3 Correct the protected lists for each environment (user ids differ per environment, legacy room names from `cleanup-storage/src/whitelist.json` where still relevant) and repeat the dry run on `azure-pro`; verify the reported protected ids and unmatched ids are as expected and tighten the limits from the dry-run counts
-- [ ] 8.4 Confirm with infra whether anything runs the `cleanup-storage` image and disable it; verify with a written confirmation recorded in issue #185
+- [x] 8.4 Confirm with infra whether anything runs the `cleanup-storage` image and disable it; verify with a written confirmation recorded in issue #185
 - [ ] 8.5 Run a real execution manually on `azure-develop`, then `azure-pro`; verify the target rooms and their blobs are gone, protected ones remain, a second run finds nothing to delete, and a deleting right is not missing
 - [ ] 8.6 Enable the schedule with dry-run off in both environments; verify the first scheduled runs complete and the summary stays within the limits
 
 ## 9. Cleanup
 
 - [ ] 9.1 Complete the checklist in issue #190 (temporary PR and branches, `ACTIONS_DATABASE_*` secrets and Postgres user, probe workflow, `cleanup-storage/` with its workflow, script and variables, registry images); verify with `git grep` that no references remain, `npm run build` still passes, and the issue is closed
+
+## 10. Safeguards found during the rollout
+
+- [x] 10.1 Reject list entries with quotes, brackets, spaces or separators in the request schema, and make the workflow script drop quotes, brackets and blank entries before sending; verify with unit tests that `""`, `"room-a"`, `room-a,room-b` and `[room-a]` are rejected, that legacy names and generated ids are accepted, and by running the script with `""` and `"a","b"` against a local backend and reading the body it sent
+- [x] 10.2 Refuse a run that would delete every room unless the request sets `allowDeleteAllRooms` (default false, still bound by the room limit); verify with unit tests for the refusal, the explicit allow, and the limit still applying
+- [x] 10.3 Return up to five sample blob names per container in the summary and print them in the workflow log; verify with a unit test on the sweep plan and by reading the printed summary from a local run of the script

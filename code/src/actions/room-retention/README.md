@@ -51,9 +51,11 @@ curl -sS "$APP_HOST/weavebff/api/v3/weavejs/retention/runs/<runId>" \
   -H "x-retention-token: $RETENTION_TRIGGER_TOKEN"
 ```
 
-The body accepts `dryRun`, `protectedRooms`, `protectedUserIds`,
-`maxRoomsToDelete`, `maxBlobsToDelete`, `maxBlobsPercent` and `blobGraceHours`.
-Unknown fields and invalid values are rejected with 400. The status shows the
+The body accepts `dryRun`, `allowDeleteAllRooms`, `protectedRooms`,
+`protectedUserIds`, `maxRoomsToDelete`, `maxBlobsToDelete`, `maxBlobsPercent` and
+`blobGraceHours`. Unknown fields and invalid values are rejected with 400,
+including list entries with quotes, brackets, spaces or separators. A run that
+would delete **every** room is refused unless `allowDeleteAllRooms` is true. The status shows the
 state (`queued`, `active`, `completed`, `failed`), and a `failed: true` flag on a
 completed run means some room or blob could not be removed.
 
@@ -83,7 +85,8 @@ A room, with its pages, memberships, tasks and blobs, is never deleted if:
   `RETENTION_PROTECTED_USER_IDS`. Members with the `user` role do not protect a
   room.
 
-Both lists are comma, semicolon or newline separated, and are GitHub environment
+Both lists are comma, semicolon or newline separated (quotes and brackets around
+entries are dropped, so a variable set to `""` is an empty list), and are GitHub environment
 variables. User ids are opaque, so they are safe to show in logs, unlike emails;
 they are case sensitive. A listed id that matches no user is reported in the
 summary, since it is most likely a typo. The match is on the owner membership,
@@ -122,6 +125,7 @@ storage and database settings are the backend's own.
 | `RETENTION_DRY_RUN`                                               | `true`             | `false` enables deletion               |
 | `RETENTION_PROTECTED_ROOMS`                                       | empty              | Protected room ids                     |
 | `RETENTION_PROTECTED_USER_IDS`                                    | empty              | Protected owner user ids               |
+| `RETENTION_ALLOW_DELETE_ALL_ROOMS`                                | `false`            | `true` lets a run delete every room    |
 | `RETENTION_MAX_ROOMS_TO_DELETE`                                   | `50`               | Abort above this many rooms            |
 | `RETENTION_MAX_BLOBS_TO_DELETE`                                   | `5000`             | Abort above this many blobs            |
 | `RETENTION_MAX_BLOBS_PERCENT`                                     | `50`               | Abort above this share of listed blobs |

@@ -8,13 +8,23 @@ export const assertRoomSafeguards = ({
   totalRooms,
   toDelete,
   maxRooms,
+  allowDeleteAll = false,
 }: {
   totalRooms: number;
   toDelete: number;
   maxRooms: number;
+  allowDeleteAll?: boolean;
 }): void => {
   if (totalRooms === 0) {
     throw new AbortRun("the database contains no rooms, aborting");
+  }
+
+  // Deleting every room almost always means the protected lists are wrong, so
+  // it needs to be asked for explicitly.
+  if (toDelete > 0 && toDelete === totalRooms && !allowDeleteAll) {
+    throw new AbortRun(
+      `all ${totalRooms} rooms would be deleted, check the protected lists or allow it explicitly, aborting`,
+    );
   }
 
   if (toDelete > maxRooms) {

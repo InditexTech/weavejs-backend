@@ -15,6 +15,41 @@ test("an empty database aborts the run", () => {
   );
 });
 
+test("deleting every room is refused unless it is allowed explicitly", () => {
+  assert.throws(
+    () =>
+      assertRoomSafeguards({ totalRooms: 298, toDelete: 298, maxRooms: 1000 }),
+    /all 298 rooms would be deleted/,
+  );
+  assert.doesNotThrow(() =>
+    assertRoomSafeguards({
+      totalRooms: 298,
+      toDelete: 298,
+      maxRooms: 1000,
+      allowDeleteAll: true,
+    }),
+  );
+  assert.doesNotThrow(() =>
+    assertRoomSafeguards({ totalRooms: 298, toDelete: 297, maxRooms: 1000 }),
+  );
+  assert.doesNotThrow(() =>
+    assertRoomSafeguards({ totalRooms: 5, toDelete: 0, maxRooms: 1000 }),
+  );
+});
+
+test("allowing every room does not lift the room limit", () => {
+  assert.throws(
+    () =>
+      assertRoomSafeguards({
+        totalRooms: 300,
+        toDelete: 300,
+        maxRooms: 100,
+        allowDeleteAll: true,
+      }),
+    /exceed the limit of 100/,
+  );
+});
+
 test("too many rooms aborts, at the limit passes", () => {
   assert.throws(
     () => assertRoomSafeguards({ totalRooms: 300, toDelete: 11, maxRooms: 10 }),
