@@ -1,0 +1,49 @@
+code/docs/stroke-export-cost.md
+  s_932b9ea24c6a06::t_82ef1a9ac1d3d8 1-76
+code/package.json
+  s_932b9ea24c6a06::t_e7fa4259f78751 24-25
+code/src/utils/stroke-bench.ts
+  s_932b9ea24c6a06::t_63b68746ad8834 1-216
+code/src/utils/stroke-export.test.ts
+  s_483d62c6242f9c::t_ca2e24ea8b360f 1-61
+code/src/utils/stroke-fixtures.ts
+  s_932b9ea24c6a06::t_6515a4eea2d570 1-352
+code/src/utils/stroke-parity-check.ts
+  s_932b9ea24c6a06::t_bdc258bb80efa7 1-80
+code/src/utils/stroke-render-check.ts
+  s_932b9ea24c6a06::t_1474fb573b5466 1-226
+openspec/changes/verify-stroke-rendering/.openspec.yaml
+  s_932b9ea24c6a06::t_7382761388d24d 1-2
+openspec/changes/verify-stroke-rendering/design.md
+  s_932b9ea24c6a06::t_63393489a4649d 1-31
+openspec/changes/verify-stroke-rendering/proposal.md
+  s_932b9ea24c6a06::t_f78e206131ed3d 1-25
+openspec/changes/verify-stroke-rendering/specs/stroke-export-rendering/spec.md
+  s_932b9ea24c6a06::t_33649aedc282b5 1-53
+openspec/changes/verify-stroke-rendering/tasks.md
+  s_932b9ea24c6a06::t_40f5ed93f16dc7 1-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "faab37bc3b5f288b270188b84ac0ebb4c794f074",
+  "prompts": {},
+  "sessions": {
+    "s_483d62c6242f9c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_de7bdd257ffeKtKn6CqBjz79MN",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    },
+    "s_932b9ea24c6a06": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_de7b0af83ffeVP9hBNmz4VDoJ3",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
