@@ -114,6 +114,21 @@ jobs:
           tenant-id: ${{ env.AZURE_TENANT_ID }}
           subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Probe storage access (temporary)
+        continue-on-error: true
+        run: |
+          echo "--- identity"
+          az account show --query "{type:user.type, name:user.name}" -o json
+          echo "--- runner public ip"
+          curl -s https://api.ipify.org; echo
+          echo "--- token for storage"
+          az account get-access-token --resource https://storage.azure.com/ --query "{expires:expiresOn, tenant:tenant}" -o json > /dev/null && echo "token obtained"
+          echo "--- list containers with the login (data plane)"
+          az storage container list --account-name "$AZURE_STORAGE_ACCOUNT_NAME" --auth-mode login --query "[].name" -o tsv 2>&1 | head -5
+          echo "--- raw request without credentials (network path)"
+          curl -s -o /dev/null -w "http %{http_code}\n" "https://${AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/?comp=list"
+          curl -s "https://${AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/?comp=list" | grep -oE "<Code>[^<]*</Code>|<Message>[^<]*" | head -3
+
       - name: Run room retention
         working-directory: code
         run: npm run retention:run
