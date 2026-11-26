@@ -1,0 +1,19 @@
+.github/workflows/code-probe-database.yml
+  s_901bb9a92293e5::t_a7f8d5d9cf30e0 29-30,36-37,41,45,68,71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "ef9d2ada2351fa4c69fe815f3354428744e54d70",
+  "prompts": {},
+  "sessions": {
+    "s_901bb9a92293e5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ded3fe09effeLCj6gPAq5t3kce",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
