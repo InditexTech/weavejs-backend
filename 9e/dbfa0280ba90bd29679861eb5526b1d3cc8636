@@ -1,0 +1,19 @@
+openspec/changes/archive/2026-11-26-add-retention-db-probe-workflow/tasks.md
+  s_901bb9a92293e5::t_7aee0934ff74b6 21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "9edbfa0280ba90bd29679861eb5526b1d3cc8636",
+  "prompts": {},
+  "sessions": {
+    "s_901bb9a92293e5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ded3fe09effeLCj6gPAq5t3kce",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
