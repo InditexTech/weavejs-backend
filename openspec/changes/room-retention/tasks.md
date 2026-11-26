@@ -30,16 +30,29 @@
 - [x] 5.1 Implement `action.ts` that runs config, selection, database deletion, live-set, sweep and a summary of counts, and add `"retention:run"` to `code/package.json` (`tsx` like `pii:backfill`); verify `npm run retention:run -- --help` or a dry-run against a local database prints the plan and exits 0
 - [x] 5.2 Add a README next to the action documenting the variables, dry-run, thresholds and how to read the summary; verify the documented dry-run command runs as written
 
-## 6. Workflow
+## 6. Backend execution
 
-- [x] 6.1 Create `.github/workflows/code-room-retention.yml` with `schedule: 0 */4 * * *` plus `workflow_dispatch`, a matrix over `azure-develop` and `azure-pro`, `concurrency: room-retention` with `cancel-in-progress: false`, `id-token: write`, Azure login, and the environment secrets and variables; verify with `actionlint`
-- [ ] 6.2 Add failure alerting (open or update a GitHub issue on a failed scheduled run) and a keep-alive so the schedule is not disabled; verify by forcing a failure on a branch and seeing the issue, and by reading the workflow for the keep-alive step
-- [ ] 6.3 Run the workflow manually on `azure-develop` with `RETENTION_DRY_RUN=true` and review the summary; verify the schema guard passes against the real schema, it lists candidate rooms and orphan blobs per container, deletes nothing, the database certificate is accepted (or `DATABASE_SSL_REJECT_UNAUTHORIZED` is set deliberately), and the log contains no email address
-- [ ] 6.4 Set `RETENTION_PROTECTED_ROOMS` and `RETENTION_PROTECTED_USER_IDS` on both environments (including legacy room names from `cleanup-storage/src/whitelist.json` where still relevant) and confirm via a dry-run that those rooms and owner-protected rooms are not candidates; verify by comparing the reported counts of protected ids and ids without a user
+- [ ] 6.1 Add the request-configuration schema (protected rooms and user ids as arrays, limits, grace hours, `dryRun` defaulting to true, unknown fields rejected) that produces a `RetentionConfig`; verify with unit tests that a valid body maps correctly, that an omitted `dryRun` is true, and that negative limits, malformed lists and unknown fields are rejected
+- [ ] 6.2 Implement the app adapter: a `Queryable` and `TransactionalPool` over the app's Sequelize connection (raw queries and a dedicated raw connection per room for `BEGIN` and `COMMIT`) and a `BlobStore` from the app's storage settings; verify by running the existing end-to-end integration scenario through the adapter against the migrated Postgres, including the rollback-on-failure case
+- [ ] 6.3 Add the pg-boss jobs `room-retention` and `blob-sweep` in `code/src/workloads/jobs/` (singleton queues, long expiry, configuration in the job data, the database job enqueuing the sweep on success, summary stored as the job output) and register them in `setupWorkloads`; verify with an integration test on real pg-boss that a run completes with a summary, that a failing database job does not enqueue the sweep, and that a second start while a run is active does not run in parallel
+- [ ] 6.4 Add `retentionTriggerToken` to the service configuration, a constant-time token middleware, and the endpoints `POST /{hub}/retention/runs` and `GET /{hub}/retention/runs/:jobId` outside the session middleware and behind the IP rate limit; verify with tests that a valid request starts a run and returns its id, that a missing or wrong token gets 401, that an unset token makes both routes 404, that an invalid body gets 400 and starts nothing, that an unknown id gets 404, and that the summary has no email
+- [ ] 6.5 Add `RETENTION_TRIGGER_TOKEN` to the `.env` written by `.github/workflows/code-deploy.yml`; verify with `actionlint` and by reading that the value comes from a secret and is not echoed
 
-## 7. Rollout
+## 7. Workflow
 
-- [ ] 7.1 Confirm with infra whether anything runs the `cleanup-storage` image and disable it; verify with a written confirmation recorded in issue #185
-- [ ] 7.2 Run a real (non-dry-run) execution manually on `azure-develop`, then `azure-pro` after reviewing dry-run counts and setting the limits; verify the target rooms and their blobs are gone, protected ones remain, and a second run finds nothing to delete
-- [ ] 7.3 Enable the schedule with dry-run off in both environments; verify the first scheduled runs succeed and the summary stays within the limits
-- [ ] 7.4 Remove `cleanup-storage/`, `.github/workflows/code-deploy-cleanup-storage.yml` and the `storage:cleanup` script, and drop the legacy whitelist file; verify with `git grep` that no references remain and `npm run build` still passes
+- [ ] 7.1 Rewrite `.github/workflows/code-room-retention.yml` as trigger and poll: keep the schedule, dispatch, `plan` job, matrix and concurrency group, build the JSON body from the GitHub variables with `jq`, `POST` to `APP_HOST` with the token, poll the status until completed, failed or a timeout, print the summary, fail otherwise, and drop the Azure login, the database and storage environment and `id-token: write`; verify with `actionlint` and by running the same script steps against a local backend in dry-run, including a wrong token and a failed run
+- [ ] 7.2 Keep the failure-alert and keep-alive jobs working with the new shape; verify by reading that a failed or timed-out matrix job reaches the alert job and that the keep-alive step is unchanged
+- [ ] 7.3 Update the README in `code/src/actions/room-retention/` and the design notes for the in-backend flow (endpoints, token, request body, how to run a local dry run); verify the documented local dry-run and the documented `curl` example run as written
+
+## 8. Rollout
+
+- [ ] 8.1 Create `RETENTION_TRIGGER_TOKEN` in `azure-develop` and `azure-pro` (different values) and deploy the backend to `azure-develop`; verify the start endpoint answers 401 without the token and starts a dry run with it
+- [ ] 8.2 Run the workflow manually on `azure-develop` with `DRY_RUN=true`; verify the summary lists candidate rooms and orphan blobs per container, deletes nothing, the schema guard passes, and the log contains no email address
+- [ ] 8.3 Correct the protected lists for each environment (user ids differ per environment, legacy room names from `cleanup-storage/src/whitelist.json` where still relevant) and repeat the dry run on `azure-pro`; verify the reported protected ids and unmatched ids are as expected and tighten the limits from the dry-run counts
+- [ ] 8.4 Confirm with infra whether anything runs the `cleanup-storage` image and disable it; verify with a written confirmation recorded in issue #185
+- [ ] 8.5 Run a real execution manually on `azure-develop`, then `azure-pro`; verify the target rooms and their blobs are gone, protected ones remain, a second run finds nothing to delete, and a deleting right is not missing
+- [ ] 8.6 Enable the schedule with dry-run off in both environments; verify the first scheduled runs complete and the summary stays within the limits
+
+## 9. Cleanup
+
+- [ ] 9.1 Complete the checklist in issue #190 (temporary PR and branches, `ACTIONS_DATABASE_*` secrets and Postgres user, probe workflow, `cleanup-storage/` with its workflow, script and variables, registry images); verify with `git grep` that no references remain, `npm run build` still passes, and the issue is closed

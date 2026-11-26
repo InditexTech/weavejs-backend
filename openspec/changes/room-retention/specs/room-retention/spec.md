@@ -119,6 +119,10 @@ The system SHALL support a dry-run mode that reports which rooms and blobs would
 - **WHEN** a run is started in dry-run mode
 - **THEN** the candidate rooms and blobs are reported and no row or blob is deleted
 
+#### Scenario: Dry run is the default
+- **WHEN** a run is requested without an explicit dry-run setting
+- **THEN** it is a dry run and nothing is deleted
+
 #### Scenario: Database unavailable
 - **WHEN** the room list cannot be read
 - **THEN** the run fails and deletes nothing
@@ -131,31 +135,88 @@ The system SHALL support a dry-run mode that reports which rooms and blobs would
 - **WHEN** the rooms or blobs to delete exceed the configured limit
 - **THEN** the run aborts before deleting anything and reports the counts
 
-### Requirement: Runs are scheduled, serialized and observable
-The system SHALL run the retention job automatically every 4 hours and on manual request, for each target environment. At most one run SHALL execute at a time. A failed scheduled run SHALL raise an alert. Logs SHALL report counts and identifiers of rooms and blobs and SHALL NOT contain user emails.
+### Requirement: Runs are started through an authenticated endpoint
+The system SHALL start a retention run only through an HTTP endpoint of the deployed backend that requires a dedicated token, and SHALL start no run when the token is missing, wrong, or not configured. The token SHALL be compared in constant time and SHALL NOT be a credential that is used for any other purpose. The request SHALL carry the run configuration: the protected rooms, the protected user IDs, the limits, the grace period and the dry-run flag. The system SHALL reject an invalid configuration without starting a run.
+
+#### Scenario: Valid request starts a run
+- **WHEN** a request with the correct token and a valid configuration is received
+- **THEN** a run is started and its identifier is returned
+
+#### Scenario: Missing or wrong token
+- **WHEN** a request has no token or a wrong token
+- **THEN** the request is rejected as unauthorized and no run is started
+
+#### Scenario: Endpoint disabled without a token configured
+- **WHEN** no trigger token is configured on the backend
+- **THEN** the endpoints are not available and no run can be started
+
+#### Scenario: Invalid configuration
+- **WHEN** the configuration has a negative limit, a malformed list or an unknown field
+- **THEN** the request is rejected as invalid and no run is started
+
+### Requirement: Runs execute as two chained background tasks
+The system SHALL execute a run in the backend as a database task followed by a blob sweep task, each as a background job. The blob sweep SHALL start only after the database task completes successfully and SHALL use the same configuration. At most one run SHALL execute at a time across all backend instances.
+
+#### Scenario: Sweep follows the database task
+- **WHEN** the database task completes successfully
+- **THEN** the blob sweep task starts with the same configuration
+
+#### Scenario: Failed database task
+- **WHEN** the database task fails or aborts on a safeguard
+- **THEN** the blob sweep is not started and the run is reported as failed
+
+#### Scenario: Second request during a run
+- **WHEN** a run is in progress and another start request arrives
+- **THEN** no second run executes in parallel and the request is answered without starting one
+
+#### Scenario: Interrupted by a restart
+- **WHEN** the backend restarts while a run is in progress
+- **THEN** no data is left half-deleted in the database, and the next run completes the cleanup
+
+### Requirement: The outcome of a run can be retrieved
+The system SHALL let the caller, with the same token, read the state of a run (queued, active, completed or failed) and, once finished, a summary with the dry-run flag, the number of rooms deleted and failed, the number of blobs deleted and failed per container, and the protected user IDs that matched no user. The summary SHALL NOT contain user emails.
+
+#### Scenario: Completed run
+- **WHEN** a run has completed
+- **THEN** its state is completed and the summary counts are returned
+
+#### Scenario: Failed run
+- **WHEN** a run has failed
+- **THEN** its state is failed and the reason is returned
+
+#### Scenario: Unknown run
+- **WHEN** the identifier does not match a run
+- **THEN** the response is not found
+
+### Requirement: Runs are scheduled, awaited and alerted
+The system SHALL start a run automatically every 4 hours and on manual request, for each target environment, from a scheduled workflow that waits for the outcome. A failed, aborted or timed-out run SHALL fail the workflow and raise an alert. Logs SHALL report counts and identifiers of rooms and blobs and SHALL NOT contain user emails.
 
 #### Scenario: Scheduled run
 - **WHEN** 4 hours have passed since the last scheduled run
-- **THEN** a run starts for each target environment
+- **THEN** a run is started for each target environment
+
+#### Scenario: The workflow waits for the result
+- **WHEN** a run is started by the workflow
+- **THEN** the workflow finishes only when the run has completed, failed or timed out, and prints the summary
+
+#### Scenario: Failed scheduled run
+- **WHEN** a scheduled run fails or times out
+- **THEN** an alert is raised
 
 #### Scenario: Overlapping runs
 - **WHEN** a run is still in progress when another is due
-- **THEN** the second run waits and the first is not cancelled
-
-#### Scenario: Failed scheduled run
-- **WHEN** a scheduled run fails
-- **THEN** an alert is raised
+- **THEN** the second workflow run waits and the first is not cancelled
 
 #### Scenario: Emails stay out of logs
 - **WHEN** a run reports protected users
 - **THEN** it reports counts of protected and unmatched user IDs, and no email address appears in the output
 
 ### Requirement: Protection lists are configuration, not code
-The system SHALL read the protected rooms and the protected users from environment configuration of the workflow, so that they can be changed without a code change, and SHALL NOT store user emails in the repository or in workflow configuration.
+The system SHALL take the protected rooms and the protected users from the environment configuration of the scheduling workflow and pass them with each run, so that they can be changed without a code change or a backend deploy, and SHALL NOT store user emails in the repository or in workflow configuration.
 
 #### Scenario: List changed without a deploy
 - **WHEN** a room is added to the protected rooms variable
-- **THEN** the next run protects it with no code change
+- **THEN** the next run protects it with no code change and no backend deploy
 
 #### Scenario: No emails in the repository
 - **WHEN** the repository and the workflow configuration are inspected
