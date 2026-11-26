@@ -21,6 +21,8 @@
     "db:migrate": "cross-env NODE_ENV=production sequelize-cli db:migrate --config ./config/config.cjs",
     "db:undo": "cross-env NODE_ENV=production sequelize-cli db:migrate:undo --config ./config/config.cjs",
     "check:text": "WEAVE_CANVAS_BACKEND=skia tsx src/utils/text-render-check.ts && WEAVE_CANVAS_BACKEND=canvas tsx src/utils/text-render-check.ts",
+    "check:strokes": "WEAVE_CANVAS_BACKEND=skia tsx src/utils/stroke-render-check.ts && WEAVE_CANVAS_BACKEND=canvas tsx src/utils/stroke-render-check.ts && tsx src/utils/stroke-parity-check.ts",
+    "bench:strokes": "WEAVE_CANVAS_BACKEND=skia tsx src/utils/stroke-bench.ts && WEAVE_CANVAS_BACKEND=canvas tsx src/utils/stroke-bench.ts",
     "dev": "vite-node src/server.ts",
     "dev:llm": "mastra dev",
     "dev:https": "cross-env HTTPS_ENABLED=true nodemon --exec \"tsx --env-file=.env src/server.ts\"",
