@@ -1,0 +1,19 @@
+.github/workflows/code-room-retention.yml
+  s_901bb9a92293e5::t_e42658866cb5f8 4-5,49-51,86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "99e63bd5d1d63a4730e5aa8e5e690a7910b8e5e4",
+  "prompts": {},
+  "sessions": {
+    "s_901bb9a92293e5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ded3fe09effeLCj6gPAq5t3kce",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
