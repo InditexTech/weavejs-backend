@@ -24,18 +24,18 @@ See proposal.md for motivation. Observed constraints:
 ## Decisions
 
 - **Plain `psql` in the workflow, no Node project.** The probe is a handful of SQL statements; `psql` (preinstalled on `ubuntu-24.04`, otherwise `postgresql-client`) keeps it dependency-free. Alternative: reuse `cleanup-storage` TypeScript with `pg`; rejected because it adds a build step and a dependency to a throwaway gate.
-- **Token from the Azure CLI.** After `azure/login`, `az account get-access-token --resource-type oss-rdbms` yields the Entra token, passed as `PGPASSWORD` and masked with `::add-mask::`. Alternative: `@azure/identity` in Node; rejected for the same reason as above. The token scope matches what the backend requests.
-- **Connection settings from the same names as deploy.** `AZURE_DATABASE_HOST/PORT/NAME/USERNAME/SSL` secrets and `AZURE_DATABASE_CLOUD_CREDENTIALS` var. `PGSSLMODE=require` when `AZURE_DATABASE_SSL=true`. If `AZURE_DATABASE_CLOUD_CREDENTIALS` is not `true`, the probe fails fast with a clear message, since the intended path is Entra auth.
+- **Password auth with a dedicated user.** The probe logs in with `ACTIONS_DATABASE_USERNAME` / `ACTIONS_DATABASE_PASSWORD` (environment secrets, masked by GitHub). An Entra token path was tried first and rejected: the backend's user is mapped to its own Entra identity (`Service principal oid mismatch`), and no password exists for it. Alternatives: a role mapped to the workflow's service principal (needs a DBA, no stored password; still the preferred long-term option), or federating the backend's managed identity (rejected: gives the job the backend's full rights).
+- **Connection settings from the same names as deploy.** `AZURE_DATABASE_HOST/PORT/NAME/SSL` secrets. `PGSSLMODE=require` when `AZURE_DATABASE_SSL=true`. `AZURE_DATABASE_CLOUD_CREDENTIALS` is ignored. The probe fails fast if either `ACTIONS_DATABASE_*` secret is missing.
 - **Fail-fast, one named step per check.** Each check is its own workflow step so the Actions UI shows which layer failed, and the failure table in the issue maps step to fix.
 - **Write check is always rolled back.** Run `BEGIN; DELETE FROM weavejs_room WHERE false; ROLLBACK;` in one `psql` invocation, with an explicit `ROLLBACK`. A `WHERE false` delete verifies the DELETE privilege without touching rows, and the explicit `ROLLBACK` is a second safeguard. The same is done for `weavejs_room_user`.
 - **Counts only in logs.** Output row counts and the encrypted/plaintext email counts (`email LIKE 'enc:%'`). Never `SELECT` emails, names, or IDs, because Actions logs of a public repo are visible.
 - **Email encryption report.** Reports `total`, `encrypted`, `plaintext` for `auth."user".email`. This feeds the later design: if encrypted, the retention job must encrypt the whitelist emails with the same deterministic scheme (needing `PII_ENCRYPTION_KEYS`), or resolve users through the application's PII layer.
-- **Environment-scoped, manual only.** `workflow_dispatch` with an `ENVIRONMENT` choice and `permissions: id-token: write, contents: read`. No schedule. Alternative: also run on `pull_request`; rejected since it would hit production-like environments from untrusted branches and secrets are not available to forks.
+- **Environment-scoped, manual only.** `workflow_dispatch` with an `ENVIRONMENT` choice and `permissions: contents: read`. No schedule. Alternative: also run on `pull_request`; rejected since it would hit production-like environments from untrusted branches and secrets are not available to forks.
 
 ## Risks / Trade-offs
 
 - [Runner cannot reach Postgres (private endpoint/firewall)] -> That is the answer the probe exists to give; outcome is a self-hosted runner, an allow rule, or the deployed-job fallback in issue #185.
-- [Service principal has no Postgres role] -> Probe fails at `SELECT 1`; infra creates the Entra-mapped role with least privilege.
+- [Probe user missing or over-privileged] -> Probe fails at `SELECT 1` if absent; create a dedicated user limited to SELECT/DELETE on the room tables and SELECT on `auth."user"`.
 - [Probe credentials could leak in logs] -> Mask the token, never echo secrets, `set +x`, and log counts only.
 - [`DELETE ... WHERE false` proves privilege but not that a real delete would pass FK/triggers] -> Acceptable for a gate; the retention change tests real deletes under `DRY_RUN` first.
 - [Probe runs against production] -> Read-only by construction, and manual with an explicit environment choice.
