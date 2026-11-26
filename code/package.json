@@ -39,6 +39,7 @@
     "llm:studio": "mastra dev --dir=./src/mastra/studio --env=.env",
     "postinstall": "npm run copy:assets && npm run apply:patches",
     "pii:backfill": "tsx --env-file=.env src/actions/pii-backfill/action.ts",
+    "retention:run": "tsx src/actions/room-retention/action.ts",
     "prepare": "cd ../ && node code/.husky/install.mjs",
     "publish:snapshot": "nx run-many -t publish:snapshot -- --verbose --tag next --registry $NPM_PUBLISHING_REGISTRY --unsafe-perm",
     "start": "node --env-file=.env dist/server.js",

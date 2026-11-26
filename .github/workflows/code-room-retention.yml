@@ -1,0 +1,165 @@
+name: Code room retention
+
+on:
+  schedule:
+    - cron: "0 */4 * * *"
+  workflow_dispatch:
+    inputs:
+      ENVIRONMENT:
+        description: "Environment to run on"
+        required: true
+        type: choice
+        options:
+          - all
+          - azure-develop
+          - azure-pro
+        default: "azure-develop"
+      DRY_RUN:
+        description: "Dry run: report only, delete nothing"
+        required: true
+        type: choice
+        options:
+          - "true"
+          - "false"
+        default: "true"
+
+permissions:
+  contents: read
+
+# Only one run at a time. A run that is already in progress is never cancelled.
+concurrency:
+  group: room-retention
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Select environments
+    runs-on: ubuntu-24.04
+    outputs:
+      environments: ${{ steps.select.outputs.environments }}
+    steps:
+      - name: Select environments
+        id: select
+        env:
+          EVENT: ${{ github.event_name }}
+          INPUT_ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
+        run: |
+          if [ "$EVENT" = "schedule" ] || [ "$INPUT_ENVIRONMENT" = "all" ]; then
+            echo 'environments=["azure-develop","azure-pro"]' >> "$GITHUB_OUTPUT"
+          else
+            echo "environments=[\"$INPUT_ENVIRONMENT\"]" >> "$GITHUB_OUTPUT"
+          fi
+
+  retention:
+    name: Room retention / ${{ matrix.environment }}
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        environment: ${{ fromJSON(needs.plan.outputs.environments) }}
+    environment: ${{ matrix.environment }}
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      DATABASE_HOST: ${{ secrets.AZURE_DATABASE_HOST }}
+      DATABASE_PORT: ${{ secrets.AZURE_DATABASE_PORT }}
+      DATABASE_NAME: ${{ secrets.AZURE_DATABASE_NAME }}
+      DATABASE_SSL: ${{ secrets.AZURE_DATABASE_SSL }}
+      DATABASE_USERNAME: ${{ secrets.ACTIONS_DATABASE_USERNAME }}
+      DATABASE_PASSWORD: ${{ secrets.ACTIONS_DATABASE_PASSWORD }}
+      AZURE_STORAGE_ACCOUNT_NAME: ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}
+      AZURE_STORAGE_ROOMS_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_ROOMS_CONTAINER_NAME }}
+      AZURE_STORAGE_IMAGES_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_IMAGES_CONTAINER_NAME }}
+      AZURE_STORAGE_VIDEOS_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_VIDEOS_CONTAINER_NAME }}
+      AZURE_STORAGE_GENERATED_IMAGES_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_GENERATED_IMAGES_CONTAINER_NAME }}
+      PII_ENCRYPTION_KEYS: ${{ secrets.PII_ENCRYPTION_KEYS }}
+      RETENTION_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.DRY_RUN || vars.RETENTION_DRY_RUN }}
+      RETENTION_PROTECTED_ROOMS: ${{ vars.RETENTION_PROTECTED_ROOMS }}
+      RETENTION_PROTECTED_EMAILS: ${{ secrets.RETENTION_PROTECTED_EMAILS }}
+      RETENTION_MAX_ROOMS_TO_DELETE: ${{ vars.RETENTION_MAX_ROOMS_TO_DELETE }}
+      RETENTION_MAX_BLOBS_TO_DELETE: ${{ vars.RETENTION_MAX_BLOBS_TO_DELETE }}
+      RETENTION_MAX_BLOBS_PERCENT: ${{ vars.RETENTION_MAX_BLOBS_PERCENT }}
+      RETENTION_BLOB_GRACE_HOURS: ${{ vars.RETENTION_BLOB_GRACE_HOURS }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code/.tool-versions
+          cache: npm
+          cache-dependency-path: code/package-lock.json
+
+      - name: Install dependencies
+        working-directory: code
+        run: npm ci --ignore-scripts
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Run room retention
+        working-directory: code
+        run: npm run retention:run
+
+  # A failed scheduled run opens (or updates) an issue, so a silent failure
+  # does not let rooms live longer than expected.
+  alert:
+    name: Alert on failure
+    needs: retention
+    if: always() && github.event_name == 'schedule' && needs.retention.result == 'failure'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Open or update the failure issue
+        run: |
+          gh label create retention-failure --color d73a4a \
+            --description "Room retention run failed" 2>/dev/null || true
+          EXISTING=$(gh issue list --label retention-failure --state open \
+            --json number --jq '.[0].number // empty')
+          BODY="The scheduled room retention run failed: ${RUN_URL}"
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body "$BODY"
+          else
+            gh issue create --label retention-failure \
+              --title "Room retention run failed" --body "$BODY"
+          fi
+
+  # Scheduled workflows are disabled after 60 days without repository
+  # activity. Re-enabling the workflow on every run keeps the schedule alive
+  # (best effort).
+  keep-alive:
+    name: Keep the schedule enabled
+    needs: retention
+    if: always() && github.event_name == 'schedule'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Enable this workflow
+        run: |
+          gh api --method PUT \
+            "repos/${{ github.repository }}/actions/workflows/code-room-retention.yml/enable" \
+            || echo "could not re-enable the workflow"
