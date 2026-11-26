@@ -1,0 +1,47 @@
+.github/scripts/room-retention-run.sh
+  s_901bb9a92293e5::t_432884e8e35823 56-60,101
+code/src/actions/room-retention/README.md
+  s_901bb9a92293e5::t_eeb18509a68730 54-58,88-89,128
+code/src/actions/room-retention/config.test.ts
+  s_901bb9a92293e5::t_a9f13708019ce1 27-46
+code/src/actions/room-retention/config.ts
+  s_901bb9a92293e5::t_3c2645e86f291e 27,111-112
+code/src/actions/room-retention/request.test.ts
+  s_901bb9a92293e5::t_8530eb73fd7596 105-151
+code/src/actions/room-retention/request.ts
+  s_901bb9a92293e5::t_2582a4fe42def1 8-21,28-29,71
+code/src/actions/room-retention/run.ts
+  s_901bb9a92293e5::t_e03b22a3877562 47,104,186
+code/src/actions/room-retention/safeguards.test.ts
+  s_901bb9a92293e5::t_827e2eef7826a1 18-52
+code/src/actions/room-retention/safeguards.ts
+  s_901bb9a92293e5::t_deceb8cc1a9e5d 11,16,22-29
+code/src/actions/room-retention/sweep.test.ts
+  s_901bb9a92293e5::t_a1c225a5878986 216-228
+code/src/actions/room-retention/sweep.ts
+  s_901bb9a92293e5::t_29127619fd5bcd 26-27,32,59,70,85-87,92-94
+code/src/workloads/jobs/room-retention/job.integration.test.ts
+  s_901bb9a92293e5::t_4d745cac1c38e3 124-129,174
+openspec/changes/room-retention/design.md
+  s_901bb9a92293e5::t_10272a141d1e57 38,40,46
+openspec/changes/room-retention/specs/room-retention/spec.md
+  s_901bb9a92293e5::t_17b6f02c2bce0a 134-141,165-168,189,195-198
+openspec/changes/room-retention/tasks.md
+  s_901bb9a92293e5::t_52a7a1396e0997 49-50,52,59-64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "a2ebf58ec100c89e6df46e5d7d8eca6e68ba868b",
+  "prompts": {},
+  "sessions": {
+    "s_901bb9a92293e5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ded3fe09effeLCj6gPAq5t3kce",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
