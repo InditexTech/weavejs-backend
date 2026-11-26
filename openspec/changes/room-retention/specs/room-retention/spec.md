@@ -37,10 +37,10 @@ The system SHALL NOT delete a room whose `roomId` is on the protected rooms list
 - **THEN** the next run deletes the room
 
 ### Requirement: Rooms can be protected by owner
-The system SHALL NOT delete a room if at least one user with the `owner` role in that room has an email on the protected users list. Matching SHALL be case-insensitive and SHALL work whether emails are stored encrypted or in plaintext. Users with the `user` role SHALL NOT protect a room.
+The system SHALL NOT delete a room if at least one user with the `owner` role in that room has a user ID on the protected users list. User IDs SHALL be matched exactly. Users with the `user` role SHALL NOT protect a room.
 
 #### Scenario: Room owned by a protected user is kept
-- **WHEN** a run finds an old room whose owner's email is on the protected users list
+- **WHEN** a run finds an old room whose owner's user ID is on the protected users list
 - **THEN** the room and its data are not touched
 
 #### Scenario: Any protected owner is enough
@@ -51,17 +51,13 @@ The system SHALL NOT delete a room if at least one user with the `owner` role in
 - **WHEN** a protected user is only a `user` member of an old room owned by someone unprotected
 - **THEN** the room is deleted
 
-#### Scenario: Encrypted emails are matched
-- **WHEN** the owner's email is stored encrypted and its decrypted value, ignoring case, equals a protected email
-- **THEN** the room is kept
-
-#### Scenario: Unresolvable protected email is reported
-- **WHEN** a protected email matches no user
-- **THEN** the run reports that the email matched no user, and no room is protected because of it
+#### Scenario: Protected ID matching no user is reported
+- **WHEN** a protected user ID matches no user
+- **THEN** the run reports how many protected IDs matched no user, and no room is protected because of it
 
 #### Scenario: Owner account no longer exists
-- **WHEN** the owner of an old room has no user record, so no email can be resolved
-- **THEN** the room is not protected by owner and the run reports it
+- **WHEN** the owner of an old room is on the protected users list but their account was deleted
+- **THEN** the room is still kept, because the owner membership carries the user ID
 
 ### Requirement: Room deletion is all-or-nothing in the database
 The system SHALL delete a room, its pages, memberships, access codes, tasks, images, videos, templates, threads and answers, AI chats and messages, and connections in a single database transaction. If any statement fails, none of the room's rows SHALL be deleted.
@@ -152,18 +148,18 @@ The system SHALL run the retention job automatically every 4 hours and on manual
 
 #### Scenario: Emails stay out of logs
 - **WHEN** a run reports protected users
-- **THEN** it reports counts and matched or unmatched totals, not email addresses
+- **THEN** it reports counts of protected and unmatched user IDs, and no email address appears in the output
 
 ### Requirement: Protection lists are configuration, not code
-The system SHALL read the protected rooms and the protected users from environment configuration of the workflow, keeping the protected users in a masked secret, so that they can be changed without a code change, and SHALL NOT store protected user emails in the repository.
+The system SHALL read the protected rooms and the protected users from environment configuration of the workflow, so that they can be changed without a code change, and SHALL NOT store user emails in the repository or in workflow configuration.
 
 #### Scenario: List changed without a deploy
 - **WHEN** a room is added to the protected rooms variable
 - **THEN** the next run protects it with no code change
 
 #### Scenario: No emails in the repository
-- **WHEN** the repository is inspected
-- **THEN** no protected user email is present in any tracked file
+- **WHEN** the repository and the workflow configuration are inspected
+- **THEN** no user email is present
 
 ### Requirement: The legacy storage cleanup is retired
 The system SHALL NOT include the previous blob-only cleanup job or its script once the retention job is in place.

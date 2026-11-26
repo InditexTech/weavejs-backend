@@ -2,14 +2,14 @@
 
 ## 1. Configuration and shared foundations
 
-- [x] 1.1 Create `code/src/actions/room-retention/config.ts` that parses and validates the environment (protected rooms, protected emails, dry-run default true, `MAX_ROOMS_TO_DELETE`, `MAX_BLOBS_TO_DELETE`, `BLOB_GRACE_HOURS`, storage container names, database settings); verify with unit tests that missing or invalid values fail fast, lists are trimmed, and emails are lowercased
-- [x] 1.2 Add a `pg` pool factory in `code/src/actions/room-retention/database.ts` reusing `config/config.cjs` and password auth with `rejectUnauthorized: true`, and a logger that never prints emails; verify with a unit test that the logger redacts email-like strings and that the pool is built from the expected settings
+- [x] 1.1 Create `code/src/actions/room-retention/config.ts` that parses and validates the environment (protected rooms, protected user ids, dry-run default true, `RETENTION_MAX_*` limits, `RETENTION_BLOB_GRACE_HOURS`, storage container names, database settings); verify with unit tests that missing or invalid values fail fast, lists are trimmed, blank lists mean nothing is protected, and user ids are case sensitive
+- [x] 1.2 Add a `pg` pool factory in `code/src/actions/room-retention/database.ts` built from the `DATABASE_*` environment with password auth and certificate verification on by default (`DATABASE_SSL_REJECT_UNAUTHORIZED`), and a logger that never prints emails; verify with a unit test that the logger redacts email-like strings and that the pool is built from the expected settings
 - [x] 1.3 Inventory every table holding `roomId` from a database with all migrations applied, record the FK-safe delete order and each FK action in the design, and add a schema guard that aborts a run when a table with a `roomId` column is not in the delete list; verify with a test that the guard accepts the migrated schema and rejects an unknown table
 
 ## 2. Selection of rooms to delete
 
 - [x] 2.1 Implement the candidate query (older than 7 days, not in protected rooms) in `selectCandidates.ts`; verify with an integration test on a throwaway Postgres schema that 8-day-old, 6-day-old, archived and protected-room fixtures are classified as the spec scenarios require
-- [x] 2.2 Implement owner protection in `ownerProtection.ts`: load owners of candidate rooms, decrypt `auth."user".email` with all `PII_ENCRYPTION_KEYS` (plaintext passes through), lowercase, compare to the protected set; verify with unit tests for encrypted and plaintext emails, mixed case, two owners with one protected, member-only protected user, protected email matching no user, and owner with no user record, and that only counts are logged
+- [x] 2.2 Implement owner protection in `ownerProtection.ts`: a candidate room is protected when an `owner` membership has a user id in the protected list, and listed ids that match no user are counted; verify with unit and integration tests for any-owner-is-enough, member-only protected user not protecting, a protected id matching no user, a deleted owner account still protecting, and no queries when the list is empty
 - [x] 2.3 Add the safeguards for the room phase (no rooms in the database, database read failure, `MAX_ROOMS_TO_DELETE`) in `safeguards.ts`; verify with unit tests that each condition aborts before any deletion and reports counts
 
 ## 3. Database deletion
@@ -35,7 +35,7 @@
 - [x] 6.1 Create `.github/workflows/code-room-retention.yml` with `schedule: 0 */4 * * *` plus `workflow_dispatch`, a matrix over `azure-develop` and `azure-pro`, `concurrency: room-retention` with `cancel-in-progress: false`, `id-token: write`, Azure login, and the environment secrets and variables; verify with `actionlint`
 - [ ] 6.2 Add failure alerting (open or update a GitHub issue on a failed scheduled run) and a keep-alive so the schedule is not disabled; verify by forcing a failure on a branch and seeing the issue, and by reading the workflow for the keep-alive step
 - [ ] 6.3 Run the workflow manually on `azure-develop` with `RETENTION_DRY_RUN=true` and review the summary; verify the schema guard passes against the real schema, it lists candidate rooms and orphan blobs per container, deletes nothing, the database certificate is accepted (or `DATABASE_SSL_REJECT_UNAUTHORIZED` is set deliberately), and the log contains no email address
-- [ ] 6.4 Set the protected rooms and protected emails variables on both environments (including legacy room names from `cleanup-storage/src/whitelist.json` where still relevant) and confirm via a dry-run that those rooms and owner-protected rooms are not candidates; verify by comparing the counts of protected, unmatched and owner-without-user reported
+- [ ] 6.4 Set `RETENTION_PROTECTED_ROOMS` and `RETENTION_PROTECTED_USER_IDS` on both environments (including legacy room names from `cleanup-storage/src/whitelist.json` where still relevant) and confirm via a dry-run that those rooms and owner-protected rooms are not candidates; verify by comparing the reported counts of protected ids and ids without a user
 
 ## 7. Rollout
 

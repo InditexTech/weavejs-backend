@@ -12,9 +12,8 @@
 
 import test, { after, before } from "node:test";
 import assert from "node:assert/strict";
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
-import { createPiiCrypto, parsePiiKeys } from "../../lib/pii/crypto.ts";
 import { parseRetentionConfig } from "./config.ts";
 import { deleteRoom, deleteRooms } from "./deleteRoom.ts";
 import { loadLiveSet } from "./liveSet.ts";
@@ -350,20 +349,11 @@ test(
   },
 );
 
-const b64 = () => randomBytes(32).toString("base64");
-
 test(
-  "an end to end run protects by room and by encrypted owner, and sweeps blobs",
+  "an end to end run protects by room and by owner id, and sweeps blobs",
   { skip },
   async () => {
-    const keys = `v1:${b64()}`;
-    const blind = b64();
-    const pii = createPiiCrypto(parsePiiKeys(keys, blind));
-
-    await insertUser(
-      "vip",
-      pii.encrypt(`vip-${prefix}@example.com`, "user.email", "deterministic"),
-    );
+    await insertUser("vip", `vip-${prefix}@example.com`);
     await insertUser("plain", `plain-${prefix}@example.com`);
 
     await insertRoom("e2e-old", daysAgo(10));
@@ -425,12 +415,10 @@ test(
       AZURE_STORAGE_VIDEOS_CONTAINER_NAME: "videos",
       RETENTION_DRY_RUN: "false",
       RETENTION_PROTECTED_ROOMS: `${id("e2e-protected")},legacy-protected`,
-      RETENTION_PROTECTED_EMAILS: `VIP-${prefix}@example.com,ghost-${prefix}@example.com`,
+      RETENTION_PROTECTED_USER_IDS: `${id("vip")},${id("ghost")}`,
       RETENTION_MAX_ROOMS_TO_DELETE: "10000",
       RETENTION_MAX_BLOBS_TO_DELETE: "100000",
       RETENTION_MAX_BLOBS_PERCENT: "100",
-      PII_ENCRYPTION_KEYS: keys,
-      PII_BLIND_INDEX_KEY: blind,
     });
 
     const exists = async (room: string) =>
@@ -466,7 +454,7 @@ test(
     assert.ok(await exists("e2e-vip"));
     assert.ok(await exists("e2e-protected"));
     assert.ok(await exists("e2e-recent"));
-    assert.equal(summary.owners.protectedEmailsWithoutUser, 1);
+    assert.equal(summary.owners.protectedUserIdsWithoutUser, 1);
 
     assert.ok(deleted.includes(`images/${id("e2e-old")}/image-1`));
     assert.ok(deleted.includes(`rooms/${id("e2e-old-page")}`));

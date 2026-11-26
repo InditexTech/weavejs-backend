@@ -7,7 +7,7 @@ Rooms and everything attached to them (pages, tasks, images, videos, templates, 
 ## What Changes
 
 - Add a room retention job, run by a GitHub Actions workflow on a 4-hour cron and on manual dispatch, that hard-deletes rooms whose `createdAt` is more than 7 days old.
-- A room is protected, and left fully untouched, if its `roomId` is on a protected rooms list or if any of its **owners** is on a protected users list. Both lists, the users identified by email, live in GitHub Actions environment variables, never in git. Because `auth."user".email` is stored encrypted, the job decrypts owner emails to match them.
+- A room is protected, and left fully untouched, if its `roomId` is on a protected rooms list or if any of its **owners** is on a protected users list. Users are identified by their user ID (opaque, so safe to keep in a GitHub Actions variable and to show in logs); both lists live in GitHub Actions environment variables, never in git. The frontend will show each user their own ID (InditexTech/weavejs-frontend#235).
 - Delete each eligible room and all of its database rows in one transaction, in an order that respects the existing foreign keys.
 - After the database phase, sweep blobs across all twelve storage containers and delete those whose owning room, page or presentation is no longer in the database, subject to the protected rooms list and a grace period.
 - Add safeguards: `DRY_RUN`, abort on a failed or empty database read, an abort threshold on the number of rooms and blobs to delete, a concurrency lock, and a failure alert.
@@ -24,8 +24,8 @@ Rooms and everything attached to them (pages, tasks, images, videos, templates, 
 
 ## Impact
 
-- New code in `code/src/actions/room-retention/` (database access, owner email decryption, blob sweep), reusing `code/src/lib/pii`, the database config used by `pii:backfill`, and the Azure Blob SDK.
+- New code in `code/src/actions/room-retention/` (database access, owner protection, blob sweep), reusing the database config approach of `pii:backfill` and the Azure Blob SDK.
 - New workflow `.github/workflows/code-room-retention.yml` with cron, `workflow_dispatch`, a concurrency group, and Azure OIDC login for blob access. The probe workflow stays as a connectivity check.
-- New environment secrets and variables for `azure-develop` and `azure-pro`: protected rooms, protected owner emails, PII keys, dry-run and threshold settings. The existing `ACTIONS_DATABASE_*` user needs DELETE on all room-related tables.
+- New environment variables for `azure-develop` and `azure-pro`: protected rooms, protected user IDs, dry-run and threshold settings. The existing `ACTIONS_DATABASE_*` user needs DELETE on all room-related tables. No PII keys are needed.
 - Removes `cleanup-storage/`, its deploy workflow, and the `storage:cleanup` script from `code/package.json`.
 - Destructive in production: the first runs must be `DRY_RUN`, and the abort threshold must be tuned against the roughly 300 existing rooms.

@@ -21,7 +21,7 @@ test("defaults are safe: dry run on and conservative limits", () => {
   assert.equal(config.maxBlobsPercent, 50);
   assert.equal(config.blobGraceHours, 24);
   assert.equal(config.protectedRooms.size, 0);
-  assert.equal(config.protectedEmails.size, 0);
+  assert.equal(config.protectedUserIds.size, 0);
 });
 
 test("only an explicit false disables the dry run", () => {
@@ -37,17 +37,34 @@ test("only an explicit false disables the dry run", () => {
   );
 });
 
-test("lists are trimmed, split on commas, semicolons and newlines", () => {
+test("lists are trimmed and split on commas, semicolons and newlines", () => {
   const config = parseRetentionConfig({
     ...baseEnv,
     RETENTION_PROTECTED_ROOMS: " a , b;c\nd,, ",
-    RETENTION_PROTECTED_EMAILS: " Jane@Example.com ;bob@example.com\n",
+    RETENTION_PROTECTED_USER_IDS: " u1 ;u2\n,,u3 ",
   });
   assert.deepEqual([...config.protectedRooms], ["a", "b", "c", "d"]);
-  assert.deepEqual(
-    [...config.protectedEmails],
-    ["jane@example.com", "bob@example.com"],
-  );
+  assert.deepEqual([...config.protectedUserIds], ["u1", "u2", "u3"]);
+});
+
+test("unset or blank lists mean nothing is protected", () => {
+  for (const value of [undefined, "", "  ", " , ; "]) {
+    const config = parseRetentionConfig({
+      ...baseEnv,
+      RETENTION_PROTECTED_ROOMS: value,
+      RETENTION_PROTECTED_USER_IDS: value,
+    });
+    assert.equal(config.protectedRooms.size, 0);
+    assert.equal(config.protectedUserIds.size, 0);
+  }
+});
+
+test("user ids are case sensitive", () => {
+  const config = parseRetentionConfig({
+    ...baseEnv,
+    RETENTION_PROTECTED_USER_IDS: "AbC,abc",
+  });
+  assert.equal(config.protectedUserIds.size, 2);
 });
 
 test("hardcoded container names and the generated images override", () => {

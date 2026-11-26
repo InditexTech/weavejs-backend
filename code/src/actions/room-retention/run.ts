@@ -2,20 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  createPiiCrypto,
-  isEncrypted,
-  parsePiiKeys,
-} from "../../lib/pii/crypto.js";
 import type { RetentionConfig } from "./config.js";
 import { buildContainerSpecs } from "./containers.js";
 import { assertKnownRoomTables, type TransactionalPool } from "./database.js";
 import { deleteRooms, type DeleteRoomsSummary } from "./deleteRoom.js";
-import { AbortRun } from "./errors.js";
 import { loadLiveSet } from "./liveSet.js";
 import {
   findOwnerProtectedRooms,
-  loadUserEmails,
   type OwnerProtectionStats,
 } from "./ownerProtection.js";
 import { assertBlobSafeguards, assertRoomSafeguards } from "./safeguards.js";
@@ -49,30 +42,6 @@ export type RetentionSummary = {
   failed: boolean;
 };
 
-export const buildEmailDecryptor = (
-  config: Pick<RetentionConfig, "piiEncryptionKeys" | "piiBlindIndexKey">,
-): ((value: string) => string) => {
-  if (!config.piiEncryptionKeys) {
-    return (value) => {
-      if (isEncrypted(value)) {
-        throw new AbortRun(
-          "user emails are encrypted but PII_ENCRYPTION_KEYS is not set",
-        );
-      }
-      return value;
-    };
-  }
-
-  // Decrypting does not use the blind index key, a placeholder is enough.
-  const blindIndexKey =
-    config.piiBlindIndexKey ?? Buffer.alloc(32).toString("base64");
-  const pii = createPiiCrypto(
-    parsePiiKeys(config.piiEncryptionKeys, blindIndexKey),
-  );
-
-  return (value) => pii.decrypt(value, "user.email");
-};
-
 export const runRetention = async ({
   config,
   pool,
@@ -87,7 +56,7 @@ export const runRetention = async ({
   log: (message: string) => void;
 }): Promise<RetentionSummary> => {
   log(
-    `retention run started, dry-run=${config.dryRun}, protected rooms=${config.protectedRooms.size}, protected emails=${config.protectedEmails.size}`,
+    `retention run started, dry-run=${config.dryRun}, protected rooms=${config.protectedRooms.size}, protected user ids=${config.protectedUserIds.size}`,
   );
 
   await assertKnownRoomTables(pool);
@@ -102,12 +71,10 @@ export const runRetention = async ({
   const protectedByRoom =
     (await selectCandidateRooms(pool, [], now)).length - candidates.length;
 
-  const userEmails = await loadUserEmails(pool, buildEmailDecryptor(config));
   const owner = await findOwnerProtectedRooms(
     pool,
     candidates,
-    config.protectedEmails,
-    userEmails,
+    config.protectedUserIds,
   );
 
   const roomsToDelete = candidates.filter((id) => !owner.rooms.has(id));
@@ -116,7 +83,7 @@ export const runRetention = async ({
     `rooms: total=${totalRooms}, older than the limit and unprotected by room=${candidates.length}, protected by room=${protectedByRoom}, protected by owner=${owner.rooms.size}, to delete=${roomsToDelete.length}`,
   );
   log(
-    `owners: users loaded=${owner.stats.usersLoaded}, protected emails without a user=${owner.stats.protectedEmailsWithoutUser}, owners without a user=${owner.stats.ownersWithoutUser}`,
+    `owners: protected user ids=${owner.stats.protectedUserIds}, without a user=${owner.stats.protectedUserIdsWithoutUser}`,
   );
 
   assertRoomSafeguards({

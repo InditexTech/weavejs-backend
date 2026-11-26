@@ -22,13 +22,19 @@ Anything other than `RETENTION_DRY_RUN=false` is a dry run.
 A room, with its pages, memberships, tasks and blobs, is never deleted if:
 
 - its `roomId` is listed in `RETENTION_PROTECTED_ROOMS`, or
-- at least one of its **owners** has an email listed in
-  `RETENTION_PROTECTED_EMAILS`. Members with the `user` role do not protect a
+- at least one of its **owners** has a user id listed in
+  `RETENTION_PROTECTED_USER_IDS`. Members with the `user` role do not protect a
   room.
 
-Both lists are comma, semicolon or newline separated. Emails are matched
-case-insensitively and may be stored encrypted in the database, in which case
-`PII_ENCRYPTION_KEYS` (all keys, current and old) is needed to read them.
+Both lists are comma, semicolon or newline separated, and are GitHub environment
+variables. User ids are opaque, so they are safe to show in logs, unlike emails;
+they are case sensitive. A listed id that matches no user is reported in the
+summary, since it is most likely a typo. The match is on the owner membership,
+so it keeps working if the account no longer exists.
+
+Each person can read their own id from the home page of the frontend (once
+InditexTech/weavejs-frontend#235 is done), or from
+`/weavebff/api/auth/get-session` while logged in. Ids differ per environment.
 
 Blob names that are not rooms any more (legacy rooms) are kept when their name
 is in `RETENTION_PROTECTED_ROOMS`.
@@ -51,21 +57,20 @@ redacted.
 
 ## Configuration
 
-| Variable                                                          | Default            | Meaning                                    |
-| ----------------------------------------------------------------- | ------------------ | ------------------------------------------ |
-| `RETENTION_DRY_RUN`                                               | `true`             | `false` enables deletion                   |
-| `RETENTION_PROTECTED_ROOMS`                                       | empty              | Protected room ids                         |
-| `RETENTION_PROTECTED_EMAILS`                                      | empty              | Protected owner emails                     |
-| `RETENTION_MAX_ROOMS_TO_DELETE`                                   | `50`               | Abort above this many rooms                |
-| `RETENTION_MAX_BLOBS_TO_DELETE`                                   | `5000`             | Abort above this many blobs                |
-| `RETENTION_MAX_BLOBS_PERCENT`                                     | `50`               | Abort above this share of listed blobs     |
-| `RETENTION_BLOB_GRACE_HOURS`                                      | `24`               | Keep blobs modified more recently          |
-| `DATABASE_HOST/PORT/NAME/USERNAME/PASSWORD/SSL`                   |                    | Connection (password auth)                 |
-| `DATABASE_SSL_REJECT_UNAUTHORIZED`                                | `true`             | `false` skips certificate verification     |
-| `AZURE_STORAGE_ACCOUNT_NAME` or `AZURE_STORAGE_CONNECTION_STRING` |                    | Blob access                                |
-| `AZURE_STORAGE_ROOMS/IMAGES/VIDEOS_CONTAINER_NAME`                |                    | Configured containers                      |
-| `AZURE_STORAGE_GENERATED_IMAGES_CONTAINER_NAME`                   | `generated-images` | Optional override                          |
-| `PII_ENCRYPTION_KEYS`                                             |                    | Needed only when user emails are encrypted |
+| Variable                                                          | Default            | Meaning                                |
+| ----------------------------------------------------------------- | ------------------ | -------------------------------------- |
+| `RETENTION_DRY_RUN`                                               | `true`             | `false` enables deletion               |
+| `RETENTION_PROTECTED_ROOMS`                                       | empty              | Protected room ids                     |
+| `RETENTION_PROTECTED_USER_IDS`                                    | empty              | Protected owner user ids               |
+| `RETENTION_MAX_ROOMS_TO_DELETE`                                   | `50`               | Abort above this many rooms            |
+| `RETENTION_MAX_BLOBS_TO_DELETE`                                   | `5000`             | Abort above this many blobs            |
+| `RETENTION_MAX_BLOBS_PERCENT`                                     | `50`               | Abort above this share of listed blobs |
+| `RETENTION_BLOB_GRACE_HOURS`                                      | `24`               | Keep blobs modified more recently      |
+| `DATABASE_HOST/PORT/NAME/USERNAME/PASSWORD/SSL`                   |                    | Connection (password auth)             |
+| `DATABASE_SSL_REJECT_UNAUTHORIZED`                                | `true`             | `false` skips certificate verification |
+| `AZURE_STORAGE_ACCOUNT_NAME` or `AZURE_STORAGE_CONNECTION_STRING` |                    | Blob access                            |
+| `AZURE_STORAGE_ROOMS/IMAGES/VIDEOS_CONTAINER_NAME`                |                    | Configured containers                  |
+| `AZURE_STORAGE_GENERATED_IMAGES_CONTAINER_NAME`                   | `generated-images` | Optional override                      |
 
 ## Tests
 

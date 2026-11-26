@@ -22,13 +22,11 @@ export type ContainerNames = {
 export type RetentionConfig = {
   dryRun: boolean;
   protectedRooms: Set<string>;
-  protectedEmails: Set<string>;
+  protectedUserIds: Set<string>;
   maxRoomsToDelete: number;
   maxBlobsToDelete: number;
   maxBlobsPercent: number;
   blobGraceHours: number;
-  piiEncryptionKeys: string | undefined;
-  piiBlindIndexKey: string | undefined;
   storage: {
     accountName: string | undefined;
     connectionString: string | undefined;
@@ -90,11 +88,7 @@ export const parseRetentionConfig = (env: Env): RetentionConfig => {
     // Anything other than an explicit "false" keeps the run non destructive.
     dryRun: env.RETENTION_DRY_RUN?.trim().toLowerCase() !== "false",
     protectedRooms: new Set(parseList(env.RETENTION_PROTECTED_ROOMS)),
-    protectedEmails: new Set(
-      parseList(env.RETENTION_PROTECTED_EMAILS).map((email) =>
-        email.toLowerCase(),
-      ),
-    ),
+    protectedUserIds: new Set(parseList(env.RETENTION_PROTECTED_USER_IDS)),
     maxRoomsToDelete: parseNumber(env, "RETENTION_MAX_ROOMS_TO_DELETE", 50, {
       min: 0,
     }),
@@ -108,8 +102,6 @@ export const parseRetentionConfig = (env: Env): RetentionConfig => {
     blobGraceHours: parseNumber(env, "RETENTION_BLOB_GRACE_HOURS", 24, {
       min: 0,
     }),
-    piiEncryptionKeys: env.PII_ENCRYPTION_KEYS?.trim() || undefined,
-    piiBlindIndexKey: env.PII_BLIND_INDEX_KEY?.trim() || undefined,
     storage: {
       accountName,
       connectionString,

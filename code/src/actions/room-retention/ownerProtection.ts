@@ -5,76 +5,59 @@
 import type { Queryable } from "./database.js";
 
 export type OwnerProtectionStats = {
-  usersLoaded: number;
-  protectedEmails: number;
-  protectedEmailsWithoutUser: number;
-  ownersWithoutUser: number;
+  protectedUserIds: number;
+  protectedUserIdsWithoutUser: number;
   roomsProtectedByOwner: number;
 };
 
-// Maps userId -> lowercase plaintext email. Emails can be stored encrypted
-// (enc:...) or in plaintext, `decrypt` returns plaintext values untouched.
-export const loadUserEmails = async (
-  db: Queryable,
-  decrypt: (value: string) => string,
-): Promise<Map<string, string>> => {
-  const { rows } = await db.query<{ id: string; email: string | null }>(
-    `SELECT id, email FROM auth."user"`,
-  );
-
-  const emails = new Map<string, string>();
-  for (const row of rows) {
-    if (typeof row.email === "string") {
-      emails.set(row.id, decrypt(row.email).trim().toLowerCase());
-    }
-  }
-  return emails;
-};
-
+// Rooms in `candidateRoomIds` that have at least one owner whose user id is in
+// `protectedUserIds`. Only the owner role protects a room, and the match is on
+// the id stored in the membership, so it holds even if the account is gone.
 export const findOwnerProtectedRooms = async (
   db: Queryable,
   candidateRoomIds: string[],
-  protectedEmails: ReadonlySet<string>,
-  userEmails: ReadonlyMap<string, string>,
+  protectedUserIds: ReadonlySet<string>,
 ): Promise<{ rooms: Set<string>; stats: OwnerProtectionStats }> => {
-  const knownEmails = new Set(userEmails.values());
+  const ids = [...protectedUserIds];
+
+  if (ids.length === 0) {
+    return {
+      rooms: new Set(),
+      stats: {
+        protectedUserIds: 0,
+        protectedUserIdsWithoutUser: 0,
+        roomsProtectedByOwner: 0,
+      },
+    };
+  }
+
   const rooms = new Set<string>();
-  let ownersWithoutUser = 0;
 
-  if (candidateRoomIds.length > 0 && protectedEmails.size > 0) {
-    const { rows } = await db.query<{ roomId: string; userId: string }>(
-      `SELECT "roomId", "userId"
+  if (candidateRoomIds.length > 0) {
+    const { rows } = await db.query<{ roomId: string }>(
+      `SELECT DISTINCT "roomId"
          FROM weavejs_room_user
-        WHERE role = 'owner' AND "roomId" = ANY($1::text[])`,
-      [candidateRoomIds],
+        WHERE role = 'owner'
+          AND "roomId" = ANY($1::text[])
+          AND "userId" = ANY($2::text[])`,
+      [candidateRoomIds, ids],
     );
-
-    for (const owner of rows) {
-      const email = userEmails.get(owner.userId);
-      if (email === undefined) {
-        ownersWithoutUser++;
-        continue;
-      }
-      if (protectedEmails.has(email)) {
-        rooms.add(owner.roomId);
-      }
+    for (const row of rows) {
+      rooms.add(row.roomId);
     }
   }
 
-  let protectedEmailsWithoutUser = 0;
-  for (const email of protectedEmails) {
-    if (!knownEmails.has(email)) {
-      protectedEmailsWithoutUser++;
-    }
-  }
+  // A listed id that matches no user is most likely a typo.
+  const known = await db.query<{ id: string }>(
+    `SELECT id FROM auth."user" WHERE id = ANY($1::text[])`,
+    [ids],
+  );
 
   return {
     rooms,
     stats: {
-      usersLoaded: userEmails.size,
-      protectedEmails: protectedEmails.size,
-      protectedEmailsWithoutUser,
-      ownersWithoutUser,
+      protectedUserIds: ids.length,
+      protectedUserIdsWithoutUser: ids.length - known.rows.length,
       roomsProtectedByOwner: rooms.size,
     },
   };
