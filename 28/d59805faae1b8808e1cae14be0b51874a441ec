@@ -1,0 +1,19 @@
+code/src/actions/room-retention/action.ts
+  s_901bb9a92293e5::t_3164bf5ec194af 21-39,61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "28d59805faae1b8808e1cae14be0b51874a441ec",
+  "prompts": {},
+  "sessions": {
+    "s_901bb9a92293e5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ded3fe09effeLCj6gPAq5t3kce",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
