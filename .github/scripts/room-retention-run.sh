@@ -28,16 +28,17 @@ url="${APP_HOST%/}${base_path}/${HUB_NAME}/retention/runs"
 work_dir="$(mktemp -d)"
 trap 'rm -rf "$work_dir"' EXIT
 
-# The token goes through a config file so it never shows in a process list.
-curl_config() {
-  printf 'header = "x-retention-token: %s"\n' "$RETENTION_TRIGGER_TOKEN"
-}
+# The token goes through a config file, not the command line, so it never shows
+# in a process list. It has to be a real file: some curl builds cannot read a
+# config from a pipe, such as process substitution.
+curl_config_file="$work_dir/curl.conf"
+(umask 077 && printf 'header = "x-retention-token: %s"\n' "$RETENTION_TRIGGER_TOKEN" >"$curl_config_file")
 
 request() {
   # request METHOD URL [DATA]; prints the HTTP status, body goes to $work_dir/body
   local method="$1" target="$2" data="${3:-}"
   local args=(--silent --show-error --max-time 60 --output "$work_dir/body"
-    --write-out '%{http_code}' --request "$method" --config <(curl_config))
+    --write-out '%{http_code}' --request "$method" --config "$curl_config_file")
   if [ -n "$data" ]; then
     args+=(--header 'content-type: application/json' --data "$data")
   fi
