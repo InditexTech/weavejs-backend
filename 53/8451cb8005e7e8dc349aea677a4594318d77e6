@@ -1,0 +1,41 @@
+.github/workflows/code-room-retention.yml
+  s_901bb9a92293e5::t_28244d161e3936 84
+code/src/actions/room-retention/README.md
+  s_901bb9a92293e5::t_9f620d008c80ff 25-26,29-37,60-73
+code/src/actions/room-retention/config.test.ts
+  s_901bb9a92293e5::t_c0010c4e5d7509 24,40,44,47-67
+code/src/actions/room-retention/config.ts
+  s_901bb9a92293e5::t_a30c2396783022 25,91
+code/src/actions/room-retention/ownerProtection.test.ts
+  s_901bb9a92293e5::t_1e53aa922d4463 8,11-24,26-27,31,33,35,38-42,45-46,50,53-54,57-59,61-62,65-67,69-70,72-74
+code/src/actions/room-retention/ownerProtection.ts
+  s_901bb9a92293e5::t_e67f255928e1e5 8-9,13-15,19,21-33,36-38,40-43,45-46,50-54,59-60
+code/src/actions/room-retention/retention.integration.test.ts
+  s_901bb9a92293e5::t_7ce5234a8a9ebc 15,353,356,418,457
+code/src/actions/room-retention/run.ts
+  s_901bb9a92293e5::t_dea0baed5e387a 59,77,86
+openspec/changes/room-retention/design.md
+  s_901bb9a92293e5::t_09ca41481c0311 9,11,19,30-33,41,53
+openspec/changes/room-retention/proposal.md
+  s_901bb9a92293e5::t_78c514fae04f1c 10,27,29
+openspec/changes/room-retention/specs/room-retention/spec.md
+  s_901bb9a92293e5::t_e3e913e0051d8c 40,43,54-56,59-60,151,154,161-162
+openspec/changes/room-retention/tasks.md
+  s_901bb9a92293e5::t_2b4c487891d673 5-6,12,38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "538451cb8005e7e8dc349aea677a4594318d77e6",
+  "prompts": {},
+  "sessions": {
+    "s_901bb9a92293e5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ded3fe09effeLCj6gPAq5t3kce",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
