@@ -185,11 +185,11 @@ const main = async () => {
   const failures: string[] = [];
   const metrics: Record<string, unknown> = {};
 
-  for (const f of fixtures) {
+  const checkFixture = async (f: StrokeSpec) => {
     const node = stage.findOne(`#${f.id}`);
     if (!node) {
       failures.push(`${f.id}: node not found`);
-      continue;
+      return;
     }
     try {
       const png = await exportPng(instance, [f.id]);
@@ -200,6 +200,11 @@ const main = async () => {
     } catch (e) {
       failures.push(`${f.id}: export failed: ${(e as Error).message}`);
     }
+  };
+
+  for (const f of fixtures) {
+    // exports share one stage and must run one at a time
+    await checkFixture(f); // NOSONAR
   }
 
   await destroy();
@@ -220,7 +225,9 @@ const main = async () => {
   process.exit(0);
 };
 
-main().catch((e) => {
+try {
+  await main();
+} catch (e) {
   console.error(e);
   process.exit(1);
-});
+}

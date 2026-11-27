@@ -76,29 +76,36 @@ export const makeStroke = (
  * first piece keeps the id, the others get a suffixed id, every piece keeps
  * look, colour and width and drops a gap of points where the eraser passed.
  */
+/** The look of piece `k` of `parts`: a cut end loses its taper. */
+const pieceLook = (
+  look: Record<string, unknown> | undefined,
+  k: number,
+  parts: number,
+) => {
+  if (!look) return undefined;
+  return {
+    ...look,
+    width: {
+      ...((look.width as Record<string, unknown>) ?? {}),
+      ...(k > 0 && { taperStart: 0 }),
+      ...(k < parts - 1 && { taperEnd: 0 }),
+    },
+  };
+};
+
 export const splitStroke = (spec: StrokeSpec, parts = 3): StrokeSpec[] => {
   const pts = spec.props.strokeElements;
   const size = Math.floor(pts.length / parts);
   const pieces: StrokeSpec[] = [];
   for (let k = 0; k < parts; k++) {
-    const from = k * size;
     const to = k === parts - 1 ? pts.length : (k + 1) * size - 1;
-    const slice = pts.slice(from, to);
+    const slice = pts.slice(k * size, to);
     if (slice.length < 2) continue;
-    const look = spec.props.look
-      ? {
-          ...spec.props.look,
-          width: {
-            ...((spec.props.look.width as Record<string, unknown>) ?? {}),
-            ...(k > 0 ? { taperStart: 0 } : {}),
-            ...(k < parts - 1 ? { taperEnd: 0 } : {}),
-          },
-        }
-      : undefined;
+    const look = pieceLook(spec.props.look, k, parts);
     pieces.push(
       makeStroke(k === 0 ? spec.id : `${spec.id}-p${k}`, {
         ...spec.props,
-        ...(look ? { look } : {}),
+        ...(look && { look }),
         points: slice,
       }),
     );
@@ -335,7 +342,7 @@ export const columnProfile = async (
   const { data, info } = await sharp(png)
     .raw()
     .toBuffer({ resolveWithObject: true });
-  const profile = Array(Math.ceil(info.width / bucket)).fill(0);
+  const profile = new Array<number>(Math.ceil(info.width / bucket)).fill(0);
   for (let y = 0; y < info.height; y++) {
     for (let x = 0; x < info.width; x++) {
       const i = (y * info.width + x) * info.channels;
