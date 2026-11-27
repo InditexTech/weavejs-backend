@@ -1,0 +1,23 @@
+code/src/canvas/weave.ts
+  s_932b9ea24c6a06::t_aab3614d1e41be 43
+code/src/utils/stroke-fixtures.ts
+  s_932b9ea24c6a06::t_de5326faf9d28b 79-95,102,104,108,345
+code/src/utils/stroke-render-check.ts
+  s_932b9ea24c6a06::t_f0cea2d8b50544 188,192,203-207,228-230,233
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "1b7ad6498aace6294835f536ccc00e6312f5bc67",
+  "prompts": {},
+  "sessions": {
+    "s_932b9ea24c6a06": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_de7b0af83ffeVP9hBNmz4VDoJ3",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
