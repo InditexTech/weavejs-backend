@@ -14,16 +14,12 @@ both canvas backends. Tracks InditexTech/weavejs-backend#193.
 > `fd0974c03`, **dirty**: the stroke eraser was not committed yet). Re-measure
 > with the released weavejs 5.11.0 and replace these numbers.
 
-## How to reproduce
+## How it was measured
 
-```bash
-cd code
-WEAVEJS_REPO=/path/to/weavejs npm run bench:strokes
-```
-
-`WEAVEJS_REPO` is optional; when set, the SDK commit and dirty flag are written
-to `temp/stroke-bench/<backend>/result.json`. Tunables: `STROKES` (5000),
-`ERASED_RATIO` (0.3), `PARTS` (3), `POINTS` (12).
+A one-off script (not kept in the repo) built the rooms and timed the exports
+through `renderWeaveRoom`, `exportNodesServerSide`, `exportAreaServerSide`,
+`sharp` and `pdf-lib`, as the export jobs do. Re-measure the same way when
+weavejs 5.11.0 ships.
 
 The room holds `STROKES` short strokes on a 70-column grid. "Erased" splits every
 ~3rd stroke into 3 pieces (what the stroke eraser produces: ordinary stroke

@@ -8,8 +8,8 @@
 
 ## 2. Cost benchmark
 
-- [x] 2.1 Add `bench:strokes` generating ~5,000 stroke nodes, intact and split; verify it prints room state size and PNG/PDF/presentation export times for both rooms
-- [x] 2.2 Run it, record measured values and thresholds in a doc (e.g. `code/docs/stroke-export-cost.md`); verify the doc lists numbers for before and after erasing and the command to reproduce
+- [x] 2.1 Measure room state size and PNG/PDF/presentation export time for ~5,000 stroke nodes, intact and split, on both backends; verify the results are recorded in the cost doc
+- [x] 2.2 Record measured values and thresholds in `code/docs/stroke-export-cost.md`; verify the doc lists numbers for before and after erasing and how they were measured
 
 ## 3. Local SDK build and pen checks
 
@@ -17,4 +17,4 @@
 - [x] 3.2 Add fixtures per pen: flat ends, multiply, tapers, variance; verify `check:strokes` passes on both backends
 - [x] 3.3 Add multiply parity check between skia and node-canvas with a documented tolerance; verify it passes and fails when one backend ignores multiply
 - [x] 3.4 Add deterministic variance check (same stroke id, both backends); verify identical width profile within tolerance
-- [x] 3.5 Re-run the benchmark on the local build and record provisional thresholds tagged with the SDK commit and dirty flag; verify the doc marks them provisional until re-measured on 5.11.0
+- [x] 3.5 Measure on the local build and record provisional thresholds tagged with the SDK commit and dirty flag; verify the doc marks them provisional until re-measured on 5.11.0

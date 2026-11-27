@@ -20,7 +20,7 @@
 - **Phase split.** Phase A uses legacy stroke props and synthetic split pieces; Phase B fixtures are guarded so the script still runs on 5.9.0. Alternative: wait for the SDK; rejected, loses a baseline.
 - **Split simulation.** Cut each fixture stroke's points into 2-3 pieces keeping id suffixes, look and width, as #1313 specifies. Alternative: invoke the real eraser; unavailable server-side.
 - **Variance check.** Compare skia vs node-canvas renders of the same seeded stroke (numeric/ink-profile tolerance), not client goldens. Client goldens are a follow-up if a reference is supplied.
-- **Benchmark separate from check.** `bench:strokes` is its own script, out of CI by default, printing JSON; `check:strokes` stays fast. Thresholds recorded in a doc under `code/` or README.
+- **Benchmark is a one-off.** The cost numbers were measured with a throwaway script and recorded in `code/docs/stroke-export-cost.md`; no benchmark script is kept in the repo. Re-measure on the 5.11.0 release.
 - **Multiply parity** compares overlap pixels with a tolerance, since backends differ slightly in antialiasing.
 
 ## Risks / Trade-offs

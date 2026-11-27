@@ -44,10 +44,10 @@ Once the SDK provides pen looks, strokes using multiply compositing, flat ends, 
 ### Requirement: Stroke export cost is measured and thresholded
 The project SHALL measure room state size and PNG, PDF and presentation export time for about 5,000 stroke nodes, before and after simulated erasing, and SHALL record the results and thresholds in documentation.
 
-#### Scenario: Benchmark run
-- **WHEN** the benchmark script runs
-- **THEN** it reports state size and export times for both the intact and split rooms
+#### Scenario: Measurement recorded
+- **WHEN** the cost has been measured
+- **THEN** the documentation reports state size and export times for both the intact and split rooms
 
 #### Scenario: Thresholds recorded
-- **WHEN** the benchmark has been run
+- **WHEN** the measurement has been made
 - **THEN** the documentation lists measured values and the thresholds derived from them
