@@ -1,0 +1,27 @@
+code/docs/stroke-export-cost.md
+  s_932b9ea24c6a06::t_1f7d70dc3cc2c5 17,19-22
+openspec/changes/verify-stroke-rendering/design.md
+  s_932b9ea24c6a06::t_259634c5c96cce 23
+openspec/changes/verify-stroke-rendering/proposal.md
+  s_932b9ea24c6a06::t_8874d0f02951ba 9,23
+openspec/changes/verify-stroke-rendering/specs/stroke-export-rendering/spec.md
+  s_932b9ea24c6a06::t_376a64017f705d 47-49,52
+openspec/changes/verify-stroke-rendering/tasks.md
+  s_932b9ea24c6a06::t_13e7cc2c67b787 11-12,20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "be92ff30d565574207b2c1c2ee7a103c0ed1db11",
+  "prompts": {},
+  "sessions": {
+    "s_932b9ea24c6a06": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_de7b0af83ffeVP9hBNmz4VDoJ3",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
