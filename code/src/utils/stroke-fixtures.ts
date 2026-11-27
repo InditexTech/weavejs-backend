@@ -86,7 +86,7 @@ const pieceLook = (
   return {
     ...look,
     width: {
-      ...((look.width as Record<string, unknown>) ?? {}),
+      ...(look.width as Record<string, unknown> | undefined),
       ...(k > 0 && { taperStart: 0 }),
       ...(k < parts - 1 && { taperEnd: 0 }),
     },
