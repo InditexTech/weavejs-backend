@@ -40,7 +40,7 @@ import { PantoneNode } from "./nodes/pantone/pantone.ts";
 
 export type RenderWeaveRoom = {
   instance: Weave;
-  destroy: () => void;
+  destroy: () => Promise<void>;
 };
 
 export const renderWeaveRoom = (
