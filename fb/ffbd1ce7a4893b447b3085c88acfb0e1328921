@@ -1,0 +1,19 @@
+code/src/utils/stroke-fixtures.ts
+  s_932b9ea24c6a06::t_585ba3f9ada665 89
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "fbffbd1ce7a4893b447b3085c88acfb0e1328921",
+  "prompts": {},
+  "sessions": {
+    "s_932b9ea24c6a06": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_de7b0af83ffeVP9hBNmz4VDoJ3",
+        "model": "claude-sonnet-5.5"
+      },
+      "human_author": "Jesus Manuel Piñeiro Cid <jesusmpc@inditex.com>"
+    }
+  }
+}
